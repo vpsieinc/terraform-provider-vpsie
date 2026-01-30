@@ -189,6 +189,7 @@ func (a *accessTokenResource) Delete(ctx context.Context, req resource.DeleteReq
 			"Error deleting access token",
 			"couldn't delete access token, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }
 

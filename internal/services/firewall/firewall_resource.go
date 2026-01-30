@@ -606,6 +606,7 @@ func (f *firewallResource) Delete(ctx context.Context, req resource.DeleteReques
 			"Error deleting firewall",
 			"couldn't delete firewall, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }
 

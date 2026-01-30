@@ -401,6 +401,7 @@ func (g *gatewayResource) Delete(ctx context.Context, req resource.DeleteRequest
 			"Error deleting gateway",
 			"couldn't delete gateway, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }
 

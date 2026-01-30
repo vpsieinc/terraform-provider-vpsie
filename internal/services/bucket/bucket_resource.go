@@ -254,6 +254,7 @@ func (b *bucketResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			"Error deleting bucket",
 			"couldn't delete bucket, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }
 

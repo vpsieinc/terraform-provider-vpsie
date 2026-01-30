@@ -183,5 +183,6 @@ func (r *reverseDnsResource) Delete(ctx context.Context, req resource.DeleteRequ
 			"Error deleting reverse DNS",
 			"couldn't delete reverse DNS, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }

@@ -180,5 +180,6 @@ func (v *vpcServerAssignmentResource) Delete(ctx context.Context, req resource.D
 			"Error releasing VPC server assignment",
 			"couldn't release private IP, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }

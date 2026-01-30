@@ -255,7 +255,7 @@ func (k *kubernetesResource) Configure(_ context.Context, req resource.Configure
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configuration Type",
-			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -312,7 +312,7 @@ func (k *kubernetesResource) Create(ctx context.Context, req resource.CreateRequ
 		k8s, ready, err := k.checkResourceStatus(ctx, plan.ClusterName.ValueString())
 		if err != nil {
 			//  return fmt.Errorf("Timeout waiting for resource to become ready")
-			resp.Diagnostics.AddError("Error cheking status of resource", err.Error())
+			resp.Diagnostics.AddError("Error checking status of resource", err.Error())
 			return
 		}
 
@@ -379,7 +379,7 @@ func (k *kubernetesResource) Read(ctx context.Context, req resource.ReadRequest,
 
 		resp.Diagnostics.AddError(
 			"Error reading vpsie kubernetes",
-			"Could't read vpsie kubernetes identifier "+state.Identifier.ValueString()+": "+err.Error(),
+			"Couldn't read vpsie kubernetes identifier "+state.Identifier.ValueString()+": "+err.Error(),
 		)
 		return
 	}

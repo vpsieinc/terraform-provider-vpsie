@@ -290,6 +290,7 @@ func (b *backupPolicyResource) Delete(ctx context.Context, req resource.DeleteRe
 			"Error deleting backup policy",
 			"couldn't delete backup policy, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }
 

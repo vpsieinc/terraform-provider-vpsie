@@ -169,7 +169,7 @@ func (s *storageSnapshotDataSource) Configure(_ context.Context, req datasource.
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Data Source Configuration Type",
-			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return

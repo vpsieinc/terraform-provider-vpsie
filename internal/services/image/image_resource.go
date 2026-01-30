@@ -156,7 +156,7 @@ func (i *imageResource) Configure(_ context.Context, req resource.ConfigureReque
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configuration Type",
-			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -202,7 +202,7 @@ func (i *imageResource) Create(ctx context.Context, req resource.CreateRequest, 
 		image, ready, err := i.checkResourceStatus(ctx, plan.ImageLabel.ValueString())
 		if err != nil {
 			//  return fmt.Errorf("Timeout waiting for resource to become ready")
-			resp.Diagnostics.AddError("Error cheking status of resource", err.Error())
+			resp.Diagnostics.AddError("Error checking status of resource", err.Error())
 			return
 		}
 
@@ -255,7 +255,7 @@ func (i *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 		resp.Diagnostics.AddError(
 			"Error reading vpsie image",
-			"Could't read vpsie image identifier "+state.Identifier.ValueString()+": "+err.Error(),
+			"Couldn't read vpsie image identifier "+state.Identifier.ValueString()+": "+err.Error(),
 		)
 		return
 	}

@@ -210,7 +210,7 @@ func (s *serverSnapshotResource) Configure(_ context.Context, req resource.Confi
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configuration Type",
-			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return

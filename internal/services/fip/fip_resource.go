@@ -194,5 +194,6 @@ func (f *fipResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 			"Error deleting floating IP",
 			"couldn't delete floating IP, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }

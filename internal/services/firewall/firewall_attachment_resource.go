@@ -146,5 +146,6 @@ func (f *firewallAttachmentResource) Delete(ctx context.Context, req resource.De
 			"Error detaching firewall from VM",
 			"couldn't detach firewall from VM, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }

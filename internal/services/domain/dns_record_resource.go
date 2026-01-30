@@ -223,5 +223,6 @@ func (d *dnsRecordResource) Delete(ctx context.Context, req resource.DeleteReque
 			"Error deleting DNS record",
 			"couldn't delete DNS record, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }

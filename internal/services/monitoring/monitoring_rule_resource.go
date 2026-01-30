@@ -299,6 +299,7 @@ func (m *monitoringRuleResource) Delete(ctx context.Context, req resource.Delete
 			"Error deleting monitoring rule",
 			"couldn't delete monitoring rule, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }
 

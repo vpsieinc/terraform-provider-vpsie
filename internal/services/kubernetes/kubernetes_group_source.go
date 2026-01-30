@@ -199,7 +199,7 @@ func (k *kubernetesGroupResource) Configure(_ context.Context, req resource.Conf
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configuration Type",
-			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -281,7 +281,7 @@ func (k *kubernetesGroupResource) Read(ctx context.Context, req resource.ReadReq
 
 		resp.Diagnostics.AddError(
 			"Error reading vpsie kubernetes group",
-			"Could't read vpsie kubernetes group identifier "+state.Identifier.ValueString()+": "+err.Error(),
+			"Couldn't read vpsie kubernetes group identifier "+state.Identifier.ValueString()+": "+err.Error(),
 		)
 		return
 	}

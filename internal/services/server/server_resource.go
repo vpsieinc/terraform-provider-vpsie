@@ -621,7 +621,7 @@ func (s *serverResource) Configure(_ context.Context, req resource.ConfigureRequ
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configuration Type",
-			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -692,7 +692,7 @@ func (s *serverResource) Create(ctx context.Context, req resource.CreateRequest,
 		server, ready, err := s.checkResourceStatus(ctx, plan.Hostname.ValueString())
 		if err != nil {
 			//  return fmt.Errorf("Timeout waiting for resource to become ready")
-			resp.Diagnostics.AddError("Error cheking status of resource", err.Error())
+			resp.Diagnostics.AddError("Error checking status of resource", err.Error())
 			return
 		}
 

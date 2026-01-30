@@ -292,6 +292,7 @@ func (s *snapshotPolicyResource) Delete(ctx context.Context, req resource.Delete
 			"Error deleting snapshot policy",
 			"couldn't delete snapshot policy, unexpected error: "+err.Error(),
 		)
+		return
 	}
 }
 

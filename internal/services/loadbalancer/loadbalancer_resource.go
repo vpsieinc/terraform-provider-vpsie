@@ -407,7 +407,7 @@ func (l *loadbalancerResource) Configure(_ context.Context, req resource.Configu
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Resource Configuration Type",
-			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
+			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report this issue to the provider developers.", req.ProviderData),
 		)
 
 		return
@@ -505,7 +505,7 @@ func (l *loadbalancerResource) Create(ctx context.Context, req resource.CreateRe
 		lb, ready, err := l.checkResourceStatus(ctx, plan.LBName.ValueString())
 		if err != nil {
 			//  return fmt.Errorf("Timeout waiting for resource to become ready")
-			resp.Diagnostics.AddError("Error cheking status of resource", err.Error())
+			resp.Diagnostics.AddError("Error checking status of resource", err.Error())
 			return
 		}
 
@@ -621,7 +621,7 @@ func (l *loadbalancerResource) Read(ctx context.Context, req resource.ReadReques
 
 		resp.Diagnostics.AddError(
 			"Error reading vpsie loadbalancer",
-			"Could't read vpsie loadbalancer identifier "+state.Identifier.ValueString()+": "+err.Error(),
+			"Couldn't read vpsie loadbalancer identifier "+state.Identifier.ValueString()+": "+err.Error(),
 		)
 		return
 	}

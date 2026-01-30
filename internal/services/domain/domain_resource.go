@@ -209,7 +209,7 @@ func (d *domainResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (d *domainResource) GetDomainByName(ctx context.Context, domainName string) (*govpsie.Domain, error) {
-	domains, err := d.client.Domain.ListDomains(ctx, nil)
+	domains, err := d.client.Domain.ListDomains(ctx, &govpsie.ListOptions{Page: 0, PerPage: 50})
 	if err != nil {
 		return nil, err
 	}

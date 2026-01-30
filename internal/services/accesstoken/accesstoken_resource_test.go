@@ -39,7 +39,7 @@ func testAccAccessTokenConfig(name, expiration string) string {
 	return fmt.Sprintf(`
 resource "vpsie_access_token" "test" {
   name            = %q
-  access_token    = "tf-acc-test-token-value"
+  access_token    = "tf-acc-test-token-value-that-is-long-enough-to-meet-the-64-char-minimum"
   expiration_date = %q
 }
 `, name, expiration)

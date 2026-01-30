@@ -192,7 +192,6 @@ func (s *storageDataSource) Read(ctx context.Context, req datasource.ReadRequest
 }
 
 func (s *storageDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

@@ -105,7 +105,6 @@ func (d *domainDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 }
 func (d *domainDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

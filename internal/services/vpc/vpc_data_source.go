@@ -201,7 +201,6 @@ func (v *vpcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 }
 
 func (v *vpcDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

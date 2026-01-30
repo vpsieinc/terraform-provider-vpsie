@@ -150,7 +150,6 @@ func (i *imageDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 	}
 }
 func (i *imageDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

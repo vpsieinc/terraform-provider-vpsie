@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -246,6 +247,10 @@ func (g *gatewayResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	gateway, err := g.client.Gateway.Get(ctx, state.ID.ValueInt64())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie gateways",
 			"couldn't read vpsie gateways id "+state.ID.String()+": "+err.Error(),

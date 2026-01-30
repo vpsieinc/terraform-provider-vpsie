@@ -3,6 +3,7 @@ package backup
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -172,6 +173,10 @@ func (b *backupPolicyResource) Read(ctx context.Context, req resource.ReadReques
 
 	policy, err := b.client.Backup.GetBackupPolicy(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading backup policy",
 			"couldn't read backup policy: "+err.Error(),

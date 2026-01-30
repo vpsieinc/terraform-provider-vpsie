@@ -3,6 +3,7 @@ package snapshot
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -292,6 +293,10 @@ func (s *serverSnapshotResource) Read(ctx context.Context, req resource.ReadRequ
 
 	snapshot, err := s.client.Snapshot.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie server snapshots",
 			"couldn't read vpsie server snapshots identifier "+state.Identifier.ValueString()+": "+err.Error(),

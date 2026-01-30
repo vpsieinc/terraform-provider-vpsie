@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -223,6 +224,10 @@ func (s *storageSnapshotResource) Read(ctx context.Context, req resource.ReadReq
 
 	snapshot, err := s.GetStorageSnapshotByIdentifier(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading storage snapshot",
 			"couldn't read vpsie storage snapshot identifier "+state.Identifier.ValueString()+": "+err.Error(),

@@ -3,6 +3,7 @@ package image
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -247,7 +248,7 @@ func (i *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	image, err := i.client.Image.GetImage(ctx, state.Identifier.ValueString())
 	if err != nil {
-		if err.Error() == "image not found" {
+		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
 			return
 		}

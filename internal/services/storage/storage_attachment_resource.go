@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -106,7 +107,7 @@ func (s *storageAttachmentResource) Read(ctx context.Context, req resource.ReadR
 
 	storage, err := s.GetStorageSnapshotByIdentifier(ctx, state.StorageIdentifier.ValueString())
 	if err != nil {
-		if err.Error() == "snapshot not found" {
+		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
 			return
 		}

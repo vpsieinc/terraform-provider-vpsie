@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -608,7 +609,7 @@ func (l *loadbalancerResource) Read(ctx context.Context, req resource.ReadReques
 
 	lb, err := l.client.LB.GetLB(ctx, state.Identifier.ValueString())
 	if err != nil {
-		if err.Error() == "loadbalancer not found" {
+		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
 			return
 		}

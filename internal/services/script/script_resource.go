@@ -180,6 +180,10 @@ func (s *scriptResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	script, err := s.client.Scripts.GetScript(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie scripts",
 			"couldn't read vpsie scripts identifier "+state.Identifier.ValueString()+": "+err.Error(),

@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -281,16 +283,12 @@ func (s *serverResource) Schema(ctx context.Context, _ resource.SchemaRequest, r
 				},
 			},
 			"ram": schema.Int64Attribute{
+				Optional: true,
 				Computed: true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"cpu": schema.Int64Attribute{
+				Optional: true,
 				Computed: true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
 			},
 			"ssd": schema.Int64Attribute{
 				Computed: true,
@@ -790,9 +788,12 @@ func (s *serverResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	server, err := s.GetServerByIdentifier(ctx, state.Identifier.ValueString())
+	server, err := s.client.Server.GetServerByIdentifier(ctx, state.Identifier.ValueString())
 	if err != nil {
-
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie server",
 			"couldn't read vpsie server identifier "+state.Identifier.ValueString()+": "+err.Error(),
@@ -984,7 +985,20 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 		state.ScriptID = plan.ScriptID
 	}
-	// TODO add  ResizeServer -> cpu, ram, ssd, bandwidth
+	if !state.Cpu.Equal(plan.Cpu) || !state.Ram.Equal(plan.Ram) {
+		cpu := strconv.FormatInt(plan.Cpu.ValueInt64(), 10)
+		ram := strconv.FormatInt(plan.Ram.ValueInt64(), 10)
+		err := s.client.Server.ResizeServer(ctx, state.Identifier.ValueString(), cpu, ram)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error resizing server",
+				"couldn't resize server, unexpected error: "+err.Error(),
+			)
+			return
+		}
+		state.Cpu = plan.Cpu
+		state.Ram = plan.Ram
+	}
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -1046,19 +1060,4 @@ func (s *serverResource) checkResourceStatus(ctx context.Context, hostname strin
 	}
 
 	return nil, false, nil
-}
-
-func (s *serverResource) GetServerByIdentifier(ctx context.Context, identifier string) (*govpsie.VmData, error) {
-	servers, err := s.client.Server.List(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, server := range servers {
-		if server.Identifier == identifier {
-			return &server, nil
-		}
-	}
-
-	return nil, nil
 }

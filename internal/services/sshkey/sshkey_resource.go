@@ -3,6 +3,7 @@ package sshkey
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -163,6 +164,10 @@ func (s *sshkeyResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	sshkey, err := s.client.SShKey.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie sshkeys",
 			"couldn't read vpsie sshkeys identifier "+state.Identifier.ValueString()+": "+err.Error(),

@@ -3,6 +3,7 @@ package snapshot
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -172,6 +173,10 @@ func (s *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 
 	policy, err := s.client.Snapshot.GetSnapShotPolicy(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading snapshot policy",
 			"couldn't read snapshot policy: "+err.Error(),

@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
@@ -371,7 +372,7 @@ func (k *kubernetesResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	k8s, err := k.client.K8s.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
-		if err.Error() == "kubernetes not found" {
+		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
 			return
 		}

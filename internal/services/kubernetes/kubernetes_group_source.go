@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -274,7 +275,7 @@ func (k *kubernetesGroupResource) Read(ctx context.Context, req resource.ReadReq
 
 	k8sGroup, err := k.GetKubernetesGroupByIdentifier(ctx, state.Identifier.ValueString())
 	if err != nil {
-		if err.Error() == "kubernetes group not found" {
+		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
 			return
 		}

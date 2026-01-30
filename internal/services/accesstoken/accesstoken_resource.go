@@ -27,6 +27,7 @@ type accessTokenResourceModel struct {
 	AccessToken    types.String `tfsdk:"access_token"`
 	ExpirationDate types.String `tfsdk:"expiration_date"`
 	CreatedOn      types.String `tfsdk:"created_on"`
+	Status         types.String `tfsdk:"status"`
 }
 
 func NewAccessTokenResource() resource.Resource {
@@ -65,6 +66,10 @@ func (a *accessTokenResource) Schema(_ context.Context, _ resource.SchemaRequest
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
+			"status": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -94,7 +99,7 @@ func (a *accessTokenResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	err := a.client.AccessToken.Create(ctx, plan.Name.ValueString(), plan.AccessToken.ValueString(), plan.ExpirationDate.ValueString())
+	err := a.client.AccessToken.Create(ctx, plan.Name.ValueString(), plan.AccessToken.ValueString(), plan.ExpirationDate.ValueString(), plan.Status.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating access token", err.Error())
 		return
@@ -108,6 +113,7 @@ func (a *accessTokenResource) Create(ctx context.Context, req resource.CreateReq
 
 	plan.Identifier = types.StringValue(token.AccessTokenIdentifier)
 	plan.CreatedOn = types.StringValue(token.CreatedOn)
+	plan.Status = types.StringValue(token.Status)
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -133,6 +139,7 @@ func (a *accessTokenResource) Read(ctx context.Context, req resource.ReadRequest
 			state.Name = types.StringValue(token.Name)
 			state.ExpirationDate = types.StringValue(token.ExpirationDate)
 			state.CreatedOn = types.StringValue(token.CreatedOn)
+			state.Status = types.StringValue(token.Status)
 			found = true
 			break
 		}

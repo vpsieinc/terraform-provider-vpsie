@@ -150,7 +150,6 @@ func (k *loadbalancerDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 }
 func (l *loadbalancerDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

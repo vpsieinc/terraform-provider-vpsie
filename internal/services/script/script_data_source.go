@@ -123,7 +123,6 @@ func (s *scriptDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 }
 
 func (s *scriptDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

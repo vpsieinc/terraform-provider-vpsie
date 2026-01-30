@@ -67,7 +67,7 @@ func (p *VpsieProvider) Schema(ctx context.Context, req provider.SchemaRequest, 
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"access_token": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
+				MarkdownDescription: "VPSie API access token. Can also be set with the `VPSIE_ACCESS_TOKEN` environment variable.",
 				Optional:            true,
 			},
 		},

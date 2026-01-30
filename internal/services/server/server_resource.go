@@ -1061,4 +1061,3 @@ func (s *serverResource) checkResourceStatus(ctx context.Context, hostname strin
 
 	return nil, false, nil
 }
-

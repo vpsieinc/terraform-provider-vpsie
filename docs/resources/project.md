@@ -27,13 +27,13 @@ resource "vpsie_project" "example" {
 
 ### Optional
 
+- `description` (String)
 - `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
-- `created_by` (String)
+- `created_by` (Number)
 - `created_on` (String)
-- `description` (String)
 - `id` (Number) The ID of this resource.
 - `identifier` (String)
 - `is_default` (Number)

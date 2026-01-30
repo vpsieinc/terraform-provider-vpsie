@@ -3,6 +3,7 @@ package bucket
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -188,6 +189,10 @@ func (b *bucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	bucket, err := b.client.Bucket.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading bucket",
 			"couldn't read bucket "+state.Identifier.ValueString()+": "+err.Error(),

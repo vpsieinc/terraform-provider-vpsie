@@ -3,6 +3,8 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -35,6 +37,7 @@ type vpcResourceModel struct {
 	NetworkTagNumber types.Int64  `tfsdk:"network_tag_number"`
 	NetworkRange     types.String `tfsdk:"network_range"`
 	NetworkSize      types.Int64  `tfsdk:"network_size"`
+	AutoGenerate     types.Int64  `tfsdk:"auto_generate"`
 	IsDefault        types.Int64  `tfsdk:"is_default"`
 	CreatedBy        types.Int64  `tfsdk:"created_by"`
 	UpdatedBy        types.Int64  `tfsdk:"updated_by"`
@@ -86,10 +89,10 @@ func (v *vpcResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *
 					int64planmodifier.RequiresReplace(),
 				},
 			},
-			"network_size": schema.StringAttribute{
+			"network_size": schema.Int64Attribute{
 				Required: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
 				},
 			},
 			"network_range": schema.StringAttribute{
@@ -244,7 +247,16 @@ func (v *vpcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		return
 	}
 
-	err := v.client.VPC.CreateVpc(ctx, nil)
+	createReq := &govpsie.CreateVpcReq{
+		Name:         plan.Name.ValueString(),
+		DcIdentifier: plan.DcIdentifier.ValueString(),
+		NetworkRange: plan.NetworkRange.ValueString(),
+		NetworkSize:  strconv.FormatInt(plan.NetworkSize.ValueInt64(), 10),
+		AutoGenerate: int(plan.AutoGenerate.ValueInt64()),
+		Description:  plan.Description.ValueString(),
+	}
+
+	err := v.client.VPC.CreateVpc(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating VPC", err.Error())
 		return
@@ -298,6 +310,10 @@ func (v *vpcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 	vpc, err := v.client.VPC.Get(ctx, state.ID.String())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Error getting VPC", err.Error())
 		return
 	}
@@ -363,5 +379,16 @@ func (v *vpcResource) ImportState(ctx context.Context, req resource.ImportStateR
 }
 
 func (v *vpcResource) GetVpcByName(ctx context.Context, name string) (*govpsie.VPC, error) {
-	return nil, nil
+	vpcs, err := v.client.VPC.List(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, vpc := range vpcs {
+		if vpc.Name == name {
+			return &vpc, nil
+		}
+	}
+
+	return nil, fmt.Errorf("vpc with name %s not found", name)
 }

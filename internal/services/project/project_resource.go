@@ -3,6 +3,7 @@ package project
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -69,6 +70,9 @@ func (i *projectResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 			},
 			"name": schema.StringAttribute{
 				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"updated_at": schema.StringAttribute{
 				Computed: true,
@@ -77,7 +81,11 @@ func (i *projectResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				},
 			},
 			"description": schema.StringAttribute{
+				Optional: true,
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"created_on": schema.StringAttribute{
 				Computed: true,
@@ -85,10 +93,10 @@ func (i *projectResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"created_by": schema.StringAttribute{
+			"created_by": schema.Int64Attribute{
 				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
@@ -169,7 +177,7 @@ func (p *projectResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	project, err := p.client.Project.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
-		if err.Error() == "project not found" {
+		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -200,8 +208,14 @@ func (p *projectResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 // Update updates the resource and sets the updated Terraform state on success.
 func (i *projectResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var state projectResourceModel
-	diags := req.State.Get(ctx, &state)
+	var plan projectResourceModel
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return

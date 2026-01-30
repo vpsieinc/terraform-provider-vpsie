@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -154,6 +155,10 @@ func (d *domainResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	domain, err := d.GetDomainByName(ctx, state.DomainName.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie domains",
 			"couldn't read vpsie domains identifier "+state.Identifier.ValueString()+": "+err.Error(),

@@ -141,6 +141,13 @@ func (b *backupDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 		state.Backups = append(state.Backups, backupState)
 	}
+
+	state.ID = types.StringValue("backups")
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 func (b *backupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	// Prevent panic if the provider has not been configured.

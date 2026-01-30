@@ -114,6 +114,7 @@ func (s *scriptDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		state.Scripts = append(state.Scripts, scriptState)
 	}
 
+	state.ID = types.StringValue("scripts")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

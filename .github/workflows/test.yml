@@ -83,5 +83,6 @@ jobs:
       - run: go mod download
       - env:
           TF_ACC: "1"
+          VPSIE_ACCESS_TOKEN: ${{ secrets.VPSIE_ACCESS_TOKEN }}
         run: go test -v -cover ./...
         timeout-minutes: 10

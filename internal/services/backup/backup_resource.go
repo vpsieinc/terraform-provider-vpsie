@@ -3,6 +3,7 @@ package backup
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -200,6 +201,10 @@ func (s *backupResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	backup, err := s.client.Backup.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie backups",
 			"couldn't read vpsie backups identifier "+state.Identifier.ValueString()+": "+err.Error(),

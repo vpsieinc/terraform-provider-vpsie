@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -253,9 +254,12 @@ func (s *storageResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	// storage, err := s.client.Storage.Get(ctx, state.Identifier.ValueString())
 	storage, err := s.GetVolumeByIdentifier(ctx, state.Identifier.ValueString())
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError(
 			"Error reading vpsie storage",
 			"couldn't read vpsie storage identifier "+state.Identifier.ValueString()+": "+err.Error(),

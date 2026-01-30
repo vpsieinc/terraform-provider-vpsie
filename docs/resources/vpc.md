@@ -31,7 +31,7 @@ resource "vpsie_vpc" "example" {
 - `dc_identifier` (String)
 - `name` (String)
 - `network_range` (String)
-- `network_size` (String)
+- `network_size` (Number)
 
 ### Optional
 

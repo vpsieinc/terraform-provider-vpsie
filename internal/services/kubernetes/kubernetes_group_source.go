@@ -198,7 +198,7 @@ func (k *kubernetesGroupResource) Configure(_ context.Context, req resource.Conf
 	client, ok := req.ProviderData.(*govpsie.Client)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configuration Type",
+			"Unexpected Resource Configuration Type",
 			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
 		)
 

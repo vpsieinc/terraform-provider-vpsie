@@ -184,7 +184,7 @@ func (g *gatewayResource) Configure(_ context.Context, req resource.ConfigureReq
 	client, ok := req.ProviderData.(*govpsie.Client)
 	if !ok {
 		resp.Diagnostics.AddError(
-			"Unexpected Data Source Configuration Type",
+			"Unexpected Resource Configuration Type",
 			fmt.Sprintf("Expected *govpsie.Client, got %T. Please report  this issue to the provider developers.", req.ProviderData),
 		)
 
@@ -406,21 +406,6 @@ func (g *gatewayResource) Delete(ctx context.Context, req resource.DeleteRequest
 
 func (g *gatewayResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("identifier"), req, resp)
-}
-
-func (g *gatewayResource) GetDomainByName(ctx context.Context, domainName string) (*govpsie.Domain, error) {
-	domains, err := g.client.Domain.ListDomains(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, domain := range domains {
-		if domainName == domain.DomainName {
-			return &domain, nil
-		}
-	}
-
-	return nil, fmt.Errorf("domain with name %s not found", domainName)
 }
 
 func (g *gatewayResource) CreateAndReturnGateway(ctx context.Context, ipType, dcIdentifier string) (*govpsie.Gateway, error) {

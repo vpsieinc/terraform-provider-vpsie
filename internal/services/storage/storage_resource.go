@@ -218,7 +218,7 @@ func (s *storageResource) Create(ctx context.Context, req resource.CreateRequest
 	storage, err := s.GetVolumeByName(ctx, plan.Name.ValueString())
 
 	if err != nil {
-		resp.Diagnostics.AddError("Erorr fetching storage by name", err.Error())
+		resp.Diagnostics.AddError("Error fetching storage by name", err.Error())
 		return
 	}
 

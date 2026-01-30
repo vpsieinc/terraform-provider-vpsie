@@ -189,6 +189,7 @@ func (s *serverSnapshotDataSource) Read(ctx context.Context, req datasource.Read
 		state.ServerSnapshots = append(state.ServerSnapshots, snapshotState)
 	}
 
+	state.ID = types.StringValue("server_snapshots")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -109,6 +109,7 @@ func (s *sshKeyDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		state.SshKeys = append(state.SshKeys, sshKeyState)
 	}
 
+	state.ID = types.StringValue("ssh_keys")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

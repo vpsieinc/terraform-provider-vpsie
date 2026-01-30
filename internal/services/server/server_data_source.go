@@ -424,6 +424,7 @@ func (s *serverDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		state.Servers = append(state.Servers, serverState)
 	}
 
+	state.ID = types.StringValue("servers")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

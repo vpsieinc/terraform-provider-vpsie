@@ -192,6 +192,7 @@ func (v *vpcDataSource) Read(ctx context.Context, req datasource.ReadRequest, re
 		state.Vpcs = append(state.Vpcs, vpcState)
 	}
 
+	state.ID = types.StringValue("vpcs")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

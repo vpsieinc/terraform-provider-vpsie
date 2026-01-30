@@ -105,19 +105,19 @@ func (s *storageAttachmentResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	storage, err := s.GetStorageSnapshotByIdentifier(ctx, state.StorageIdentifier.ValueString())
+	storage, err := s.client.Storage.Get(ctx, state.StorageIdentifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
 			return
 		}
 
-		resp.Diagnostics.AddError("Error reading storage snapshot", err.Error())
+		resp.Diagnostics.AddError("Error reading storage", err.Error())
 		return
 	}
 
 	if storage.Identifier == "" || storage.Identifier != state.StorageIdentifier.ValueString() {
-		tflog.Debug(ctx, "storage attachement %s was not found removing from state")
+		tflog.Debug(ctx, "storage attachement was not found, removing from state")
 		resp.State.RemoveResource(ctx)
 	}
 }
@@ -143,19 +143,4 @@ func (s *storageAttachmentResource) ImportState(ctx context.Context, req resourc
 }
 
 func (s *storageAttachmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-}
-
-func (s *storageAttachmentResource) GetStorageSnapshotByIdentifier(ctx context.Context, identifier string) (govpsie.StorageSnapShot, error) {
-	snapshots, err := s.client.Storage.ListSnapshots(ctx, nil)
-	if err != nil {
-		return govpsie.StorageSnapShot{}, err
-	}
-
-	for _, snap := range snapshots {
-		if snap.Identifier == identifier {
-			return snap, nil
-		}
-	}
-
-	return govpsie.StorageSnapShot{}, fmt.Errorf("snapshot not found")
 }

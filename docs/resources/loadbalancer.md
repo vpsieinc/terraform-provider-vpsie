@@ -58,6 +58,7 @@ Read-Only:
 - `back_port` (Number)
 - `backends` (Attributes List) (see [below for nested schema](#nestedatt--rules--backends))
 - `created_on` (String)
+- `domain_name` (String)
 - `domains` (Attributes List) (see [below for nested schema](#nestedatt--rules--domains))
 - `front_port` (Number)
 - `rule_id` (String)

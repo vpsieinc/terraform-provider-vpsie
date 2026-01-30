@@ -437,8 +437,8 @@ func (k *kubernetesResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	if state.SlaveCount.ValueInt64() > plan.SlaveCount.ValueInt64() {
-		for i := plan.SlaveCount.ValueInt64(); i < state.SlaveCount.ValueInt64(); i++ {
+	if plan.SlaveCount.ValueInt64() > state.SlaveCount.ValueInt64() {
+		for i := state.SlaveCount.ValueInt64(); i < plan.SlaveCount.ValueInt64(); i++ {
 			err := k.client.K8s.AddSlave(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -450,8 +450,8 @@ func (k *kubernetesResource) Update(ctx context.Context, req resource.UpdateRequ
 			}
 		}
 
-	} else if state.SlaveCount.ValueInt64() < plan.SlaveCount.ValueInt64() {
-		for i := state.SlaveCount.ValueInt64(); i < plan.SlaveCount.ValueInt64(); i++ {
+	} else if plan.SlaveCount.ValueInt64() < state.SlaveCount.ValueInt64() {
+		for i := plan.SlaveCount.ValueInt64(); i < state.SlaveCount.ValueInt64(); i++ {
 			err := k.client.K8s.RemoveSlave(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(

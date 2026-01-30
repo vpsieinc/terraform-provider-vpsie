@@ -29,7 +29,6 @@ resource "vpsie_kubernetes_group" "example" {
 
 - `boxsize_id` (Number)
 - `cluster_id` (Number)
-- `cluster_name` (String)
 - `cpu` (Number)
 - `created_on` (String)
 - `datacenter_id` (Number)

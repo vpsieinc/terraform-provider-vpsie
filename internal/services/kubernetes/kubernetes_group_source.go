@@ -62,12 +62,6 @@ func (k *kubernetesGroupResource) Metadata(_ context.Context, req resource.Metad
 func (k *kubernetesGroupResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"cluster_name": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
 			"identifier": schema.StringAttribute{
 				Computed: true,
 				PlanModifiers: []planmodifier.String{
@@ -262,6 +256,11 @@ func (k *kubernetesGroupResource) Create(ctx context.Context, req resource.Creat
 	plan.NodesCount = types.Int64Value(k8sGroup.NodesCount)
 	plan.DcIdentifier = types.StringValue(k8sGroup.DcIdentifier)
 
+	diags = resp.State.Set(ctx, plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 }
 
 // Read refreshes the Terraform state with the latest data.
@@ -332,8 +331,8 @@ func (k *kubernetesGroupResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	if state.NodesCount.ValueInt64() > plan.NodesCount.ValueInt64() {
-		for i := plan.NodesCount.ValueInt64(); i < state.NodesCount.ValueInt64(); i++ {
+	if plan.NodesCount.ValueInt64() > state.NodesCount.ValueInt64() {
+		for i := state.NodesCount.ValueInt64(); i < plan.NodesCount.ValueInt64(); i++ {
 			err := k.client.K8s.AddNode(ctx, state.ClusterIdentifier.ValueString(), "slave", int(state.ID.ValueInt64()))
 			if err != nil {
 				resp.Diagnostics.AddError(
@@ -345,8 +344,8 @@ func (k *kubernetesGroupResource) Update(ctx context.Context, req resource.Updat
 			}
 		}
 
-	} else if state.NodesCount.ValueInt64() < plan.NodesCount.ValueInt64() {
-		for i := state.NodesCount.ValueInt64(); i < plan.NodesCount.ValueInt64(); i++ {
+	} else if plan.NodesCount.ValueInt64() < state.NodesCount.ValueInt64() {
+		for i := plan.NodesCount.ValueInt64(); i < state.NodesCount.ValueInt64(); i++ {
 			err := k.client.K8s.RemoveNode(ctx, state.ClusterIdentifier.ValueString(), "slave", int(state.ID.ValueInt64()))
 			if err != nil {
 				resp.Diagnostics.AddError(

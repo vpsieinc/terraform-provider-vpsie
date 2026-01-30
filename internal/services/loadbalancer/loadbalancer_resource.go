@@ -35,15 +35,15 @@ type loadbalancerResourceModel struct {
 	BoxsizeID  types.Int64  `tfsdk:"boxsize_id"`
 	DefaultIP  types.String `tfsdk:"default_ip"`
 	DcName     types.String `tfsdk:"dc_name"`
-	DcID       types.String `tfsdk:"dcId"`
+	DcID       types.String `tfsdk:"dc_id"`
 	CreatedBy  types.String `tfsdk:"created_by"`
 	UserID     types.Int64  `tfsdk:"user_id"`
 	Rules      []LBRule     `tfsdk:"rules"`
 
 	Algorithm          types.String   `tfsdk:"algorithm"`
 	CookieName         types.String   `tfsdk:"cookie_name"`
-	HealthCheckPath    types.String   `tfsdk:"health_checkPath"`
-	CookieCheck        types.Bool     `tfsdk:"cookie_check"`
+	HealthCheckPath    types.String   `tfsdk:"health_check_path"`
+	CookieCheck        types.Int64    `tfsdk:"cookie_check"`
 	RedirectHTTP       types.Int64    `tfsdk:"redirect_http"`
 	ResourceIdentifier types.String   `tfsdk:"resource_identifier"`
 	CheckInterval      types.Int64    `tfsdk:"check_interval"`
@@ -56,22 +56,22 @@ type loadbalancerResourceModel struct {
 type LBRule struct {
 	Scheme    types.String `tfsdk:"scheme"`
 	FrontPort types.Int64  `tfsdk:"front_port"`
-	BackPort  types.Int64  `tfsdk:"backPort"`
+	BackPort  types.Int64  `tfsdk:"back_port"`
 	CreatedOn types.String `tfsdk:"created_on"`
 	RuleID    types.String `tfsdk:"rule_id"`
-	Domains   []LBDomain   `tfsdk:"domains,omitempty"`
-	Backends  []Backend    `tfsdk:"backends,omitempty"`
+	Domains   []LBDomain   `tfsdk:"domains"`
+	Backends  []Backend    `tfsdk:"backends"`
 
-	DomainName types.String `tfsdk:"domain_ame"`
+	DomainName types.String `tfsdk:"domain_name"`
 }
 
 type LBDomain struct {
-	DomainID      types.String `tfsdk:"domainId"`
+	DomainID      types.String `tfsdk:"domain_id"`
 	Backends      []Backend    `tfsdk:"backends"`
-	BackPort      types.String `tfsdk:"back_port"`
+	BackPort      types.Int64  `tfsdk:"back_port"`
 	BackendScheme types.String `tfsdk:"backend_scheme"`
 	DomainName    types.String `tfsdk:"domain_name"`
-	Subdomain     types.String `tfsdk:"subdomain,omitempty"`
+	Subdomain     types.String `tfsdk:"subdomain"`
 
 	Algorithm       types.String `tfsdk:"algorithm"`
 	RedirectHTTP    types.Int64  `tfsdk:"redirect_http"`
@@ -88,7 +88,7 @@ type LBDomain struct {
 type Backend struct {
 	IP           types.String `tfsdk:"ip"`
 	Identifier   types.String `tfsdk:"identifier"`
-	VMIdentifier types.String `tfsdk:"vm_identifier,omitempty"`
+	VMIdentifier types.String `tfsdk:"vm_identifier"`
 	CreatedOn    types.String `tfsdk:"created_on"`
 }
 
@@ -270,6 +270,12 @@ func (l *loadbalancerResource) Schema(ctx context.Context, _ resource.SchemaRequ
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
+						"domain_name": schema.StringAttribute{
+							Computed: true,
+							PlanModifiers: []planmodifier.String{
+								stringplanmodifier.UseStateForUnknown(),
+							},
+						},
 						"domains": schema.ListNestedAttribute{
 							Computed: true,
 							NestedObject: schema.NestedAttributeObject{
@@ -423,18 +429,17 @@ func (l *loadbalancerResource) Create(ctx context.Context, req resource.CreateRe
 	for _, rule := range plan.Rules {
 		var newRule = govpsie.Rule{}
 
-		newRule.BackPort = rule.BackPort.String()
+		newRule.BackPort = strconv.FormatInt(rule.BackPort.ValueInt64(), 10)
 		newRule.DomainName = rule.DomainName.ValueString()
-		newRule.FrontPort = rule.FrontPort.String()
+		newRule.FrontPort = strconv.FormatInt(rule.FrontPort.ValueInt64(), 10)
 		newRule.Scheme = rule.Scheme.ValueString()
 
 		domains := []govpsie.LBDomain{}
 		for _, dns := range rule.Domains {
 			domain := govpsie.LBDomain{}
 			domain.DomainName = dns.DomainName.ValueString()
-			domain.BackPort = dns.BackPort.String()
 			domain.BackendScheme = dns.BackendScheme.ValueString()
-			domain.BackPort = dns.BackPort.ValueString()
+			domain.BackPort = strconv.FormatInt(dns.BackPort.ValueInt64(), 10)
 
 			dnsBackends := []govpsie.Backend{}
 			for _, backend := range dns.Backends {
@@ -465,7 +470,7 @@ func (l *loadbalancerResource) Create(ctx context.Context, req resource.CreateRe
 		LBName:             plan.LBName.ValueString(),
 		Algorithm:          plan.Algorithm.ValueString(),
 		CookieName:         plan.CookieName.ValueString(),
-		CookieCheck:        plan.CookieCheck.ValueBool(),
+		CookieCheck:        plan.CookieCheck.ValueInt64() != 0,
 		RedirectHTTP:       int(plan.RedirectHTTP.ValueInt64()),
 		ResourceIdentifier: plan.ResourceIdentifier.ValueString(),
 		DcIdentifier:       plan.DcID.ValueString(),
@@ -546,7 +551,7 @@ func (l *loadbalancerResource) Create(ctx context.Context, req resource.CreateRe
 					domain.CookieCheck = types.Int64Value(int64(dns.CookieCheck))
 					domain.CookieName = types.StringValue(dns.CookieName)
 					domain.CreatedOn = types.StringValue(dns.CreatedOn.String())
-					domain.BackPort = types.StringValue(fmt.Sprint(dns.BackPort))
+					domain.BackPort = types.Int64Value(int64(dns.BackPort))
 					domain.DomainID = types.StringValue(dns.DomainID)
 					domain.CheckInterval = types.Int64Value(int64(dns.CheckInterval))
 					domain.FastInterval = types.Int64Value(int64(dns.FastInterval))
@@ -663,7 +668,7 @@ func (l *loadbalancerResource) Read(ctx context.Context, req resource.ReadReques
 			domain.CookieCheck = types.Int64Value(int64(dns.CookieCheck))
 			domain.CookieName = types.StringValue(dns.CookieName)
 			domain.CreatedOn = types.StringValue(dns.CreatedOn.String())
-			domain.BackPort = types.StringValue(fmt.Sprint(dns.BackPort))
+			domain.BackPort = types.Int64Value(int64(dns.BackPort))
 			domain.DomainID = types.StringValue(dns.DomainID)
 			domain.CheckInterval = types.Int64Value(int64(dns.CheckInterval))
 			domain.FastInterval = types.Int64Value(int64(dns.FastInterval))
@@ -733,16 +738,16 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 
 			var newRule = govpsie.AddRuleReq{}
 
-			newRule.BackPort = rule.BackPort.String()
-			newRule.FrontPort = rule.FrontPort.String()
+			newRule.BackPort = strconv.FormatInt(rule.BackPort.ValueInt64(), 10)
+			newRule.FrontPort = strconv.FormatInt(rule.FrontPort.ValueInt64(), 10)
 			newRule.Scheme = rule.Scheme.ValueString()
-			newRule.LbId = state.Identifier.String()
+			newRule.LbId = state.Identifier.ValueString()
 
 			domains := []govpsie.LBDomain{}
 			for _, dns := range rule.Domains {
 				domain := govpsie.LBDomain{}
 				domain.DomainName = dns.DomainName.ValueString()
-				domain.BackPort = dns.BackPort.String()
+				domain.BackPort = strconv.FormatInt(dns.BackPort.ValueInt64(), 10)
 				domain.BackendScheme = dns.BackendScheme.ValueString()
 
 				dnsBackends := []govpsie.Backend{}
@@ -789,16 +794,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 		for _, dns := range rule.Domains {
 			domainUpdateReq := govpsie.DomainUpdateReq{}
 
-			backPort, err := strconv.Atoi(dns.BackPort.ValueString())
-			if err != nil {
-				resp.Diagnostics.AddError(
-					"Error updating loadbalancer domain",
-					"Couldn't update loadbalancer domain, unexpected error: "+err.Error(),
-				)
-
-				return
-			}
-			domainUpdateReq.BackPort = backPort
+			domainUpdateReq.BackPort = int(dns.BackPort.ValueInt64())
 			domainUpdateReq.Algorithm = dns.Algorithm.ValueString()
 			domainUpdateReq.DomainID = dns.DomainID.ValueString()
 			domainUpdateReq.Subdomain = dns.Subdomain.ValueString()
@@ -809,7 +805,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 			domainUpdateReq.RedirectHTTP = int(dns.RedirectHTTP.ValueInt64())
 			domainUpdateReq.Rise = int(dns.Rise.ValueInt64())
 
-			err = l.client.LB.UpdateLBDomain(ctx, &domainUpdateReq)
+			err := l.client.LB.UpdateLBDomain(ctx, &domainUpdateReq)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating loadbalancer domain",
@@ -827,7 +823,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 				})
 			}
 
-			err = l.client.LB.UpdateDomainBackend(ctx, dns.DomainID.String(), dnsBackends)
+			err = l.client.LB.UpdateDomainBackend(ctx, dns.DomainID.ValueString(), dnsBackends)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating loadbalancer domain",

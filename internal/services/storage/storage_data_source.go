@@ -182,6 +182,7 @@ func (s *storageDataSource) Read(ctx context.Context, req datasource.ReadRequest
 		state.Storages = append(state.Storages, storageState)
 	}
 
+	state.ID = types.StringValue("storages")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

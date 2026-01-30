@@ -150,6 +150,7 @@ func (s *storageSnapshotDataSource) Read(ctx context.Context, req datasource.Rea
 
 	}
 
+	state.ID = types.StringValue("storage_snapshots")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

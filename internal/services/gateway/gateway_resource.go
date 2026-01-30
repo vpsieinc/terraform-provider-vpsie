@@ -205,7 +205,7 @@ func (g *gatewayResource) Create(ctx context.Context, req resource.CreateRequest
 
 	gateway, err := g.CreateAndReturnGateway(ctx, plan.IPVersion.ValueString(), plan.DcIdentifier.ValueString())
 	if err != nil {
-		resp.Diagnostics.AddError("Error creating domain", err.Error())
+		resp.Diagnostics.AddError("Error creating gateway", err.Error())
 		return
 	}
 

@@ -37,8 +37,8 @@ type firewallsModel struct {
 }
 
 type FirewallRules struct {
-	InBound  []InBoundFirewallRules  `tfsdk:"inBound"`
-	OutBound []OutBoundFirewallRules `tfsdk:"outBound"`
+	InBound  []InBoundFirewallRules  `tfsdk:"in_bound"`
+	OutBound []OutBoundFirewallRules `tfsdk:"out_bound"`
 }
 
 type InBoundFirewallRules struct {
@@ -51,12 +51,12 @@ type InBoundFirewallRules struct {
 	Dest       types.List   `tfsdk:"dest"`
 	Dport      types.String `tfsdk:"dport"`
 	Proto      types.String `tfsdk:"proto"`
-	Source     types.List   `tfsdk:"source,omitempty"`
+	Source     types.List   `tfsdk:"source"`
 	Sport      types.String `tfsdk:"sport"`
 	Enable     types.Int64  `tfsdk:"enable"`
-	Iface      types.String `tfsdk:"iface,omitempty"`
-	Log        types.String `tfsdk:"log,omitempty"`
-	Macro      types.String `tfsdk:"macro,omitempty"`
+	Iface      types.String `tfsdk:"iface"`
+	Log        types.String `tfsdk:"log"`
+	Macro      types.String `tfsdk:"macro"`
 	Identifier types.String `tfsdk:"identifier"`
 	CreatedOn  types.String `tfsdk:"created_on"`
 	UpdatedOn  types.String `tfsdk:"updated_on"`
@@ -69,15 +69,15 @@ type OutBoundFirewallRules struct {
 	Action     types.String `tfsdk:"action"`
 	Type       types.String `tfsdk:"type"`
 	Comment    types.String `tfsdk:"comment"`
-	Dest       types.List   `tfsdk:"dest,omitempty"`
+	Dest       types.List   `tfsdk:"dest"`
 	Dport      types.String `tfsdk:"dport"`
 	Proto      types.String `tfsdk:"proto"`
 	Source     types.List   `tfsdk:"source"`
 	Sport      types.String `tfsdk:"sport"`
 	Enable     types.Int64  `tfsdk:"enable"`
-	Iface      types.String `tfsdk:"iface,omitempty"`
-	Log        types.String `tfsdk:"log,omitempty"`
-	Macro      types.String `tfsdk:"macro,omitempty"`
+	Iface      types.String `tfsdk:"iface"`
+	Log        types.String `tfsdk:"log"`
+	Macro      types.String `tfsdk:"macro"`
 	Identifier types.String `tfsdk:"identifier"`
 	CreatedOn  types.String `tfsdk:"created_on"`
 	UpdatedOn  types.String `tfsdk:"updated_on"`
@@ -412,6 +412,13 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 		}
 
 		state.Firewalls = append(state.Firewalls, firewallState)
+	}
+
+	state.ID = types.StringValue("firewalls")
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 }
 func (g *firewallDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

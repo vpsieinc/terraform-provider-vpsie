@@ -30,6 +30,7 @@ data "vpsie_kubernetes" "example" {}
 Read-Only:
 
 - `cluster_name` (String)
+- `color` (String)
 - `cpu` (Number)
 - `created_by` (String)
 - `created_on` (String)

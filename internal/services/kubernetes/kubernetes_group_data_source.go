@@ -152,6 +152,8 @@ func (k *kubernetesGroupDataSource) Read(ctx context.Context, req datasource.Rea
 				"Error Getting Kubernetes Groups",
 				"Could not get Kubernetes Groups, unexpected error: "+err.Error(),
 			)
+
+			return
 		}
 
 		for _, k8Group := range k8sGroups {
@@ -179,6 +181,13 @@ func (k *kubernetesGroupDataSource) Read(ctx context.Context, req datasource.Rea
 			})
 		}
 
+	}
+
+	state.ID = types.StringValue("kubernetes_groups")
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 }
 

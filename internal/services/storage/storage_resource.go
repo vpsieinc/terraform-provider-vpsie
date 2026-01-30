@@ -218,7 +218,7 @@ func (s *storageResource) Create(ctx context.Context, req resource.CreateRequest
 	storage, err := s.GetVolumeByName(ctx, plan.Name.ValueString())
 
 	if err != nil {
-		resp.Diagnostics.AddError("Erorr fetching storage by name", err.Error())
+		resp.Diagnostics.AddError("Error fetching storage by name", err.Error())
 		return
 	}
 
@@ -318,10 +318,10 @@ func (s *storageResource) Update(ctx context.Context, req resource.UpdateRequest
 				"Error updating storage name",
 				"couldn't update storage name, unexpected error: "+err.Error(),
 			)
+			return
 		}
 
 		resp.State.SetAttribute(ctx, path.Root("name"), namePlan)
-
 	}
 
 	if !sizePlan.Equal(sizeState) {
@@ -331,6 +331,7 @@ func (s *storageResource) Update(ctx context.Context, req resource.UpdateRequest
 				"Error updating storage size",
 				"couldn't update storage size, unexpected error: "+err.Error(),
 			)
+			return
 		}
 
 		resp.State.SetAttribute(ctx, path.Root("size"), sizePlan)

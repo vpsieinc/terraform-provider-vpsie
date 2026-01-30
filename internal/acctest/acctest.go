@@ -1,6 +1,7 @@
 package acctest
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -17,7 +18,7 @@ var TestAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServe
 }
 
 func TestAccPreCheck(t *testing.T) {
-	// You can add code here to run prior to any test case execution, for example assertions
-	// about the appropriate environment variables being set are common to see in a pre-check
-	// function.
+	if v := os.Getenv("VPSIE_ACCESS_TOKEN"); v == "" {
+		t.Fatal("VPSIE_ACCESS_TOKEN must be set for acceptance tests")
+	}
 }

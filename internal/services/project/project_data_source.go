@@ -120,7 +120,6 @@ func (p *projectDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 }
 func (p *projectDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

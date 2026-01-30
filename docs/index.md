@@ -22,4 +22,4 @@ provider "vpsie" {
 
 ### Optional
 
-- `access_token` (String) Example provider attribute
+- `access_token` (String) VPSie API access token. Can also be set with the `VPSIE_ACCESS_TOKEN` environment variable.

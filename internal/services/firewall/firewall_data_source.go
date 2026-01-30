@@ -422,7 +422,6 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 	}
 }
 func (g *firewallDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	// Prevent panic if the provider has not been configured.
 	if req.ProviderData == nil {
 		return
 	}

@@ -39,7 +39,7 @@ func main() {
 
 	opts := providerserver.ServeOpts{
 		Address: "registry.terraform.io/vpsie/vpsie",
-		Debug: debug,
+		Debug:   debug,
 	}
 
 	err := providerserver.Serve(context.Background(), provider.New(version), opts)

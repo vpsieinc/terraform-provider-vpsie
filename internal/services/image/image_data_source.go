@@ -142,6 +142,7 @@ func (i *imageDataSource) Read(ctx context.Context, req datasource.ReadRequest, 
 		state.Images = append(state.Images, imageState)
 	}
 
+	state.ID = types.StringValue("images")
 	diags := resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

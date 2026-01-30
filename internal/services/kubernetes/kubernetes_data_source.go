@@ -23,7 +23,7 @@ type kubernetesDataSourceModel struct {
 type kubernetesModel struct {
 	ClusterName  types.String  `tfsdk:"cluster_name"`
 	Identifier   types.String  `tfsdk:"identifier"`
-	MasterCount  types.Int64   `tfsdk:"count"`
+	MasterCount  types.Int64   `tfsdk:"master_count"`
 	CreatedOn    types.String  `tfsdk:"created_on"`
 	UpdatedOn    types.String  `tfsdk:"updated_on"`
 	CreatedBy    types.String  `tfsdk:"created_by"`
@@ -88,6 +88,9 @@ func (i *kubernetesDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 						"traffic": schema.Int64Attribute{
 							Computed: true,
 						},
+						"color": schema.StringAttribute{
+							Computed: true,
+						},
 						"price": schema.Float64Attribute{
 							Computed: true,
 						},
@@ -137,6 +140,13 @@ func (k *kubernetesDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		}
 
 		state.Kubernetes = append(state.Kubernetes, k8sState)
+	}
+
+	state.ID = types.StringValue("kubernetes")
+	diags := resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 }
 func (k *kubernetesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/vpsie/govpsie"
@@ -40,17 +42,27 @@ func (s *storageAttachmentResource) Metadata(_ context.Context, req resource.Met
 
 func (s *storageAttachmentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages the attachment of a storage volume to a server on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"vm_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the VM to attach the storage volume to.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"storage_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the storage volume to attach.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"vm_type": schema.StringAttribute{
-				Default:  stringdefault.StaticString("vm"),
-				Optional: true,
-				Computed: true,
+				Default:             stringdefault.StaticString("vm"),
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "The type of virtual machine (defaults to \"vm\").",
 			},
 		},
 	}

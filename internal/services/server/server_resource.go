@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -15,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -124,483 +126,567 @@ func (s *serverResource) Schema(ctx context.Context, _ resource.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"backup_enabled": schema.Int64Attribute{
-				Default:  int64default.StaticInt64(0),
-				Optional: true,
-				Computed: true,
+				Default:             int64default.StaticInt64(0),
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Whether automatic backups are enabled for the server (0 = disabled, 1 = enabled).",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"add_public_ip_v4": schema.Int64Attribute{
-				Default:  int64default.StaticInt64(0),
-				Optional: true,
-				Computed: true,
+				Default:             int64default.StaticInt64(0),
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Whether to add a public IPv4 address to the server (0 = no, 1 = yes).",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"add_public_ip_v6": schema.Int64Attribute{
-				Default:  int64default.StaticInt64(0),
-				Optional: true,
-				Computed: true,
+				Default:             int64default.StaticInt64(0),
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Whether to add a public IPv6 address to the server (0 = no, 1 = yes).",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"add_private_ip": schema.Int64Attribute{
-				Default:  int64default.StaticInt64(0),
-				Optional: true,
-				Computed: true,
+				Default:             int64default.StaticInt64(0),
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Whether to add a private IP address to the server (0 = no, 1 = yes).",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"project_id": schema.Int64Attribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The ID of the project to which the server belongs.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"resource_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the resource plan (box size) for the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"os_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the operating system image for the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"dc_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the data center where the server is deployed.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"hostname": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The hostname assigned to the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"notes": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "Optional notes or comments for the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"script_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The identifier of a startup script to run on the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"sshkey_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The identifier of an SSH key to add to the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the user who owns the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"boxsize_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the box size (resource plan) for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"boximage_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the box image (OS template) for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"datacenter_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the data center where the server is located.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"node_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the physical node hosting the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"boxdiscount_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the discount applied to the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"default_ip": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The default IPv4 address assigned to the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"default_ipv6": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The default IPv6 address assigned to the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"private_ip": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The private IP address assigned to the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_autobackup": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether automatic backup is enabled for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"box_virtualization_id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The virtualization type identifier for the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"ram": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "The amount of RAM in MB allocated to the server.",
 			},
 			"cpu": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "The number of CPU cores allocated to the server.",
 			},
 			"ssd": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The SSD storage size in GB allocated to the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"traffic": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The traffic bandwidth limit allocated to the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"added_ip_addresses": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Additional IP addresses added to the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"initial_password": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+				Computed:            true,
+				Sensitive:           true,
+				MarkdownDescription: "The initial root password for the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the server was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"last_updated": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the server was last updated.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"dropped_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the server was dropped or deleted.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"is_active": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server is currently active.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_deleted": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server has been deleted.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"power": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The power state of the server (0 = off, 1 = on).",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-
 			"is_custom": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server uses a custom configuration.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"nr_added_ips": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The number of additional IP addresses added to the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"in_pcs": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The number of processes running on the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"custom_price": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The custom price applied to the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"payable_license": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The payable license cost for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"last_license_pay": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The date of the last license payment.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"is_locked": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server is locked from modifications.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_work_with_new_version": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server is compatible with the new platform version.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_suspended": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server is currently suspended.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_terminated": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server has been terminated.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"old_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The legacy ID of the server from the previous platform.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"custom_iso_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of a custom ISO image attached to the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
-
 				Optional: true,
 			},
 			"is_iso_image_bootable": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the attached ISO image is bootable.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"has_ssl": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether SSL is enabled for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"last_action_date": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The date of the last action performed on the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"is_created_from_legacy": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the server was migrated from the legacy platform.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_smtp_allowed": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether SMTP traffic is allowed on the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"weekly_backup": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether weekly backups are enabled for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"monthly_backup": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether monthly backups are enabled for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"lib_iso_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the library ISO image attached to the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
-
 				Optional: true,
 			},
 			"daily_snapshot": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether daily snapshots are enabled for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"weekly_snapshot": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether weekly snapshots are enabled for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"monthly_snap": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether monthly snapshots are enabled for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"last_action_in_min": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The time in minutes since the last action on the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"firstname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The first name of the server owner.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"lastname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The last name of the server owner.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"username": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The username of the server owner.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"state": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The current state of the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_fip_available": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether floating IP is available for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_bucket_available": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether object storage bucket is available for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
-
 			"category": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The category of the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"fullname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The full name of the server owner.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vm_description": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The description of the virtual machine.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"boxes_suspended": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The number of suspended boxes for the owner.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_sata_available": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether SATA storage is available for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_ssd_available": schema.Int64Attribute{
-				Computed: true,
-
+				Computed:            true,
+				MarkdownDescription: "Whether SSD storage is available for the server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"public_ip": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The public IP address of the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"password": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The password used for server deletion verification.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 				Sensitive: true,
 			},
 			"delete_reason": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The reason for deleting the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"delete_note": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "An optional note to include when deleting the server.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

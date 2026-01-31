@@ -43,35 +43,45 @@ func (s *sshKeyDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 // Schema defines the schema for the data source.
 func (s *sshKeyDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Use this data source to retrieve information about all VPSie SSH keys.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"sshkeys": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of SSH keys.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the SSH key.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user who owns the SSH key.",
 						},
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the SSH key.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the SSH key.",
 						},
 						"private_key": schema.StringAttribute{
-							Computed:  true,
-							Sensitive: true,
+							Computed:            true,
+							Sensitive:           true,
+							MarkdownDescription: "The public key content of the SSH key.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the SSH key was created.",
 						},
 						"created_by": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The user who created the SSH key.",
 						},
 					},
 				},

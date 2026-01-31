@@ -7,11 +7,13 @@ import (
 	"context"
 	"os"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/vpsie/govpsie"
@@ -65,11 +67,16 @@ func (p *VpsieProvider) Metadata(ctx context.Context, req provider.MetadataReque
 
 func (p *VpsieProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "The VPSie provider is used to manage resources on the [VPSie](https://vpsie.com/) cloud platform. " +
+			"You must configure the provider with an API access token before you can use it.",
 		Attributes: map[string]schema.Attribute{
 			"access_token": schema.StringAttribute{
 				MarkdownDescription: "VPSie API access token. Can also be set with the `VPSIE_ACCESS_TOKEN` environment variable.",
 				Optional:            true,
 				Sensitive:           true,
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 		},
 	}

@@ -27,9 +27,7 @@ func TestUnitDataCenterAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api DataCenterAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy DataCenterAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitDataCenterAPI_ListDatacenters(t *testing.T) {
@@ -64,7 +62,7 @@ func TestUnitDataCenterAPI_ListDatacenters(t *testing.T) {
 				},
 			}
 
-			dcs, err := mock.List(context.Background(), nil)
+			dcs, err := mock.List(t.Context(), nil)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -88,7 +86,7 @@ func TestUnitDataCenterAPI_ListVerifiesData(t *testing.T) {
 		},
 	}
 
-	dcs, err := mock.List(context.Background(), nil)
+	dcs, err := mock.List(t.Context(), nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

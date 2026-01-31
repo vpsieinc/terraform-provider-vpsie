@@ -56,9 +56,7 @@ func TestUnitGatewayAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api GatewayAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy GatewayAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitGatewayAPI_CreateAndReturnGateway(t *testing.T) {
@@ -116,7 +114,7 @@ func TestUnitGatewayAPI_CreateAndReturnGateway(t *testing.T) {
 			}
 
 			r := &gatewayResource{client: mock}
-			gw, err := r.CreateAndReturnGateway(context.Background(), "ipv4", "dc-1")
+			gw, err := r.CreateAndReturnGateway(t.Context(), "ipv4", "dc-1")
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -142,7 +140,7 @@ func TestUnitGatewayAPI_ListError(t *testing.T) {
 	}
 
 	r := &gatewayResource{client: mock}
-	_, err := r.CreateAndReturnGateway(context.Background(), "ipv4", "dc-1")
+	_, err := r.CreateAndReturnGateway(t.Context(), "ipv4", "dc-1")
 	if err == nil {
 		t.Fatal("expected error from List failure, got nil")
 	}

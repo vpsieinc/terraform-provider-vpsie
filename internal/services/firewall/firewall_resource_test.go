@@ -68,9 +68,7 @@ func TestUnitFirewallAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api FirewallAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy FirewallAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitFirewallAPI_GetFirewallGroupByName(t *testing.T) {
@@ -116,7 +114,7 @@ func TestUnitFirewallAPI_GetFirewallGroupByName(t *testing.T) {
 			}
 
 			r := &firewallResource{client: mock}
-			fw, err := r.GetFirewallGroupByName(context.Background(), tt.groupName)
+			fw, err := r.GetFirewallGroupByName(t.Context(), tt.groupName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -141,7 +139,7 @@ func TestUnitFirewallAPI_Delete(t *testing.T) {
 		},
 	}
 
-	err := mock.Delete(context.Background(), "fw-group-123")
+	err := mock.Delete(t.Context(), "fw-group-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -164,7 +162,7 @@ func TestUnitFirewallAPI_AttachToVpsie(t *testing.T) {
 		},
 	}
 
-	err := mock.AttachToVpsie(context.Background(), "group-1", "vm-abc")
+	err := mock.AttachToVpsie(t.Context(), "group-1", "vm-abc")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -190,7 +188,7 @@ func TestUnitFirewallAPI_DetachFromVpsie(t *testing.T) {
 		},
 	}
 
-	err := mock.DetachFromVpsie(context.Background(), "group-1", "vm-abc")
+	err := mock.DetachFromVpsie(t.Context(), "group-1", "vm-abc")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -212,7 +210,7 @@ func TestUnitFirewallAPI_ListErrorPropagation(t *testing.T) {
 	}
 
 	r := &firewallResource{client: mock}
-	_, err := r.GetFirewallGroupByName(context.Background(), "any-group")
+	_, err := r.GetFirewallGroupByName(t.Context(), "any-group")
 
 	if err == nil {
 		t.Fatal("expected error to propagate from List, got nil")
@@ -231,7 +229,7 @@ func TestUnitFirewallAPI_GetErrorPropagation(t *testing.T) {
 		},
 	}
 
-	_, err := mock.Get(context.Background(), "non-existent-id")
+	_, err := mock.Get(t.Context(), "non-existent-id")
 	if err == nil {
 		t.Fatal("expected error to propagate from Get, got nil")
 	}
@@ -249,7 +247,7 @@ func TestUnitFirewallAPI_CreateErrorPropagation(t *testing.T) {
 		},
 	}
 
-	err := mock.Create(context.Background(), "test-group", nil)
+	err := mock.Create(t.Context(), "test-group", nil)
 	if err == nil {
 		t.Fatal("expected error to propagate from Create, got nil")
 	}

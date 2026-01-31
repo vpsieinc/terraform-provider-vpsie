@@ -158,6 +158,15 @@ func TestE2EProductionReadinessFullCycle(t *testing.T) {
 // E2E Test Config Helpers
 // ---------------------------------------------------------------------------
 
+// Blank identifier references ensure these config helpers are not flagged as
+// unused while the E2E test steps remain placeholder TODOs. Remove these once
+// the test steps call the helpers directly.
+var (
+	_ = testE2EProductionReadinessConfig_phase1
+	_ = testE2EProductionReadinessConfig_phase3
+	_ = testE2EProductionReadinessConfig_invalidEmpty
+)
+
 // testE2EProductionReadinessConfig_phase1 returns a multi-resource config
 // that exercises sensitive field masking and schema descriptions.
 func testE2EProductionReadinessConfig_phase1() string {

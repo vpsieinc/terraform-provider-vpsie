@@ -10,10 +10,10 @@ import (
 
 // mockMonitoringAPI implements MonitoringAPI for unit testing.
 type mockMonitoringAPI struct {
-	CreateRuleFn                  func(ctx context.Context, createReq *govpsie.CreateMonitoringRuleReq) error
-	ListMonitoringRuleFn          func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.MonitoringRule, error)
-	ToggleMonitoringRuleStatusFn  func(ctx context.Context, status, ruleIdentifier string) error
-	DeleteMonitoringRuleFn        func(ctx context.Context, ruleIdentifier string) error
+	CreateRuleFn                 func(ctx context.Context, createReq *govpsie.CreateMonitoringRuleReq) error
+	ListMonitoringRuleFn         func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.MonitoringRule, error)
+	ToggleMonitoringRuleStatusFn func(ctx context.Context, status, ruleIdentifier string) error
+	DeleteMonitoringRuleFn       func(ctx context.Context, ruleIdentifier string) error
 }
 
 func (m *mockMonitoringAPI) CreateRule(ctx context.Context, createReq *govpsie.CreateMonitoringRuleReq) error {
@@ -37,16 +37,16 @@ var _ MonitoringAPI = &mockMonitoringAPI{}
 
 func TestUnitMonitoringAPI_MockSatisfiesInterface(t *testing.T) {
 	mock := &mockMonitoringAPI{
-		CreateRuleFn:                 func(ctx context.Context, createReq *govpsie.CreateMonitoringRuleReq) error { return nil },
-		ListMonitoringRuleFn:         func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.MonitoringRule, error) { return nil, nil },
+		CreateRuleFn: func(ctx context.Context, createReq *govpsie.CreateMonitoringRuleReq) error { return nil },
+		ListMonitoringRuleFn: func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.MonitoringRule, error) {
+			return nil, nil
+		},
 		ToggleMonitoringRuleStatusFn: func(ctx context.Context, status, ruleIdentifier string) error { return nil },
 		DeleteMonitoringRuleFn:       func(ctx context.Context, ruleIdentifier string) error { return nil },
 	}
 
 	var api MonitoringAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy MonitoringAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitMonitoringAPI_GetRuleByName(t *testing.T) {
@@ -94,7 +94,7 @@ func TestUnitMonitoringAPI_GetRuleByName(t *testing.T) {
 			}
 
 			r := &monitoringRuleResource{client: mock}
-			rule, err := r.GetRuleByName(context.Background(), tt.ruleName)
+			rule, err := r.GetRuleByName(t.Context(), tt.ruleName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -120,7 +120,7 @@ func TestUnitMonitoringAPI_ListMonitoringRuleError(t *testing.T) {
 	}
 
 	r := &monitoringRuleResource{client: mock}
-	_, err := r.GetRuleByName(context.Background(), "test")
+	_, err := r.GetRuleByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from ListMonitoringRule failure, got nil")
 	}

@@ -10,11 +10,11 @@ import (
 
 // mockVpcAPI implements VpcAPI for unit testing.
 type mockVpcAPI struct {
-	CreateVpcFn      func(ctx context.Context, createReq *govpsie.CreateVpcReq) error
-	ListFn           func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.VPC, error)
-	GetFn            func(ctx context.Context, id string) (*govpsie.VPC, error)
-	DeleteVpcFn      func(ctx context.Context, vpcId, reason, note string) error
-	AssignServerFn   func(ctx context.Context, assignReq *govpsie.AssignServerReq) error
+	CreateVpcFn        func(ctx context.Context, createReq *govpsie.CreateVpcReq) error
+	ListFn             func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.VPC, error)
+	GetFn              func(ctx context.Context, id string) (*govpsie.VPC, error)
+	DeleteVpcFn        func(ctx context.Context, vpcId, reason, note string) error
+	AssignServerFn     func(ctx context.Context, assignReq *govpsie.AssignServerReq) error
 	ReleasePrivateIPFn func(ctx context.Context, vmIdentifer string, privateIpId int) error
 }
 
@@ -57,18 +57,16 @@ var _ IPLookupAPI = &mockIPLookupAPI{}
 
 func TestUnitVpcAPI_MockSatisfiesInterface(t *testing.T) {
 	mock := &mockVpcAPI{
-		CreateVpcFn:      func(ctx context.Context, createReq *govpsie.CreateVpcReq) error { return nil },
-		ListFn:           func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.VPC, error) { return nil, nil },
-		GetFn:            func(ctx context.Context, id string) (*govpsie.VPC, error) { return nil, nil },
-		DeleteVpcFn:      func(ctx context.Context, vpcId, reason, note string) error { return nil },
-		AssignServerFn:   func(ctx context.Context, assignReq *govpsie.AssignServerReq) error { return nil },
+		CreateVpcFn:        func(ctx context.Context, createReq *govpsie.CreateVpcReq) error { return nil },
+		ListFn:             func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.VPC, error) { return nil, nil },
+		GetFn:              func(ctx context.Context, id string) (*govpsie.VPC, error) { return nil, nil },
+		DeleteVpcFn:        func(ctx context.Context, vpcId, reason, note string) error { return nil },
+		AssignServerFn:     func(ctx context.Context, assignReq *govpsie.AssignServerReq) error { return nil },
 		ReleasePrivateIPFn: func(ctx context.Context, vmIdentifer string, privateIpId int) error { return nil },
 	}
 
 	var api VpcAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy VpcAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitVpcAPI_GetVpcByName(t *testing.T) {
@@ -116,7 +114,7 @@ func TestUnitVpcAPI_GetVpcByName(t *testing.T) {
 			}
 
 			r := &vpcResource{client: mock}
-			vpc, err := r.GetVpcByName(context.Background(), tt.vpcName)
+			vpc, err := r.GetVpcByName(t.Context(), tt.vpcName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -142,7 +140,7 @@ func TestUnitVpcAPI_ListError(t *testing.T) {
 	}
 
 	r := &vpcResource{client: mock}
-	_, err := r.GetVpcByName(context.Background(), "test")
+	_, err := r.GetVpcByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from List failure, got nil")
 	}

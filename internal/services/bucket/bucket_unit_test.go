@@ -60,9 +60,7 @@ func TestUnitBucketAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api BucketAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy BucketAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitBucketAPI_GetBucketByName(t *testing.T) {
@@ -106,7 +104,7 @@ func TestUnitBucketAPI_GetBucketByName(t *testing.T) {
 			}
 
 			r := &bucketResource{client: mock}
-			bucket, err := r.GetBucketByName(context.Background(), tt.bucketName)
+			bucket, err := r.GetBucketByName(t.Context(), tt.bucketName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -140,7 +138,7 @@ func TestUnitBucketAPI_Delete(t *testing.T) {
 		},
 	}
 
-	err := mock.Delete(context.Background(), "bucket-id-123", "test-reason", "test-note")
+	err := mock.Delete(t.Context(), "bucket-id-123", "test-reason", "test-note")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -160,7 +158,7 @@ func TestUnitBucketAPI_ListError(t *testing.T) {
 	}
 
 	r := &bucketResource{client: mock}
-	_, err := r.GetBucketByName(context.Background(), "any-bucket")
+	_, err := r.GetBucketByName(t.Context(), "any-bucket")
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

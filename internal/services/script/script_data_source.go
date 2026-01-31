@@ -12,7 +12,7 @@ import (
 )
 
 type scriptDataSource struct {
-	client *govpsie.Client
+	client ScriptAPI
 }
 
 type scriptDataSourceModel struct {
@@ -97,7 +97,7 @@ func (s *scriptDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 func (s *scriptDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state scriptDataSourceModel
 
-	scripts, err := s.client.Scripts.GetScripts(ctx)
+	scripts, err := s.client.GetScripts(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to get scripts",
@@ -148,5 +148,5 @@ func (s *scriptDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	s.client = client
+	s.client = client.Scripts
 }

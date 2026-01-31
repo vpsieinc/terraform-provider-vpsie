@@ -11,7 +11,7 @@ import (
 )
 
 type bucketDataSource struct {
-	client *govpsie.Client
+	client BucketAPI
 }
 
 type bucketDataSourceModel struct {
@@ -116,13 +116,13 @@ func (d *bucketDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	d.client = client
+	d.client = client.Bucket
 }
 
 func (d *bucketDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state bucketDataSourceModel
 
-	buckets, err := d.client.Bucket.List(ctx, nil)
+	buckets, err := d.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Buckets",

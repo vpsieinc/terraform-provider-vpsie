@@ -11,7 +11,7 @@ import (
 )
 
 type accessTokenDataSource struct {
-	client *govpsie.Client
+	client AccessTokenAPI
 }
 
 type accessTokenDataSourceModel struct {
@@ -83,13 +83,13 @@ func (d *accessTokenDataSource) Configure(_ context.Context, req datasource.Conf
 		return
 	}
 
-	d.client = client
+	d.client = client.AccessToken
 }
 
 func (d *accessTokenDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state accessTokenDataSourceModel
 
-	tokens, err := d.client.AccessToken.List(ctx, nil)
+	tokens, err := d.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Access Tokens",

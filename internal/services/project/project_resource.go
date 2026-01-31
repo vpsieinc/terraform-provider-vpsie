@@ -24,7 +24,7 @@ var (
 )
 
 type projectResource struct {
-	client *govpsie.Client
+	client ProjectAPI
 }
 
 type projectResourceModel struct {
@@ -130,7 +130,7 @@ func (i *projectResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	i.client = client
+	i.client = client.Project
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -147,7 +147,7 @@ func (p *projectResource) Create(ctx context.Context, req resource.CreateRequest
 		Description: plan.Description.ValueString(),
 	}
 
-	err := p.client.Project.Create(ctx, &createProjectReq)
+	err := p.client.Create(ctx, &createProjectReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating project", err.Error())
 		return
@@ -184,7 +184,7 @@ func (p *projectResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	project, err := p.client.Project.Get(ctx, state.Identifier.ValueString())
+	project, err := p.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -240,7 +240,7 @@ func (p *projectResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	err := p.client.Project.Delete(ctx, state.Identifier.ValueString())
+	err := p.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting project",
@@ -256,14 +256,14 @@ func (p *projectResource) ImportState(ctx context.Context, req resource.ImportSt
 }
 
 func (p *projectResource) GetProjectByName(ctx context.Context, name string) (*govpsie.Project, error) {
-	projects, err := p.client.Project.List(ctx, nil)
+	projects, err := p.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, project := range projects {
 		if name == project.Name {
-			project, err := p.client.Project.Get(ctx, project.Identifier)
+			project, err := p.client.Get(ctx, project.Identifier)
 			if err != nil {
 				return nil, err
 			}

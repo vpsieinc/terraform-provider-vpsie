@@ -26,7 +26,7 @@ var (
 )
 
 type imageResource struct {
-	client *govpsie.Client
+	client ImageAPI
 }
 
 type imageResourceModel struct {
@@ -187,7 +187,7 @@ func (i *imageResource) Configure(_ context.Context, req resource.ConfigureReque
 		return
 	}
 
-	i.client = client
+	i.client = client.Image
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -199,7 +199,7 @@ func (i *imageResource) Create(ctx context.Context, req resource.CreateRequest, 
 		return
 	}
 
-	err := i.client.Image.CreateImages(ctx, plan.DcIdentifier.ValueString(), plan.ImageLabel.ValueString(), plan.FetchedFromUrl.ValueString())
+	err := i.client.CreateImages(ctx, plan.DcIdentifier.ValueString(), plan.ImageLabel.ValueString(), plan.FetchedFromUrl.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating image", err.Error())
 		return
@@ -271,7 +271,7 @@ func (i *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		return
 	}
 
-	image, err := i.client.Image.GetImage(ctx, state.Identifier.ValueString())
+	image, err := i.client.GetImage(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -327,7 +327,7 @@ func (i *imageResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		return
 	}
 
-	err := i.client.Image.DeleteImage(ctx, state.Identifier.ValueString())
+	err := i.client.DeleteImage(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting image",
@@ -343,7 +343,7 @@ func (i *imageResource) ImportState(ctx context.Context, req resource.ImportStat
 }
 
 func (i *imageResource) checkResourceStatus(ctx context.Context, imageLabel string) (*govpsie.CustomImage, bool, error) {
-	images, err := i.client.Image.List(ctx, nil)
+	images, err := i.client.List(ctx, nil)
 	if err != nil {
 		return nil, false, err
 	}

@@ -10,15 +10,15 @@ import (
 
 // mockLoadbalancerAPI implements LoadbalancerAPI for unit testing.
 type mockLoadbalancerAPI struct {
-	ListLBsFn            func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.LB, error)
-	GetLBFn              func(ctx context.Context, lbID string) (*govpsie.LBDetails, error)
-	CreateLBFn           func(ctx context.Context, createLBReq *govpsie.CreateLBReq) error
-	DeleteLBFn           func(ctx context.Context, lbID, reason, note string) error
-	AddLBRuleFn          func(ctx context.Context, addRuleReq *govpsie.AddRuleReq) error
-	DeleteLBRuleFn       func(ctx context.Context, ruleID string) error
-	UpdateLBDomainFn     func(ctx context.Context, domainUpdateReq *govpsie.DomainUpdateReq) error
+	ListLBsFn             func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.LB, error)
+	GetLBFn               func(ctx context.Context, lbID string) (*govpsie.LBDetails, error)
+	CreateLBFn            func(ctx context.Context, createLBReq *govpsie.CreateLBReq) error
+	DeleteLBFn            func(ctx context.Context, lbID, reason, note string) error
+	AddLBRuleFn           func(ctx context.Context, addRuleReq *govpsie.AddRuleReq) error
+	DeleteLBRuleFn        func(ctx context.Context, ruleID string) error
+	UpdateLBDomainFn      func(ctx context.Context, domainUpdateReq *govpsie.DomainUpdateReq) error
 	UpdateDomainBackendFn func(ctx context.Context, domainId string, backends []govpsie.Backend) error
-	UpdateLBRulesFn      func(ctx context.Context, ruleUpdateReq *govpsie.RuleUpdateReq) error
+	UpdateLBRulesFn       func(ctx context.Context, ruleUpdateReq *govpsie.RuleUpdateReq) error
 }
 
 func (m *mockLoadbalancerAPI) ListLBs(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.LB, error) {
@@ -92,9 +92,7 @@ func TestUnitLoadbalancerAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api LoadbalancerAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy LoadbalancerAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitLoadbalancerAPI_CheckResourceStatus(t *testing.T) {
@@ -153,7 +151,7 @@ func TestUnitLoadbalancerAPI_CheckResourceStatus(t *testing.T) {
 			}
 
 			r := &loadbalancerResource{client: mock}
-			lb, found, err := r.checkResourceStatus(context.Background(), tt.lbName)
+			lb, found, err := r.checkResourceStatus(t.Context(), tt.lbName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -191,7 +189,7 @@ func TestUnitLoadbalancerAPI_GetLB(t *testing.T) {
 		},
 	}
 
-	lb, err := mock.GetLB(context.Background(), "test-id-123")
+	lb, err := mock.GetLB(t.Context(), "test-id-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -222,7 +220,7 @@ func TestUnitLoadbalancerAPI_DeleteLB(t *testing.T) {
 		},
 	}
 
-	err := mock.DeleteLB(context.Background(), "lb-id-1", "terraform provider", "terraform provider")
+	err := mock.DeleteLB(t.Context(), "lb-id-1", "terraform provider", "terraform provider")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -245,7 +243,7 @@ func TestUnitLoadbalancerAPI_ListLBsError(t *testing.T) {
 	}
 
 	r := &loadbalancerResource{client: mock}
-	_, found, err := r.checkResourceStatus(context.Background(), "any-lb")
+	_, found, err := r.checkResourceStatus(t.Context(), "any-lb")
 
 	if err == nil {
 		t.Fatal("expected error, got nil")

@@ -79,16 +79,16 @@ func TestUnitBackupAPI_MockSatisfiesInterface(t *testing.T) {
 		DeleteBackupFn:       func(ctx context.Context, backupIdentifier, deleteReason, deleteNote string) error { return nil },
 		CreateBackupPolicyFn: func(ctx context.Context, createReq *govpsie.CreateBackupPolicyReq) error { return nil },
 		GetBackupPolicyFn:    func(ctx context.Context, identifier string) (*govpsie.BackupPolicy, error) { return nil, nil },
-		ListBackupPoliciesFn: func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.BackupPolicyListDetail, error) { return nil, nil },
+		ListBackupPoliciesFn: func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.BackupPolicyListDetail, error) {
+			return nil, nil
+		},
 		AttachBackupPolicyFn: func(ctx context.Context, policyId string, vms []string) error { return nil },
 		DetachBackupPolicyFn: func(ctx context.Context, policyId string, vms []string) error { return nil },
 		DeleteBackupPolicyFn: func(ctx context.Context, policyId, identifier string) error { return nil },
 	}
 
 	var api BackupAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy BackupAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitBackupAPI_GetBackupByName(t *testing.T) {
@@ -136,7 +136,7 @@ func TestUnitBackupAPI_GetBackupByName(t *testing.T) {
 			}
 
 			r := &backupResource{client: mock}
-			backup, err := r.GetBackupByName(context.Background(), tt.backupName)
+			backup, err := r.GetBackupByName(t.Context(), tt.backupName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -199,7 +199,7 @@ func TestUnitBackupAPI_GetPolicyByName(t *testing.T) {
 			}
 
 			r := &backupPolicyResource{client: mock}
-			policy, err := r.GetPolicyByName(context.Background(), tt.policyName)
+			policy, err := r.GetPolicyByName(t.Context(), tt.policyName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -225,7 +225,7 @@ func TestUnitBackupAPI_ListError(t *testing.T) {
 	}
 
 	r := &backupResource{client: mock}
-	_, err := r.GetBackupByName(context.Background(), "test")
+	_, err := r.GetBackupByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from List failure, got nil")
 	}
@@ -239,7 +239,7 @@ func TestUnitBackupAPI_ListBackupPoliciesError(t *testing.T) {
 	}
 
 	r := &backupPolicyResource{client: mock}
-	_, err := r.GetPolicyByName(context.Background(), "test")
+	_, err := r.GetPolicyByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from ListBackupPolicies failure, got nil")
 	}

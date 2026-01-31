@@ -60,9 +60,7 @@ func TestUnitScriptAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api ScriptAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy ScriptAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitScriptAPI_GetScriptByName(t *testing.T) {
@@ -114,7 +112,7 @@ func TestUnitScriptAPI_GetScriptByName(t *testing.T) {
 			}
 
 			r := &scriptResource{client: mock}
-			script, err := r.GetScriptByName(context.Background(), tt.scriptName)
+			script, err := r.GetScriptByName(t.Context(), tt.scriptName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -139,7 +137,7 @@ func TestUnitScriptAPI_DeleteScript(t *testing.T) {
 		},
 	}
 
-	err := mock.DeleteScript(context.Background(), "script-id-123")
+	err := mock.DeleteScript(t.Context(), "script-id-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

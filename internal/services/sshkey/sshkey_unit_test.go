@@ -52,9 +52,7 @@ func TestUnitSshkeyAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api SshkeyAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy SshkeyAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitSshkeyAPI_GetSshkeyByName(t *testing.T) {
@@ -102,7 +100,7 @@ func TestUnitSshkeyAPI_GetSshkeyByName(t *testing.T) {
 			}
 
 			r := &sshkeyResource{client: mock}
-			key, err := r.GetSshkeyByName(context.Background(), tt.sshkeyName)
+			key, err := r.GetSshkeyByName(t.Context(), tt.sshkeyName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -128,7 +126,7 @@ func TestUnitSshkeyAPI_ListError(t *testing.T) {
 	}
 
 	r := &sshkeyResource{client: mock}
-	_, err := r.GetSshkeyByName(context.Background(), "test")
+	_, err := r.GetSshkeyByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from List failure, got nil")
 	}
@@ -160,7 +158,7 @@ func TestUnitSshkeyAPI_CreateAndGet(t *testing.T) {
 		},
 	}
 
-	err := mock.Create(context.Background(), "ssh-ed25519 AAAA...", "my-key")
+	err := mock.Create(t.Context(), "ssh-ed25519 AAAA...", "my-key")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -174,7 +172,7 @@ func TestUnitSshkeyAPI_CreateAndGet(t *testing.T) {
 		t.Fatalf("expected name 'my-key', got %q", createName)
 	}
 
-	key, err := mock.Get(context.Background(), "my-key")
+	key, err := mock.Get(t.Context(), "my-key")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

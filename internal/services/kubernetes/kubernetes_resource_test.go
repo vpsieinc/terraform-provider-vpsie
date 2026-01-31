@@ -108,9 +108,7 @@ func TestUnitKubernetesAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api KubernetesAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy KubernetesAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitKubernetesAPI_CheckResourceStatus(t *testing.T) {
@@ -169,7 +167,7 @@ func TestUnitKubernetesAPI_CheckResourceStatus(t *testing.T) {
 			}
 
 			r := &kubernetesResource{client: mock}
-			k8s, found, err := r.checkResourceStatus(context.Background(), tt.clusterName)
+			k8s, found, err := r.checkResourceStatus(t.Context(), tt.clusterName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -207,7 +205,7 @@ func TestUnitKubernetesAPI_Get(t *testing.T) {
 		},
 	}
 
-	k8s, err := mock.Get(context.Background(), "test-id-123")
+	k8s, err := mock.Get(t.Context(), "test-id-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -235,7 +233,7 @@ func TestUnitKubernetesAPI_Delete(t *testing.T) {
 		},
 	}
 
-	err := mock.Delete(context.Background(), "cluster-id", "terraform", "terraform")
+	err := mock.Delete(t.Context(), "cluster-id", "terraform", "terraform")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -301,7 +299,7 @@ func TestUnitKubernetesAPI_GetGroupByName(t *testing.T) {
 			}
 
 			r := &kubernetesGroupResource{client: mock}
-			group, err := r.GetKubernetesGroupByName(context.Background(), tt.groupName)
+			group, err := r.GetKubernetesGroupByName(t.Context(), tt.groupName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -367,7 +365,7 @@ func TestUnitKubernetesAPI_GetGroupByIdentifier(t *testing.T) {
 			}
 
 			r := &kubernetesGroupResource{client: mock}
-			group, err := r.GetKubernetesGroupByIdentifier(context.Background(), tt.identifier)
+			group, err := r.GetKubernetesGroupByIdentifier(t.Context(), tt.identifier)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")

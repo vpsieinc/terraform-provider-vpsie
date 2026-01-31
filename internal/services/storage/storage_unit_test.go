@@ -60,9 +60,7 @@ func TestUnitStorageAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api StorageAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy StorageAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitStorageAPI_GetVolumeByName(t *testing.T) {
@@ -110,7 +108,7 @@ func TestUnitStorageAPI_GetVolumeByName(t *testing.T) {
 			}
 
 			r := &storageResource{client: mock}
-			vol, err := r.GetVolumeByName(context.Background(), tt.volumeName)
+			vol, err := r.GetVolumeByName(t.Context(), tt.volumeName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -166,7 +164,7 @@ func TestUnitStorageAPI_GetVolumeByIdentifier(t *testing.T) {
 			}
 
 			r := &storageResource{client: mock}
-			vol, err := r.GetVolumeByIdentifier(context.Background(), tt.identifier)
+			vol, err := r.GetVolumeByIdentifier(t.Context(), tt.identifier)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -192,12 +190,12 @@ func TestUnitStorageAPI_ListAllError(t *testing.T) {
 	}
 
 	r := &storageResource{client: mock}
-	_, err := r.GetVolumeByName(context.Background(), "test")
+	_, err := r.GetVolumeByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from ListAll failure, got nil")
 	}
 
-	_, err = r.GetVolumeByIdentifier(context.Background(), "test-id")
+	_, err = r.GetVolumeByIdentifier(t.Context(), "test-id")
 	if err == nil {
 		t.Fatal("expected error from ListAll failure, got nil")
 	}

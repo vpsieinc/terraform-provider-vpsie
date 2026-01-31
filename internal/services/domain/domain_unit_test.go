@@ -10,16 +10,16 @@ import (
 
 // mockDomainAPI implements DomainAPI for unit testing.
 type mockDomainAPI struct {
-	CreateDomainFn        func(ctx context.Context, createReq *govpsie.CreateDomainRequest) error
-	ListDomainsFn         func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.Domain, error)
-	DeleteDomainFn        func(ctx context.Context, domainIdentifier, reason, note string) error
-	CreateDnsRecordFn     func(ctx context.Context, createReq govpsie.CreateDnsRecordReq) error
-	UpdateDnsRecordFn     func(ctx context.Context, updateReq *govpsie.UpdateDnsRecordReq) error
-	DeleteDnsRecordFn     func(ctx context.Context, domainIdentifier string, record *govpsie.Record) error
-	AddReverseFn          func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error
+	CreateDomainFn          func(ctx context.Context, createReq *govpsie.CreateDomainRequest) error
+	ListDomainsFn           func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.Domain, error)
+	DeleteDomainFn          func(ctx context.Context, domainIdentifier, reason, note string) error
+	CreateDnsRecordFn       func(ctx context.Context, createReq govpsie.CreateDnsRecordReq) error
+	UpdateDnsRecordFn       func(ctx context.Context, updateReq *govpsie.UpdateDnsRecordReq) error
+	DeleteDnsRecordFn       func(ctx context.Context, domainIdentifier string, record *govpsie.Record) error
+	AddReverseFn            func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error
 	ListReversePTRRecordsFn func(ctx context.Context) ([]govpsie.ReversePTR, error)
-	UpdateReverseFn       func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error
-	DeleteReverseFn       func(ctx context.Context, ip, vmIdentifier string) error
+	UpdateReverseFn         func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error
+	DeleteReverseFn         func(ctx context.Context, ip, vmIdentifier string) error
 }
 
 func (m *mockDomainAPI) CreateDomain(ctx context.Context, createReq *govpsie.CreateDomainRequest) error {
@@ -67,22 +67,20 @@ var _ DomainAPI = &mockDomainAPI{}
 
 func TestUnitDomainAPI_MockSatisfiesInterface(t *testing.T) {
 	mock := &mockDomainAPI{
-		CreateDomainFn:    func(ctx context.Context, createReq *govpsie.CreateDomainRequest) error { return nil },
-		ListDomainsFn:     func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.Domain, error) { return nil, nil },
-		DeleteDomainFn:    func(ctx context.Context, domainIdentifier, reason, note string) error { return nil },
-		CreateDnsRecordFn: func(ctx context.Context, createReq govpsie.CreateDnsRecordReq) error { return nil },
-		UpdateDnsRecordFn: func(ctx context.Context, updateReq *govpsie.UpdateDnsRecordReq) error { return nil },
-		DeleteDnsRecordFn: func(ctx context.Context, domainIdentifier string, record *govpsie.Record) error { return nil },
-		AddReverseFn:      func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error { return nil },
+		CreateDomainFn:          func(ctx context.Context, createReq *govpsie.CreateDomainRequest) error { return nil },
+		ListDomainsFn:           func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.Domain, error) { return nil, nil },
+		DeleteDomainFn:          func(ctx context.Context, domainIdentifier, reason, note string) error { return nil },
+		CreateDnsRecordFn:       func(ctx context.Context, createReq govpsie.CreateDnsRecordReq) error { return nil },
+		UpdateDnsRecordFn:       func(ctx context.Context, updateReq *govpsie.UpdateDnsRecordReq) error { return nil },
+		DeleteDnsRecordFn:       func(ctx context.Context, domainIdentifier string, record *govpsie.Record) error { return nil },
+		AddReverseFn:            func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error { return nil },
 		ListReversePTRRecordsFn: func(ctx context.Context) ([]govpsie.ReversePTR, error) { return nil, nil },
-		UpdateReverseFn:   func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error { return nil },
-		DeleteReverseFn:   func(ctx context.Context, ip, vmIdentifier string) error { return nil },
+		UpdateReverseFn:         func(ctx context.Context, reverseReq *govpsie.ReverseRequest) error { return nil },
+		DeleteReverseFn:         func(ctx context.Context, ip, vmIdentifier string) error { return nil },
 	}
 
 	var api DomainAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy DomainAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitDomainAPI_GetDomainByName(t *testing.T) {
@@ -130,7 +128,7 @@ func TestUnitDomainAPI_GetDomainByName(t *testing.T) {
 			}
 
 			r := &domainResource{client: mock}
-			domain, err := r.GetDomainByName(context.Background(), tt.domainName)
+			domain, err := r.GetDomainByName(t.Context(), tt.domainName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -156,7 +154,7 @@ func TestUnitDomainAPI_ListDomainsError(t *testing.T) {
 	}
 
 	r := &domainResource{client: mock}
-	_, err := r.GetDomainByName(context.Background(), "test.com")
+	_, err := r.GetDomainByName(t.Context(), "test.com")
 	if err == nil {
 		t.Fatal("expected error from ListDomains failure, got nil")
 	}

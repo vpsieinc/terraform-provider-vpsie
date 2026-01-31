@@ -9,18 +9,18 @@ import (
 
 // mockServerAPI implements ServerAPI for unit testing.
 type mockServerAPI struct {
-	CreateServerFn           func(ctx context.Context, req *govpsie.CreateServerRequest) error
-	ListFn                   func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.VmData, error)
-	GetServerByIdentifierFn  func(ctx context.Context, identifierId string) (*govpsie.VmData, error)
-	DeleteServerFn           func(ctx context.Context, identifierId, password, reason, note string) error
-	ChangeHostNameFn         func(ctx context.Context, identifierId string, newHostname string) error
-	StartServerFn            func(ctx context.Context, identifierId string) error
-	StopServerFn             func(ctx context.Context, identifierId string) error
-	LockFn                   func(ctx context.Context, identifierId string) error
-	UnLockFn                 func(ctx context.Context, identifierId string) error
-	AddSshFn                 func(ctx context.Context, identifierId, sshKeyIdentifier string) error
-	AddScriptFn              func(ctx context.Context, identifierId, scriptIdentifier string) error
-	ResizeServerFn           func(ctx context.Context, identifierId, cpu, ram string) error
+	CreateServerFn          func(ctx context.Context, req *govpsie.CreateServerRequest) error
+	ListFn                  func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.VmData, error)
+	GetServerByIdentifierFn func(ctx context.Context, identifierId string) (*govpsie.VmData, error)
+	DeleteServerFn          func(ctx context.Context, identifierId, password, reason, note string) error
+	ChangeHostNameFn        func(ctx context.Context, identifierId string, newHostname string) error
+	StartServerFn           func(ctx context.Context, identifierId string) error
+	StopServerFn            func(ctx context.Context, identifierId string) error
+	LockFn                  func(ctx context.Context, identifierId string) error
+	UnLockFn                func(ctx context.Context, identifierId string) error
+	AddSshFn                func(ctx context.Context, identifierId, sshKeyIdentifier string) error
+	AddScriptFn             func(ctx context.Context, identifierId, scriptIdentifier string) error
+	ResizeServerFn          func(ctx context.Context, identifierId, cpu, ram string) error
 }
 
 func (m *mockServerAPI) CreateServer(ctx context.Context, req *govpsie.CreateServerRequest) error {
@@ -115,18 +115,16 @@ func TestUnitServerAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api ServerAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy ServerAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitServerAPI_CheckResourceStatus(t *testing.T) {
 	tests := []struct {
-		name          string
-		hostname      string
-		servers       []govpsie.VmData
-		expectFound   bool
-		expectErr     bool
+		name        string
+		hostname    string
+		servers     []govpsie.VmData
+		expectFound bool
+		expectErr   bool
 	}{
 		{
 			name:     "server found by hostname",
@@ -165,7 +163,7 @@ func TestUnitServerAPI_CheckResourceStatus(t *testing.T) {
 			}
 
 			r := &serverResource{client: mock}
-			server, found, err := r.checkResourceStatus(context.Background(), tt.hostname)
+			server, found, err := r.checkResourceStatus(t.Context(), tt.hostname)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -203,7 +201,7 @@ func TestUnitServerAPI_GetServerByIdentifier(t *testing.T) {
 		},
 	}
 
-	server, err := mock.GetServerByIdentifier(context.Background(), "test-id-123")
+	server, err := mock.GetServerByIdentifier(t.Context(), "test-id-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -233,7 +231,7 @@ func TestUnitServerAPI_DeleteServer(t *testing.T) {
 		},
 	}
 
-	err := mock.DeleteServer(context.Background(), "server-id", "pass123", "testing", "test note")
+	err := mock.DeleteServer(t.Context(), "server-id", "pass123", "testing", "test note")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

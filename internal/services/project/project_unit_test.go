@@ -52,9 +52,7 @@ func TestUnitProjectAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api ProjectAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy ProjectAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitProjectAPI_GetProjectByName(t *testing.T) {
@@ -106,7 +104,7 @@ func TestUnitProjectAPI_GetProjectByName(t *testing.T) {
 			}
 
 			r := &projectResource{client: mock}
-			project, err := r.GetProjectByName(context.Background(), tt.projectName)
+			project, err := r.GetProjectByName(t.Context(), tt.projectName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -134,7 +132,7 @@ func TestUnitProjectAPI_Delete(t *testing.T) {
 		},
 	}
 
-	err := mock.Delete(context.Background(), "project-id-123")
+	err := mock.Delete(t.Context(), "project-id-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

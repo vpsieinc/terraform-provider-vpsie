@@ -43,9 +43,7 @@ func TestUnitIPAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api IPAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy IPAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitIPAPI_ListPublicIPs(t *testing.T) {
@@ -58,7 +56,7 @@ func TestUnitIPAPI_ListPublicIPs(t *testing.T) {
 		},
 	}
 
-	ips, err := mock.ListPublicIPs(context.Background(), nil)
+	ips, err := mock.ListPublicIPs(t.Context(), nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -82,7 +80,7 @@ func TestUnitIPAPI_ListPrivateIPs(t *testing.T) {
 		},
 	}
 
-	ips, err := mock.ListPrivateIPs(context.Background(), nil)
+	ips, err := mock.ListPrivateIPs(t.Context(), nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -104,7 +102,7 @@ func TestUnitIPAPI_ListAllIPs(t *testing.T) {
 		},
 	}
 
-	ips, err := mock.ListAllIPs(context.Background(), nil)
+	ips, err := mock.ListAllIPs(t.Context(), nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

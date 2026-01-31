@@ -25,7 +25,7 @@ var (
 )
 
 type storageResource struct {
-	client *govpsie.Client
+	client StorageAPI
 }
 
 type storageResourceModel struct {
@@ -231,7 +231,7 @@ func (s *storageResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	s.client = client
+	s.client = client.Storage
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -252,7 +252,7 @@ func (s *storageResource) Create(ctx context.Context, req resource.CreateRequest
 	storageReq.DiskFormat = plan.DiskFormat.ValueString()
 	storageReq.StorageType = plan.StorageType.ValueString()
 
-	err := s.client.Storage.CreateVolume(ctx, storageReq)
+	err := s.client.CreateVolume(ctx, storageReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating storage", err.Error())
 		return
@@ -355,7 +355,7 @@ func (s *storageResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if !namePlan.Equal(nameState) {
-		err := s.client.Storage.UpdateName(ctx, identifier.ValueString(), namePlan.ValueString())
+		err := s.client.UpdateName(ctx, identifier.ValueString(), namePlan.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating storage name",
@@ -368,7 +368,7 @@ func (s *storageResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if !sizePlan.Equal(sizeState) {
-		err := s.client.Storage.UpdateSize(ctx, identifier.ValueString(), sizePlan.ValueString())
+		err := s.client.UpdateSize(ctx, identifier.ValueString(), sizePlan.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating storage size",
@@ -390,7 +390,7 @@ func (s *storageResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	err := s.client.Storage.Delete(ctx, state.Identifier.ValueString())
+	err := s.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting storage",
@@ -406,7 +406,7 @@ func (s *storageResource) ImportState(ctx context.Context, req resource.ImportSt
 }
 
 func (s *storageResource) GetVolumeByName(ctx context.Context, name string) (*govpsie.Storage, error) {
-	volumes, err := s.client.Storage.ListAll(ctx, &govpsie.ListOptions{})
+	volumes, err := s.client.ListAll(ctx, &govpsie.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -421,7 +421,7 @@ func (s *storageResource) GetVolumeByName(ctx context.Context, name string) (*go
 }
 
 func (s *storageResource) GetVolumeByIdentifier(ctx context.Context, identifier string) (*govpsie.Storage, error) {
-	volumes, err := s.client.Storage.ListAll(ctx, &govpsie.ListOptions{})
+	volumes, err := s.client.ListAll(ctx, &govpsie.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

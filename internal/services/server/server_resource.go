@@ -28,7 +28,7 @@ var (
 )
 
 type serverResource struct {
-	client *govpsie.Client
+	client ServerAPI
 }
 
 type serverResourceModel struct {
@@ -714,7 +714,7 @@ func (s *serverResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	s.client = client
+	s.client = client.Server
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -751,7 +751,7 @@ func (s *serverResource) Create(ctx context.Context, req resource.CreateRequest,
 		createServerReq.Notes = plan.Notes.ValueStringPointer()
 	}
 
-	err := s.client.Server.CreateServer(ctx, createServerReq)
+	err := s.client.CreateServer(ctx, createServerReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating server", err.Error())
 		return
@@ -875,7 +875,7 @@ func (s *serverResource) Read(ctx context.Context, req resource.ReadRequest, res
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	server, err := s.client.Server.GetServerByIdentifier(ctx, state.Identifier.ValueString())
+	server, err := s.client.GetServerByIdentifier(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -981,7 +981,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	if !state.Hostname.Equal(plan.Hostname) {
-		err := s.client.Server.ChangeHostName(ctx, state.Identifier.ValueString(), plan.Hostname.ValueString())
+		err := s.client.ChangeHostName(ctx, state.Identifier.ValueString(), plan.Hostname.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating server hostname",
@@ -996,7 +996,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	if !state.Power.Equal(plan.Power) {
 		if plan.Power.ValueInt64() == 1 {
-			err := s.client.Server.StartServer(ctx, state.Identifier.ValueString())
+			err := s.client.StartServer(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error starting server",
@@ -1006,7 +1006,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 				return
 			}
 		} else {
-			err := s.client.Server.StopServer(ctx, state.Identifier.ValueString())
+			err := s.client.StopServer(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error stopping server",
@@ -1021,7 +1021,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	if !state.IsLocked.Equal(plan.IsLocked) {
 		if plan.IsLocked.ValueInt64() == 1 {
-			err := s.client.Server.Lock(ctx, state.Identifier.ValueString())
+			err := s.client.Lock(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error locking server",
@@ -1031,7 +1031,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 				return
 			}
 		} else {
-			err := s.client.Server.UnLock(ctx, state.Identifier.ValueString())
+			err := s.client.UnLock(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error unlocking server",
@@ -1046,7 +1046,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	if !state.SshKeyID.Equal(plan.SshKeyID) {
-		err := s.client.Server.AddSsh(ctx, state.Identifier.ValueString(), plan.SshKeyID.ValueString())
+		err := s.client.AddSsh(ctx, state.Identifier.ValueString(), plan.SshKeyID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating server sshkey",
@@ -1060,7 +1060,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	if !state.ScriptID.Equal(plan.ScriptID) {
-		err := s.client.Server.AddScript(ctx, state.Identifier.ValueString(), plan.ScriptID.ValueString())
+		err := s.client.AddScript(ctx, state.Identifier.ValueString(), plan.ScriptID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating server script",
@@ -1075,7 +1075,7 @@ func (s *serverResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if !state.Cpu.Equal(plan.Cpu) || !state.Ram.Equal(plan.Ram) {
 		cpu := strconv.FormatInt(plan.Cpu.ValueInt64(), 10)
 		ram := strconv.FormatInt(plan.Ram.ValueInt64(), 10)
-		err := s.client.Server.ResizeServer(ctx, state.Identifier.ValueString(), cpu, ram)
+		err := s.client.ResizeServer(ctx, state.Identifier.ValueString(), cpu, ram)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error resizing server",
@@ -1119,7 +1119,7 @@ func (s *serverResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	} else {
 		deleteNote = state.DeleteNote.ValueString()
 	}
-	err := s.client.Server.DeleteServer(ctx, state.Identifier.ValueString(), state.Password.ValueString(), state.DeleteReason.ValueString(), deleteNote)
+	err := s.client.DeleteServer(ctx, state.Identifier.ValueString(), state.Password.ValueString(), state.DeleteReason.ValueString(), deleteNote)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting server",
@@ -1135,7 +1135,7 @@ func (s *serverResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (s *serverResource) checkResourceStatus(ctx context.Context, hostname string) (*govpsie.VmData, bool, error) {
-	servers, err := s.client.Server.List(ctx, nil)
+	servers, err := s.client.List(ctx, nil)
 	if err != nil {
 		return nil, false, err
 	}

@@ -24,7 +24,7 @@ var (
 )
 
 type sshkeyResource struct {
-	client *govpsie.Client
+	client SshkeyAPI
 }
 
 type sshkeyResourceModel struct {
@@ -124,7 +124,7 @@ func (s *sshkeyResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	s.client = client
+	s.client = client.SShKey
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -136,7 +136,7 @@ func (s *sshkeyResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	err := s.client.SShKey.Create(ctx, plan.PrivateKey.ValueString(), plan.Name.ValueString())
+	err := s.client.Create(ctx, plan.PrivateKey.ValueString(), plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating sshkey",
@@ -179,7 +179,7 @@ func (s *sshkeyResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	sshkey, err := s.client.SShKey.Get(ctx, state.Identifier.ValueString())
+	sshkey, err := s.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -221,7 +221,7 @@ func (s *sshkeyResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := s.client.SShKey.Delete(ctx, state.Identifier.ValueString())
+	err := s.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting sshkey",
@@ -237,7 +237,7 @@ func (s *sshkeyResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (s *sshkeyResource) GetSshkeyByName(ctx context.Context, sshkeyName string) (*govpsie.SShKey, error) {
-	sshkeys, err := s.client.SShKey.List(ctx)
+	sshkeys, err := s.client.List(ctx)
 	if err != nil {
 		return nil, err
 	}

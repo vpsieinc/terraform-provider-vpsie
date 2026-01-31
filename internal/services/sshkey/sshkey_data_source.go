@@ -12,7 +12,7 @@ import (
 )
 
 type sshKeyDataSource struct {
-	client *govpsie.Client
+	client SshkeyAPI
 }
 
 type sshKeyDataSourceModel struct {
@@ -94,7 +94,7 @@ func (s *sshKeyDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 func (s *sshKeyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state sshKeyDataSourceModel
 
-	sshKeys, err := s.client.SShKey.List(ctx)
+	sshKeys, err := s.client.List(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to get sshKeys",
@@ -144,5 +144,5 @@ func (s *sshKeyDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	s.client = client
+	s.client = client.SShKey
 }

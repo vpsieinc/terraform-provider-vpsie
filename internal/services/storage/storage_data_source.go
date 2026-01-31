@@ -17,7 +17,7 @@ var (
 
 // storageDataSource is the data source implementation.
 type storageDataSource struct {
-	client *govpsie.Client
+	client StorageAPI
 }
 
 type storageDataSourceModel struct {
@@ -168,7 +168,7 @@ func (s *storageDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 func (s *storageDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state storageDataSourceModel
 
-	storages, err := s.client.Storage.ListAll(ctx, nil)
+	storages, err := s.client.ListAll(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to read Vpsie Storages",
@@ -231,5 +231,5 @@ func (s *storageDataSource) Configure(_ context.Context, req datasource.Configur
 		return
 	}
 
-	s.client = client
+	s.client = client.Storage
 }

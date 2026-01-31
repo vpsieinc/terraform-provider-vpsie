@@ -12,7 +12,7 @@ import (
 )
 
 type serverDataSource struct {
-	client *govpsie.Client
+	client ServerAPI
 }
 
 type serverDataSourceModel struct {
@@ -411,7 +411,7 @@ func (s *serverDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 func (s *serverDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state serverDataSourceModel
 
-	servers, err := s.client.Server.List(ctx, nil)
+	servers, err := s.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading servers",
@@ -521,5 +521,5 @@ func (s *serverDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	s.client = client
+	s.client = client.Server
 }

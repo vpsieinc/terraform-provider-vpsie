@@ -3,22 +3,27 @@ package domain
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
 
 var (
-	_ resource.Resource              = &reverseDnsResource{}
-	_ resource.ResourceWithConfigure = &reverseDnsResource{}
+	_ resource.Resource                = &reverseDnsResource{}
+	_ resource.ResourceWithConfigure   = &reverseDnsResource{}
+	_ resource.ResourceWithImportState = &reverseDnsResource{}
 )
 
 type reverseDnsResource struct {
-	client *govpsie.Client
+	client DomainAPI
 }
 
 type reverseDnsResourceModel struct {
@@ -39,30 +44,48 @@ func (r *reverseDnsResource) Metadata(_ context.Context, req resource.MetadataRe
 
 func (r *reverseDnsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a reverse DNS (PTR) record on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The composite identifier of the reverse DNS record (vm_identifier/ip).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vm_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the virtual machine associated with this reverse DNS record. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"ip": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The IP address for the reverse DNS record. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"domain_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the domain for this reverse DNS record.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"hostname": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The hostname that the IP address resolves to.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 		},
 	}
@@ -82,7 +105,7 @@ func (r *reverseDnsResource) Configure(_ context.Context, req resource.Configure
 		return
 	}
 
-	r.client = client
+	r.client = client.Domain
 }
 
 func (r *reverseDnsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -100,7 +123,7 @@ func (r *reverseDnsResource) Create(ctx context.Context, req resource.CreateRequ
 		HostName:         plan.HostName.ValueString(),
 	}
 
-	err := r.client.Domain.AddReverse(ctx, reverseReq)
+	err := r.client.AddReverse(ctx, reverseReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating reverse DNS", err.Error())
 		return
@@ -120,7 +143,7 @@ func (r *reverseDnsResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	records, err := r.client.Domain.ListReversePTRRecords(ctx)
+	records, err := r.client.ListReversePTRRecords(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading reverse DNS records", err.Error())
 		return
@@ -159,7 +182,7 @@ func (r *reverseDnsResource) Update(ctx context.Context, req resource.UpdateRequ
 		HostName:         plan.HostName.ValueString(),
 	}
 
-	err := r.client.Domain.UpdateReverse(ctx, reverseReq)
+	err := r.client.UpdateReverse(ctx, reverseReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating reverse DNS", err.Error())
 		return
@@ -167,6 +190,21 @@ func (r *reverseDnsResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
+}
+
+func (r *reverseDnsResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	parts := strings.Split(req.ID, "/")
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected import identifier with format: <vm_identifier>/<ip>. Got: %s", req.ID),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vm_identifier"), parts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("ip"), parts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }
 
 func (r *reverseDnsResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -177,7 +215,7 @@ func (r *reverseDnsResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	err := r.client.Domain.DeleteReverse(ctx, state.IP.ValueString(), state.VmIdentifier.ValueString())
+	err := r.client.DeleteReverse(ctx, state.IP.ValueString(), state.VmIdentifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting reverse DNS",

@@ -3,12 +3,12 @@
 page_title: "vpsie_backup_policies Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Fetches the list of backup policies on the VPSie platform.
 ---
 
 # vpsie_backup_policies (Data Source)
 
-
+Fetches the list of backup policies on the VPSie platform.
 
 ## Example Usage
 
@@ -21,20 +21,20 @@ data "vpsie_backup_policies" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `policies` (Attributes List) (see [below for nested schema](#nestedatt--policies))
+- `id` (String) The ID of this data source.
+- `policies` (Attributes List) The list of backup policies. (see [below for nested schema](#nestedatt--policies))
 
 <a id="nestedatt--policies"></a>
 ### Nested Schema for `policies`
 
 Read-Only:
 
-- `backup_plan` (String)
-- `created_by` (String)
-- `created_on` (String)
-- `disabled` (Number)
-- `identifier` (String)
-- `keep` (Number)
-- `name` (String)
-- `plan_every` (Number)
-- `vms_count` (Number)
+- `backup_plan` (String) The type of backup plan.
+- `created_by` (String) The user who created the backup policy.
+- `created_on` (String) The date and time when the backup policy was created.
+- `disabled` (Number) Whether the backup policy is disabled (1 for disabled, 0 for enabled).
+- `identifier` (String) The unique identifier of the backup policy.
+- `keep` (Number) The number of backups to retain.
+- `name` (String) The name of the backup policy.
+- `plan_every` (Number) The frequency interval for the backup plan.
+- `vms_count` (Number) The number of virtual machines attached to this backup policy.

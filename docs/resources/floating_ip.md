@@ -3,12 +3,12 @@
 page_title: "vpsie_floating_ip Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a floating IP on the VPSie platform.
 ---
 
 # vpsie_floating_ip (Resource)
 
-
+Manages a floating IP on the VPSie platform.
 
 ## Example Usage
 
@@ -25,11 +25,11 @@ resource "vpsie_floating_ip" "example" {
 
 ### Required
 
-- `dc_identifier` (String)
-- `ip_type` (String)
-- `vm_identifier` (String)
+- `dc_identifier` (String) The identifier of the data center. Changing this forces a new resource to be created.
+- `ip_type` (String) The type of IP address to allocate. Must be `ipv4` or `ipv6`. Changing this forces a new resource to be created.
+- `vm_identifier` (String) The identifier of the virtual machine to assign the floating IP to. Changing this forces a new resource to be created.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `ip` (String)
+- `id` (String) The unique identifier of the floating IP.
+- `ip` (String) The floating IP address that was allocated.

@@ -3,23 +3,31 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
 
 var (
-	_ resource.Resource              = &vpcServerAssignmentResource{}
-	_ resource.ResourceWithConfigure = &vpcServerAssignmentResource{}
+	_ resource.Resource                = &vpcServerAssignmentResource{}
+	_ resource.ResourceWithConfigure   = &vpcServerAssignmentResource{}
+	_ resource.ResourceWithImportState = &vpcServerAssignmentResource{}
 )
 
 type vpcServerAssignmentResource struct {
-	client *govpsie.Client
+	client   VpcAPI
+	ipClient IPLookupAPI
 }
 
 type vpcServerAssignmentResourceModel struct {
@@ -40,33 +48,48 @@ func (v *vpcServerAssignmentResource) Metadata(_ context.Context, req resource.M
 
 func (v *vpcServerAssignmentResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a server assignment to a VPC on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The composite identifier of the assignment in the format vm_identifier/vpc_id.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vm_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the virtual machine to assign to the VPC. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"vpc_id": schema.Int64Attribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The numeric ID of the VPC to assign the server to. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.RequiresReplace(),
 				},
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
 			},
 			"dc_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the data center. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"private_ip_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the private IP assigned to the server within the VPC.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -89,7 +112,8 @@ func (v *vpcServerAssignmentResource) Configure(_ context.Context, req resource.
 		return
 	}
 
-	v.client = client
+	v.client = client.VPC
+	v.ipClient = client.IP
 }
 
 func (v *vpcServerAssignmentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -106,7 +130,7 @@ func (v *vpcServerAssignmentResource) Create(ctx context.Context, req resource.C
 		DcIdentifier: plan.DcIdentifier.ValueString(),
 	}
 
-	err := v.client.VPC.AssignServer(ctx, assignReq)
+	err := v.client.AssignServer(ctx, assignReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error assigning server to VPC", err.Error())
 		return
@@ -115,7 +139,7 @@ func (v *vpcServerAssignmentResource) Create(ctx context.Context, req resource.C
 	plan.ID = types.StringValue(fmt.Sprintf("%s/%d", plan.VmIdentifier.ValueString(), plan.VpcID.ValueInt64()))
 
 	// Try to find the private IP ID from the IP list
-	ips, err := v.client.IP.ListPrivateIPs(ctx, nil)
+	ips, err := v.ipClient.ListPrivateIPs(ctx, nil)
 	if err == nil {
 		for _, ip := range ips {
 			if ip.BoxIdentifier == plan.VmIdentifier.ValueString() {
@@ -138,7 +162,7 @@ func (v *vpcServerAssignmentResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	// Verify the private IP still exists
-	ips, err := v.client.IP.ListPrivateIPs(ctx, nil)
+	ips, err := v.ipClient.ListPrivateIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading private IPs", err.Error())
 		return
@@ -166,6 +190,30 @@ func (v *vpcServerAssignmentResource) Update(ctx context.Context, req resource.U
 	// All fields are ForceNew, so Update is never called
 }
 
+func (v *vpcServerAssignmentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	parts := strings.Split(req.ID, "/")
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected import identifier with format: <vm_identifier>/<vpc_id>. Got: %s", req.ID),
+		)
+		return
+	}
+
+	vpcID, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected vpc_id to be an integer, got: %s", parts[1]),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vm_identifier"), parts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vpc_id"), vpcID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
+}
+
 func (v *vpcServerAssignmentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state vpcServerAssignmentResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -174,7 +222,7 @@ func (v *vpcServerAssignmentResource) Delete(ctx context.Context, req resource.D
 		return
 	}
 
-	err := v.client.VPC.ReleasePrivateIP(ctx, state.VmIdentifier.ValueString(), int(state.PrivateIPID.ValueInt64()))
+	err := v.client.ReleasePrivateIP(ctx, state.VmIdentifier.ValueString(), int(state.PrivateIPID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error releasing VPC server assignment",

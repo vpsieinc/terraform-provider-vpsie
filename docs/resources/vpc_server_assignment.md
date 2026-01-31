@@ -3,12 +3,12 @@
 page_title: "vpsie_vpc_server_assignment Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a server assignment to a VPC on the VPSie platform.
 ---
 
 # vpsie_vpc_server_assignment (Resource)
 
-
+Manages a server assignment to a VPC on the VPSie platform.
 
 ## Example Usage
 
@@ -25,11 +25,11 @@ resource "vpsie_vpc_server_assignment" "example" {
 
 ### Required
 
-- `dc_identifier` (String)
-- `vm_identifier` (String)
-- `vpc_id` (Number)
+- `dc_identifier` (String) The identifier of the data center. Changing this forces a new resource to be created.
+- `vm_identifier` (String) The identifier of the virtual machine to assign to the VPC. Changing this forces a new resource to be created.
+- `vpc_id` (Number) The numeric ID of the VPC to assign the server to. Changing this forces a new resource to be created.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `private_ip_id` (Number)
+- `id` (String) The composite identifier of the assignment in the format vm_identifier/vpc_id.
+- `private_ip_id` (Number) The numeric ID of the private IP assigned to the server within the VPC.

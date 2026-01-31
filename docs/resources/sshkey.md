@@ -3,12 +3,12 @@
 page_title: "vpsie_sshkey Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages an SSH key on the VPSie platform.
 ---
 
 # vpsie_sshkey (Resource)
 
-
+Manages an SSH key on the VPSie platform.
 
 ## Example Usage
 
@@ -24,13 +24,13 @@ resource "vpsie_sshkey" "example" {
 
 ### Required
 
-- `name` (String)
-- `private_key` (String)
+- `name` (String) The name of the SSH key.
+- `private_key` (String, Sensitive) The public key content of the SSH key.
 
 ### Read-Only
 
-- `created_by` (String)
-- `created_on` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `user_id` (Number)
+- `created_by` (String) The user who created the SSH key.
+- `created_on` (String) The timestamp when the SSH key was created.
+- `id` (Number) The numeric ID of the SSH key.
+- `identifier` (String) The unique identifier of the SSH key.
+- `user_id` (Number) The ID of the user who owns the SSH key.

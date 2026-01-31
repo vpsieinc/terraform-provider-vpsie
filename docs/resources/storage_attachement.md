@@ -3,12 +3,12 @@
 page_title: "vpsie_storage_attachement Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages the attachment of a storage volume to a server on the VPSie platform.
 ---
 
 # vpsie_storage_attachement (Resource)
 
-
+Manages the attachment of a storage volume to a server on the VPSie platform.
 
 ## Example Usage
 
@@ -25,9 +25,9 @@ resource "vpsie_storage_attachement" "example" {
 
 ### Required
 
-- `storage_identifier` (String)
-- `vm_identifier` (String)
+- `storage_identifier` (String) The identifier of the storage volume to attach.
+- `vm_identifier` (String) The identifier of the VM to attach the storage volume to.
 
 ### Optional
 
-- `vm_type` (String)
+- `vm_type` (String) The type of virtual machine (defaults to "vm").

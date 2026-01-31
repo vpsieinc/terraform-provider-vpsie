@@ -4,21 +4,26 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
 
 var (
-	_ resource.Resource              = &fipResource{}
-	_ resource.ResourceWithConfigure = &fipResource{}
+	_ resource.Resource                = &fipResource{}
+	_ resource.ResourceWithConfigure   = &fipResource{}
+	_ resource.ResourceWithImportState = &fipResource{}
 )
 
 type fipResource struct {
-	client *govpsie.Client
+	client   FipAPI
+	ipClient FipIPAPI
 }
 
 type fipResourceModel struct {
@@ -39,33 +44,48 @@ func (f *fipResource) Metadata(_ context.Context, req resource.MetadataRequest, 
 
 func (f *fipResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a floating IP on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the floating IP.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vm_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the virtual machine to assign the floating IP to. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"dc_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the data center. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"ip_type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of IP address to allocate. Must be `ipv4` or `ipv6`. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.OneOf("ipv4", "ipv6"),
+				},
 			},
 			"ip": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The floating IP address that was allocated.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -88,7 +108,8 @@ func (f *fipResource) Configure(_ context.Context, req resource.ConfigureRequest
 		return
 	}
 
-	f.client = client
+	f.client = client.Fip
+	f.ipClient = client.IP
 }
 
 func (f *fipResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -100,7 +121,7 @@ func (f *fipResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get existing IPs to find the new one after creation
-	existingIPs, err := f.client.IP.ListAllIPs(ctx, nil)
+	existingIPs, err := f.ipClient.ListAllIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error listing IPs", err.Error())
 		return
@@ -111,14 +132,14 @@ func (f *fipResource) Create(ctx context.Context, req resource.CreateRequest, re
 		existingSet[ip.IP] = true
 	}
 
-	err = f.client.Fip.CreateFloatingIP(ctx, plan.VmIdentifier.ValueString(), plan.DcIdentifier.ValueString(), plan.IpType.ValueString())
+	err = f.client.CreateFloatingIP(ctx, plan.VmIdentifier.ValueString(), plan.DcIdentifier.ValueString(), plan.IpType.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating floating IP", err.Error())
 		return
 	}
 
 	// Find the newly created IP
-	allIPs, err := f.client.IP.ListAllIPs(ctx, nil)
+	allIPs, err := f.ipClient.ListAllIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error listing IPs after creation", err.Error())
 		return
@@ -152,7 +173,7 @@ func (f *fipResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	allIPs, err := f.client.IP.ListAllIPs(ctx, nil)
+	allIPs, err := f.ipClient.ListAllIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading IPs", err.Error())
 		return
@@ -180,6 +201,10 @@ func (f *fipResource) Update(ctx context.Context, req resource.UpdateRequest, re
 	// All fields are ForceNew, so Update is never called
 }
 
+func (f *fipResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
 func (f *fipResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state fipResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -188,7 +213,7 @@ func (f *fipResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	err := f.client.Fip.UnassignFloatingIP(ctx, state.ID.ValueString())
+	err := f.client.UnassignFloatingIP(ctx, state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting floating IP",

@@ -12,7 +12,7 @@ import (
 )
 
 type scriptDataSource struct {
-	client *govpsie.Client
+	client ScriptAPI
 }
 
 type scriptDataSourceModel struct {
@@ -46,35 +46,45 @@ func (s *scriptDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"scripts": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of scripts.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the script.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the user who owns the script.",
 						},
 						"box_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the box associated with the script.",
 						},
 						"box_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the box associated with the script.",
 						},
 						"script_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The display name of the script.",
 						},
 						"script": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The content of the script.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the script was created.",
 						},
 						"created_by": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The user who created the script.",
 						},
 					},
 				},
@@ -87,7 +97,7 @@ func (s *scriptDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 func (s *scriptDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state scriptDataSourceModel
 
-	scripts, err := s.client.Scripts.GetScripts(ctx)
+	scripts, err := s.client.GetScripts(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to get scripts",
@@ -138,5 +148,5 @@ func (s *scriptDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	s.client = client
+	s.client = client.Scripts
 }

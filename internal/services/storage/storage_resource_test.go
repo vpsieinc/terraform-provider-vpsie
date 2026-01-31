@@ -1,10 +1,14 @@
 package storage_test
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
+	"github.com/vpsie/govpsie"
 	"github.com/vpsie/terraform-provider-vpsie/internal/acctest"
 )
 
@@ -12,6 +16,7 @@ func TestAccStorageResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckStorageResourceDestroy,
 		Steps: []resource.TestStep{
 			// create and read testing
 			{
@@ -49,6 +54,7 @@ func TestAccStorageResource_Resize(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acctest.TestAccPreCheck(t) },
 		ProtoV6ProviderFactories: acctest.TestAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckStorageResourceDestroy,
 		Steps: []resource.TestStep{
 			// create and read testing
 			{
@@ -95,4 +101,30 @@ resource "vpsie_storage" "test" {
   description   = "test description"
 }
 `, name, size)
+}
+
+func testAccCheckStorageResourceDestroy(s *terraform.State) error {
+	client := govpsie.NewClient(nil)
+	client.SetRequestHeaders(map[string]string{
+		"Vpsie-Auth": os.Getenv("VPSIE_ACCESS_TOKEN"),
+	})
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "vpsie_storage" {
+			continue
+		}
+
+		volumes, err := client.Storage.ListAll(context.Background(), &govpsie.ListOptions{})
+		if err != nil {
+			return fmt.Errorf("error checking storage destroy: %s", err)
+		}
+
+		for _, volume := range volumes {
+			if volume.Identifier == rs.Primary.Attributes["identifier"] {
+				return fmt.Errorf("storage volume %s still exists", rs.Primary.Attributes["identifier"])
+			}
+		}
+	}
+
+	return nil
 }

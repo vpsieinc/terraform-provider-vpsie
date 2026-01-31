@@ -3,12 +3,12 @@
 page_title: "vpsie_datacenters Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Retrieves a list of all data centers available on the VPSie platform.
 ---
 
 # vpsie_datacenters (Data Source)
 
-
+Retrieves a list of all data centers available on the VPSie platform.
 
 ## Example Usage
 
@@ -21,21 +21,21 @@ data "vpsie_datacenters" "example" {}
 
 ### Read-Only
 
-- `datacenters` (Attributes List) (see [below for nested schema](#nestedatt--datacenters))
-- `id` (String) The ID of this resource.
+- `datacenters` (Attributes List) The list of available data centers. (see [below for nested schema](#nestedatt--datacenters))
+- `id` (String) The identifier for this data source.
 
 <a id="nestedatt--datacenters"></a>
 ### Nested Schema for `datacenters`
 
 Read-Only:
 
-- `country` (String)
-- `dc_image` (String)
-- `dc_name` (String)
-- `default_selected` (Number)
-- `identifier` (String)
-- `is_active` (Number)
-- `is_bucket_available` (Number)
-- `is_fip_available` (Number)
-- `is_private` (Number)
-- `state` (String)
+- `country` (String) The country where the data center is located.
+- `dc_image` (String) The image or logo URL for the data center.
+- `dc_name` (String) The name of the data center.
+- `default_selected` (Number) Whether this data center is selected by default (1 = default, 0 = not default).
+- `identifier` (String) The unique identifier of the data center.
+- `is_active` (Number) Whether the data center is active (1 = active, 0 = inactive).
+- `is_bucket_available` (Number) Whether object storage buckets are available in this data center (1 = available, 0 = unavailable).
+- `is_fip_available` (Number) Whether floating IPs are available in this data center (1 = available, 0 = unavailable).
+- `is_private` (Number) Whether this is a private data center (1 = private, 0 = public).
+- `state` (String) The current state of the data center.

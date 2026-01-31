@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -22,7 +24,7 @@ var (
 )
 
 type projectResource struct {
-	client *govpsie.Client
+	client ProjectAPI
 }
 
 type projectResourceModel struct {
@@ -49,51 +51,62 @@ func (i *projectResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 		Attributes: map[string]schema.Attribute{
 
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the project.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the project.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 
 			"is_default": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether this is the default project (1 = default, 0 = not default).",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the project. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"updated_at": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the project was last updated.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"description": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "A description of the project. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the project was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the user who created the project.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -117,7 +130,7 @@ func (i *projectResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	i.client = client
+	i.client = client.Project
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -134,7 +147,7 @@ func (p *projectResource) Create(ctx context.Context, req resource.CreateRequest
 		Description: plan.Description.ValueString(),
 	}
 
-	err := p.client.Project.Create(ctx, &createProjectReq)
+	err := p.client.Create(ctx, &createProjectReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating project", err.Error())
 		return
@@ -171,7 +184,7 @@ func (p *projectResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	project, err := p.client.Project.Get(ctx, state.Identifier.ValueString())
+	project, err := p.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -227,7 +240,7 @@ func (p *projectResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	err := p.client.Project.Delete(ctx, state.Identifier.ValueString())
+	err := p.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting project",
@@ -243,14 +256,14 @@ func (p *projectResource) ImportState(ctx context.Context, req resource.ImportSt
 }
 
 func (p *projectResource) GetProjectByName(ctx context.Context, name string) (*govpsie.Project, error) {
-	projects, err := p.client.Project.List(ctx, nil)
+	projects, err := p.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, project := range projects {
 		if name == project.Name {
-			project, err := p.client.Project.Get(ctx, project.Identifier)
+			project, err := p.client.Get(ctx, project.Identifier)
 			if err != nil {
 				return nil, err
 			}

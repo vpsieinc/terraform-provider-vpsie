@@ -3,12 +3,12 @@
 page_title: "vpsie_storage_snapshots Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Retrieves a list of all storage volume snapshots on the VPSie platform.
 ---
 
 # vpsie_storage_snapshots (Data Source)
 
-
+Retrieves a list of all storage volume snapshots on the VPSie platform.
 
 ## Example Usage
 
@@ -21,25 +21,25 @@ data "vpsie_storage_snapshots" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `storage_snapshots` (Attributes List) (see [below for nested schema](#nestedatt--storage_snapshots))
+- `id` (String) The identifier for this data source.
+- `storage_snapshots` (Attributes List) The list of storage volume snapshots. (see [below for nested schema](#nestedatt--storage_snapshots))
 
 <a id="nestedatt--storage_snapshots"></a>
 ### Nested Schema for `storage_snapshots`
 
 Read-Only:
 
-- `box_id` (Number)
-- `created_on` (String)
-- `disk_format` (String)
-- `entity_type` (String)
-- `id` (Number)
-- `identifier` (String)
-- `is_deleted` (Number)
-- `name` (String)
-- `size` (Number)
-- `snapshot_key` (String)
-- `storage_id` (Number)
-- `storage_name` (String)
-- `storage_type` (String)
-- `user_id` (Number)
+- `box_id` (Number) The ID of the server (box) the storage volume is attached to.
+- `created_on` (String) The timestamp when the storage snapshot was created.
+- `disk_format` (String) The disk format of the storage volume (e.g., EXT4, XFS).
+- `entity_type` (String) The entity type of the storage snapshot.
+- `id` (Number) The unique numeric identifier of the storage snapshot.
+- `identifier` (String) The unique identifier of the storage snapshot.
+- `is_deleted` (Number) Whether the storage snapshot has been deleted (1 = deleted, 0 = active).
+- `name` (String) The name of the storage snapshot.
+- `size` (Number) The size of the storage snapshot in bytes.
+- `snapshot_key` (String) The key identifier for the storage snapshot.
+- `storage_id` (Number) The numeric ID of the storage volume this snapshot belongs to.
+- `storage_name` (String) The name of the storage volume this snapshot belongs to.
+- `storage_type` (String) The type of the storage volume (e.g., ssd, sata).
+- `user_id` (Number) The ID of the user who owns the storage snapshot.

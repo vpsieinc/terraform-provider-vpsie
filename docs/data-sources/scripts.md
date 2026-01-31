@@ -21,19 +21,19 @@ data "vpsie_scripts" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `scripts` (Attributes List) (see [below for nested schema](#nestedatt--scripts))
+- `id` (String) The ID of this data source.
+- `scripts` (Attributes List) The list of scripts. (see [below for nested schema](#nestedatt--scripts))
 
 <a id="nestedatt--scripts"></a>
 ### Nested Schema for `scripts`
 
 Read-Only:
 
-- `box_id` (Number)
-- `box_identifier` (String)
-- `created_by` (String)
-- `created_on` (String)
-- `identifier` (String)
-- `script` (String)
-- `script_name` (String)
-- `user_id` (Number)
+- `box_id` (Number) The numeric ID of the box associated with the script.
+- `box_identifier` (String) The unique identifier of the box associated with the script.
+- `created_by` (String) The user who created the script.
+- `created_on` (String) The timestamp when the script was created.
+- `identifier` (String) The unique identifier of the script.
+- `script` (String) The content of the script.
+- `script_name` (String) The display name of the script.
+- `user_id` (Number) The numeric ID of the user who owns the script.

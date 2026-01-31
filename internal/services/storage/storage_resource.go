@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -22,7 +25,7 @@ var (
 )
 
 type storageResource struct {
-	client *govpsie.Client
+	client StorageAPI
 }
 
 type storageResourceModel struct {
@@ -59,112 +62,152 @@ func (s *storageResource) Metadata(_ context.Context, req resource.MetadataReque
 
 func (s *storageResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a block storage volume on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the storage volume.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the storage volume.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"dc_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the data center where the storage volume is created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"description": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "A description of the storage volume.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"size": schema.Int64Attribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The size of the storage volume in GB.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
 			},
 			"storage_type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of storage (e.g., ssd, sata).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"disk_format": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The disk format of the storage volume (EXT4 or XFS).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{
+					stringvalidator.OneOf("EXT4", "XFS"),
+				},
 			},
 			"is_automatic": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Whether the storage volume was created automatically.",
 			},
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the user who owns the storage volume.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"box_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the server (box) the storage is attached to.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 				Optional: true,
 			},
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the storage volume.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_template_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the user template associated with the storage volume.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"storage_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The internal storage ID.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"disk_key": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The disk key identifier for the storage volume.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the storage volume was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vm_identifier": schema.StringAttribute{
-				Computed: true,
-				Optional: true,
+				Computed:            true,
+				Optional:            true,
+				MarkdownDescription: "The identifier of the VM the storage is attached to.",
 			},
 			"hostname": schema.StringAttribute{
-				Computed: true,
-				Optional: true,
+				Computed:            true,
+				Optional:            true,
+				MarkdownDescription: "The hostname of the server the storage is attached to.",
 			},
 			"os_identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The OS identifier of the server the storage is attached to.",
 			},
 			"state": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The current state of the storage volume.",
 			},
 			"bus_device": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The bus device name of the storage volume.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"bus_number": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The bus number of the storage volume.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -188,7 +231,7 @@ func (s *storageResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	s.client = client
+	s.client = client.Storage
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -209,7 +252,7 @@ func (s *storageResource) Create(ctx context.Context, req resource.CreateRequest
 	storageReq.DiskFormat = plan.DiskFormat.ValueString()
 	storageReq.StorageType = plan.StorageType.ValueString()
 
-	err := s.client.Storage.CreateVolume(ctx, storageReq)
+	err := s.client.CreateVolume(ctx, storageReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating storage", err.Error())
 		return
@@ -312,7 +355,7 @@ func (s *storageResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if !namePlan.Equal(nameState) {
-		err := s.client.Storage.UpdateName(ctx, identifier.ValueString(), namePlan.ValueString())
+		err := s.client.UpdateName(ctx, identifier.ValueString(), namePlan.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating storage name",
@@ -325,7 +368,7 @@ func (s *storageResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	if !sizePlan.Equal(sizeState) {
-		err := s.client.Storage.UpdateSize(ctx, identifier.ValueString(), sizePlan.ValueString())
+		err := s.client.UpdateSize(ctx, identifier.ValueString(), sizePlan.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating storage size",
@@ -347,7 +390,7 @@ func (s *storageResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	err := s.client.Storage.Delete(ctx, state.Identifier.ValueString())
+	err := s.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting storage",
@@ -363,7 +406,7 @@ func (s *storageResource) ImportState(ctx context.Context, req resource.ImportSt
 }
 
 func (s *storageResource) GetVolumeByName(ctx context.Context, name string) (*govpsie.Storage, error) {
-	volumes, err := s.client.Storage.ListAll(ctx, &govpsie.ListOptions{})
+	volumes, err := s.client.ListAll(ctx, &govpsie.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -378,7 +421,7 @@ func (s *storageResource) GetVolumeByName(ctx context.Context, name string) (*go
 }
 
 func (s *storageResource) GetVolumeByIdentifier(ctx context.Context, identifier string) (*govpsie.Storage, error) {
-	volumes, err := s.client.Storage.ListAll(ctx, &govpsie.ListOptions{})
+	volumes, err := s.client.ListAll(ctx, &govpsie.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

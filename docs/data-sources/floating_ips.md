@@ -3,12 +3,12 @@
 page_title: "vpsie_floating_ips Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Retrieves a list of all floating IPs on the VPSie platform.
 ---
 
 # vpsie_floating_ips (Data Source)
 
-
+Retrieves a list of all floating IPs on the VPSie platform.
 
 ## Example Usage
 
@@ -21,22 +21,22 @@ data "vpsie_floating_ips" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `ips` (Attributes List) (see [below for nested schema](#nestedatt--ips))
+- `id` (String) The identifier for this data source.
+- `ips` (Attributes List) The list of floating IPs. (see [below for nested schema](#nestedatt--ips))
 
 <a id="nestedatt--ips"></a>
 ### Nested Schema for `ips`
 
 Read-Only:
 
-- `box_identifier` (String)
-- `category` (String)
-- `dc_identifier` (String)
-- `dc_name` (String)
-- `full_name` (String)
-- `hostname` (String)
-- `id` (Number)
-- `ip` (String)
-- `ip_version` (String)
-- `is_primary` (Number)
-- `type` (String)
+- `box_identifier` (String) The identifier of the server (box) associated with the floating IP.
+- `category` (String) The category of the floating IP.
+- `dc_identifier` (String) The identifier of the data center where the IP is allocated.
+- `dc_name` (String) The name of the data center where the IP is allocated.
+- `full_name` (String) The full name of the user who owns the floating IP.
+- `hostname` (String) The hostname of the server associated with the floating IP.
+- `id` (Number) The unique numeric identifier of the floating IP.
+- `ip` (String) The floating IP address.
+- `ip_version` (String) The IP version of the floating IP address.
+- `is_primary` (Number) Whether this is the primary IP for the associated server.
+- `type` (String) The type of the floating IP.

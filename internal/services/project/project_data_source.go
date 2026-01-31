@@ -12,7 +12,7 @@ import (
 )
 
 type projectDataSource struct {
-	client *govpsie.Client
+	client ProjectAPI
 }
 
 type projectDataSourceModel struct {
@@ -46,35 +46,45 @@ func (p *projectDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"projects": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of projects.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the project.",
 						},
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the project.",
 						},
 						"is_default": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this is the default project (1 = default, 0 = not default).",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the project.",
 						},
 						"updated_at": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the project was last updated.",
 						},
 						"description": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "A description of the project.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the project was created.",
 						},
 						"created_by": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the user who created the project.",
 						},
 					},
 				},
@@ -87,7 +97,7 @@ func (p *projectDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 func (p *projectDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state projectDataSourceModel
 
-	projects, err := p.client.Project.List(ctx, nil)
+	projects, err := p.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Projects",
@@ -135,5 +145,5 @@ func (p *projectDataSource) Configure(_ context.Context, req datasource.Configur
 		return
 	}
 
-	p.client = client
+	p.client = client.Project
 }

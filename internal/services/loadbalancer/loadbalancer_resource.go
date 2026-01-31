@@ -8,12 +8,15 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -25,7 +28,7 @@ var (
 )
 
 type loadbalancerResource struct {
-	client *govpsie.Client
+	client LoadbalancerAPI
 }
 
 type loadbalancerResourceModel struct {
@@ -102,25 +105,29 @@ func (l *loadbalancerResource) Metadata(_ context.Context, req resource.Metadata
 
 var backendScheme = map[string]schema.Attribute{
 	"ip": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The IP address of the backend server.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"identifier": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The unique identifier of the backend.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"vm_identifier": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The identifier of the VM serving as a backend.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"created_on": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The timestamp when the backend was created.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
@@ -129,249 +136,302 @@ var backendScheme = map[string]schema.Attribute{
 
 func (l *loadbalancerResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a load balancer on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the load balancer.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the load balancer.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"lb_name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the load balancer.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"traffic": schema.Int64Attribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The traffic allowance for the load balancer in GB.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
 			},
 			"boxsize_id": schema.Int64Attribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The box size ID defining the load balancer resources.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
 			},
 			"default_ip": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The default IP address of the load balancer.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"dc_name": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The name of the data center where the load balancer resides.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"dc_id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the data center where the load balancer resides.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The user who created the load balancer.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the user who owns the load balancer.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"algorithm": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The load balancing algorithm (e.g., roundrobin, leastconn).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"redirect_http": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether HTTP to HTTPS redirection is enabled.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"health_check_path": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The URL path used for health checks.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"cookie_check": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether sticky sessions via cookies are enabled.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"cookie_name": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The name of the cookie used for sticky sessions.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"check_interval": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The interval in seconds between health checks.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"fast_interval": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The fast check interval in seconds when a backend is marked down.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"rise": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The number of consecutive successful checks to mark a backend as up.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"fall": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The number of consecutive failed checks to mark a backend as down.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 
 			"rules": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of forwarding rules for the load balancer.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"rule_id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique ID of the forwarding rule.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"front_port": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The frontend port that the load balancer listens on.",
 							PlanModifiers: []planmodifier.Int64{
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 						"back_port": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The backend port that traffic is forwarded to.",
 							PlanModifiers: []planmodifier.Int64{
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the rule was created.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"scheme": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The protocol scheme for the rule (e.g., http, https, tcp).",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"domain_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The domain name associated with the rule.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"domains": schema.ListNestedAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The list of domains configured for this rule.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"domain_id": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The unique ID of the domain entry.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"backend_scheme": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The backend protocol scheme for this domain.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"subdomain": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The subdomain for this domain entry.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"algorithm": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The load balancing algorithm for this domain.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"created_on": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The timestamp when the domain entry was created.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"back_port": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The backend port for this domain.",
 										PlanModifiers: []planmodifier.Int64{
 											int64planmodifier.UseStateForUnknown(),
 										},
 									},
 									"domain_name": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The domain name for this entry.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"redirect_http": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "Whether HTTP to HTTPS redirection is enabled for this domain.",
 										PlanModifiers: []planmodifier.Int64{
 											int64planmodifier.UseStateForUnknown(),
 										},
 									},
 									"health_check_path": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The health check path for this domain.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"cookie_check": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "Whether sticky sessions are enabled for this domain.",
 										PlanModifiers: []planmodifier.Int64{
 											int64planmodifier.UseStateForUnknown(),
 										},
 									},
 									"cookie_name": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The cookie name for sticky sessions on this domain.",
 										PlanModifiers: []planmodifier.String{
 											stringplanmodifier.UseStateForUnknown(),
 										},
 									},
 									"check_interval": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The health check interval in seconds for this domain.",
 										PlanModifiers: []planmodifier.Int64{
 											int64planmodifier.UseStateForUnknown(),
 										},
 									},
 									"fast_interval": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The fast check interval in seconds for this domain.",
 										PlanModifiers: []planmodifier.Int64{
 											int64planmodifier.UseStateForUnknown(),
 										},
 									},
 									"rise": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The number of successful checks to mark backend as up for this domain.",
 										PlanModifiers: []planmodifier.Int64{
 											int64planmodifier.UseStateForUnknown(),
 										},
 									},
 									"fall": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The number of failed checks to mark backend as down for this domain.",
 										PlanModifiers: []planmodifier.Int64{
 											int64planmodifier.UseStateForUnknown(),
 										},
 									},
 									"backends": schema.ListNestedAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The list of backend servers for this domain.",
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: backendScheme,
 										},
@@ -380,7 +440,8 @@ func (l *loadbalancerResource) Schema(ctx context.Context, _ resource.SchemaRequ
 							},
 						},
 						"backends": schema.ListNestedAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The list of backend servers for this rule.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: backendScheme,
 							},
@@ -389,7 +450,8 @@ func (l *loadbalancerResource) Schema(ctx context.Context, _ resource.SchemaRequ
 				},
 			},
 			"timeout": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The connection timeout value in seconds.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -413,7 +475,7 @@ func (l *loadbalancerResource) Configure(_ context.Context, req resource.Configu
 		return
 	}
 
-	l.client = client
+	l.client = client.LB
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -477,7 +539,7 @@ func (l *loadbalancerResource) Create(ctx context.Context, req resource.CreateRe
 		Rule:               rules,
 	}
 
-	err := l.client.LB.CreateLB(ctx, createLb)
+	err := l.client.CreateLB(ctx, createLb)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating image", err.Error())
 		return
@@ -612,7 +674,7 @@ func (l *loadbalancerResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	lb, err := l.client.LB.GetLB(ctx, state.Identifier.ValueString())
+	lb, err := l.client.GetLB(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -762,7 +824,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 				domains = append(domains, domain)
 			}
 			newRule.Domains = domains
-			err := l.client.LB.AddLBRule(ctx, &newRule)
+			err := l.client.AddLBRule(ctx, &newRule)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error creating loadbalancer rule",
@@ -805,7 +867,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 			domainUpdateReq.RedirectHTTP = int(dns.RedirectHTTP.ValueInt64())
 			domainUpdateReq.Rise = int(dns.Rise.ValueInt64())
 
-			err := l.client.LB.UpdateLBDomain(ctx, &domainUpdateReq)
+			err := l.client.UpdateLBDomain(ctx, &domainUpdateReq)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating loadbalancer domain",
@@ -823,7 +885,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 				})
 			}
 
-			err = l.client.LB.UpdateDomainBackend(ctx, dns.DomainID.ValueString(), dnsBackends)
+			err = l.client.UpdateDomainBackend(ctx, dns.DomainID.ValueString(), dnsBackends)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating loadbalancer domain",
@@ -835,7 +897,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 
 		}
 
-		err := l.client.LB.UpdateLBRules(ctx, &newRule)
+		err := l.client.UpdateLBRules(ctx, &newRule)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating loadbalancer rule",
@@ -849,7 +911,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	for _, rule := range rules {
-		err := l.client.LB.DeleteLBRule(ctx, rule.RuleID.ValueString())
+		err := l.client.DeleteLBRule(ctx, rule.RuleID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error deleting loadbalancer rule",
@@ -871,7 +933,7 @@ func (l *loadbalancerResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	err := l.client.LB.DeleteLB(ctx, state.Identifier.ValueString(), "terraform provider", "terraform provider")
+	err := l.client.DeleteLB(ctx, state.Identifier.ValueString(), "terraform provider", "terraform provider")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting loadbalancer",
@@ -887,7 +949,7 @@ func (l *loadbalancerResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 func (l *loadbalancerResource) checkResourceStatus(ctx context.Context, lbName string) (*govpsie.LBDetails, bool, error) {
-	lbs, err := l.client.LB.ListLBs(ctx, nil)
+	lbs, err := l.client.ListLBs(ctx, nil)
 	if err != nil {
 		return nil, false, err
 	}
@@ -895,7 +957,7 @@ func (l *loadbalancerResource) checkResourceStatus(ctx context.Context, lbName s
 	for _, lb := range lbs {
 		if lb.LBName == lbName {
 
-			newLb, err := l.client.LB.GetLB(ctx, lb.Identifier)
+			newLb, err := l.client.GetLB(ctx, lb.Identifier)
 			if err != nil {
 				return nil, false, err
 			}

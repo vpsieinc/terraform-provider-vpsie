@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -22,7 +24,7 @@ var (
 )
 
 type sshkeyResource struct {
-	client *govpsie.Client
+	client SshkeyAPI
 }
 
 type sshkeyResourceModel struct {
@@ -45,45 +47,60 @@ func (s *sshkeyResource) Metadata(_ context.Context, req resource.MetadataReques
 
 func (s *sshkeyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages an SSH key on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the SSH key.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the user who owns the SSH key.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the SSH key.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the SSH key.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"private_key": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Sensitive:           true,
+				MarkdownDescription: "The public key content of the SSH key.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the SSH key was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The user who created the SSH key.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -107,7 +124,7 @@ func (s *sshkeyResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	s.client = client
+	s.client = client.SShKey
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -119,7 +136,7 @@ func (s *sshkeyResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	err := s.client.SShKey.Create(ctx, plan.PrivateKey.ValueString(), plan.Name.ValueString())
+	err := s.client.Create(ctx, plan.PrivateKey.ValueString(), plan.Name.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating sshkey",
@@ -162,7 +179,7 @@ func (s *sshkeyResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	sshkey, err := s.client.SShKey.Get(ctx, state.Identifier.ValueString())
+	sshkey, err := s.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -204,7 +221,7 @@ func (s *sshkeyResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := s.client.SShKey.Delete(ctx, state.Identifier.ValueString())
+	err := s.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting sshkey",
@@ -220,7 +237,7 @@ func (s *sshkeyResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (s *sshkeyResource) GetSshkeyByName(ctx context.Context, sshkeyName string) (*govpsie.SShKey, error) {
-	sshkeys, err := s.client.SShKey.List(ctx)
+	sshkeys, err := s.client.List(ctx)
 	if err != nil {
 		return nil, err
 	}

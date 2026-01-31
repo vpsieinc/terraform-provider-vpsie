@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -22,7 +24,7 @@ var (
 )
 
 type backupResource struct {
-	client *govpsie.Client
+	client BackupAPI
 }
 
 type backupResourceModel struct {
@@ -52,73 +54,97 @@ func (s *backupResource) Metadata(_ context.Context, req resource.MetadataReques
 
 func (s *backupResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a backup on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the backup.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The date and time when the backup was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"dc_identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier of the data center where the backup is stored.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The user who created the backup.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"hostname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The hostname of the server associated with the backup.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the backup.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"note": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "An optional note or description for the backup.",
 			},
 			"backup_key": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The key used to identify the backup.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"state": schema.StringAttribute{
-				Computed:      true,
-				PlanModifiers: []planmodifier.String{},
+				Computed:            true,
+				MarkdownDescription: "The current state of the backup.",
+				PlanModifiers:       []planmodifier.String{},
 			},
 			"vm_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the virtual machine to back up.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"box_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric box ID of the backup.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"backupsha1": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The SHA1 checksum of the backup.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"os_full_name": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The full name of the operating system in the backup.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vm_category": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The category of the virtual machine associated with the backup.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -142,7 +168,7 @@ func (b *backupResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	b.client = client
+	b.client = client.Backup
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -154,7 +180,7 @@ func (b *backupResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	err := b.client.Backup.CreateBackups(ctx, plan.VMIdentifier.ValueString(), plan.Name.ValueString(), plan.Note.ValueString())
+	err := b.client.CreateBackups(ctx, plan.VMIdentifier.ValueString(), plan.Name.ValueString(), plan.Note.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating backup", err.Error())
 		return
@@ -199,7 +225,7 @@ func (s *backupResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	backup, err := s.client.Backup.Get(ctx, state.Identifier.ValueString())
+	backup, err := s.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -252,7 +278,7 @@ func (s *backupResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	if !plan.Name.Equal(state.Name) {
-		err := s.client.Backup.Rename(ctx, state.Identifier.ValueString(), plan.Name.ValueString())
+		err := s.client.Rename(ctx, state.Identifier.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError("Error renaming backup", err.Error())
 			return
@@ -276,7 +302,7 @@ func (b *backupResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := b.client.Backup.DeleteBackup(ctx, state.Identifier.ValueString(), "terraform delete", "terraform delete")
+	err := b.client.DeleteBackup(ctx, state.Identifier.ValueString(), "terraform delete", "terraform delete")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting backup",
@@ -292,7 +318,7 @@ func (b *backupResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (b *backupResource) GetBackupByName(ctx context.Context, backupName string) (*govpsie.Backup, error) {
-	backups, err := b.client.Backup.List(ctx, nil)
+	backups, err := b.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

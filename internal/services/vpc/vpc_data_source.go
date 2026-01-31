@@ -12,7 +12,7 @@ import (
 )
 
 type vpcDataSource struct {
-	client *govpsie.Client
+	client VpcAPI
 }
 
 type vpcDataSourceModel struct {
@@ -60,85 +60,112 @@ func (v *vpcDataSource) Metadata(_ context.Context, req datasource.MetadataReque
 // Schema defines the schema for the data source.
 func (v *vpcDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves a list of all VPCs on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier for this data source.",
 			},
 			"vpcs": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of VPCs.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique numeric identifier of the VPC.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the user who owns the VPC.",
 						},
 						"owner_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the account owner.",
 						},
 						"datacenter_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the data center.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the VPC.",
 						},
 						"description": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The description of the VPC.",
 						},
 						"interface_number": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of network interfaces in the VPC.",
 						},
 						"network_tag_number": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The network tag number assigned to the VPC.",
 						},
 						"network_range": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The IP range of the VPC network in CIDR notation.",
 						},
 						"network_size": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The size of the VPC network (CIDR prefix length).",
 						},
 						"is_default": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this is the default VPC.",
 						},
 						"created_by": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the user who created the VPC.",
 						},
 						"updated_by": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the user who last updated the VPC.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The date and time when the VPC was created.",
 						},
 						"last_updated": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The date and time when the VPC was last updated.",
 						},
 						"low_ip_num": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The lowest IP number in the VPC network range.",
 						},
 						"hight_ip_num": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The highest IP number in the VPC network range.",
 						},
 						"is_upc_network": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the VPC is a UPC network.",
 						},
 						"firstname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The first name of the VPC owner.",
 						},
 						"lastname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The last name of the VPC owner.",
 						},
 						"username": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The username of the VPC owner.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the VPC.",
 						},
 						"dc_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the data center where the VPC is located.",
 						},
 						"dc_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the VPC is located.",
 						},
 					},
 				},
@@ -151,7 +178,7 @@ func (v *vpcDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, re
 func (v *vpcDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state vpcDataSourceModel
 
-	vpcs, err := v.client.VPC.List(ctx, nil)
+	vpcs, err := v.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting VPCs",
@@ -216,5 +243,5 @@ func (v *vpcDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 		return
 	}
 
-	v.client = client
+	v.client = client.VPC
 }

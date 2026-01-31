@@ -11,7 +11,7 @@ import (
 )
 
 type ipDataSource struct {
-	client *govpsie.Client
+	client IPAPI
 }
 
 type ipDataSourceModel struct {
@@ -46,31 +46,73 @@ func (d *ipDataSource) Metadata(_ context.Context, req datasource.MetadataReques
 
 func (d *ipDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves a list of IP addresses on the VPSie platform, optionally filtered by type.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier for this data source.",
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,
 				MarkdownDescription: "Filter by IP type: `all`, `public`, or `private`. Defaults to `all`.",
 			},
 			"ips": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of IP addresses.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"id":             schema.Int64Attribute{Computed: true},
-						"dc_name":        schema.StringAttribute{Computed: true},
-						"dc_identifier":  schema.StringAttribute{Computed: true},
-						"ip":             schema.StringAttribute{Computed: true},
-						"ip_version":     schema.StringAttribute{Computed: true},
-						"is_primary":     schema.Int64Attribute{Computed: true},
-						"hostname":       schema.StringAttribute{Computed: true},
-						"box_identifier": schema.StringAttribute{Computed: true},
-						"full_name":      schema.StringAttribute{Computed: true},
-						"category":       schema.StringAttribute{Computed: true},
-						"type":           schema.StringAttribute{Computed: true},
-						"created_by":     schema.StringAttribute{Computed: true},
-						"updated_at":     schema.StringAttribute{Computed: true},
+						"id": schema.Int64Attribute{
+							Computed:            true,
+							MarkdownDescription: "The unique numeric identifier of the IP address.",
+						},
+						"dc_name": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The name of the data center where the IP is allocated.",
+						},
+						"dc_identifier": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the IP is allocated.",
+						},
+						"ip": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The IP address.",
+						},
+						"ip_version": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The IP version (e.g., IPv4, IPv6).",
+						},
+						"is_primary": schema.Int64Attribute{
+							Computed:            true,
+							MarkdownDescription: "Whether this is the primary IP for the associated server.",
+						},
+						"hostname": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The hostname of the server associated with the IP.",
+						},
+						"box_identifier": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The identifier of the server (box) associated with the IP.",
+						},
+						"full_name": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The full name of the user who owns the IP.",
+						},
+						"category": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The category of the IP address.",
+						},
+						"type": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The type of the IP address (e.g., public, private).",
+						},
+						"created_by": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The user who created the IP address.",
+						},
+						"updated_at": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the IP address was last updated.",
+						},
 					},
 				},
 			},
@@ -92,7 +134,7 @@ func (d *ipDataSource) Configure(_ context.Context, req datasource.ConfigureRequ
 		return
 	}
 
-	d.client = client
+	d.client = client.IP
 }
 
 func (d *ipDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -113,11 +155,11 @@ func (d *ipDataSource) Read(ctx context.Context, req datasource.ReadRequest, res
 
 	switch ipType {
 	case "public":
-		ips, err = d.client.IP.ListPublicIPs(ctx, nil)
+		ips, err = d.client.ListPublicIPs(ctx, nil)
 	case "private":
-		ips, err = d.client.IP.ListPrivateIPs(ctx, nil)
+		ips, err = d.client.ListPrivateIPs(ctx, nil)
 	default:
-		ips, err = d.client.IP.ListAllIPs(ctx, nil)
+		ips, err = d.client.ListAllIPs(ctx, nil)
 	}
 
 	if err != nil {

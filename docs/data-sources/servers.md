@@ -3,12 +3,12 @@
 page_title: "vpsie_servers Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Use this data source to retrieve information about all VPSie servers.
 ---
 
 # vpsie_servers (Data Source)
 
-
+Use this data source to retrieve information about all VPSie servers.
 
 ## Example Usage
 
@@ -21,82 +21,82 @@ data "vpsie_servers" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `servers` (Attributes List) (see [below for nested schema](#nestedatt--servers))
+- `id` (String) The ID of this data source.
+- `servers` (Attributes List) The list of servers. (see [below for nested schema](#nestedatt--servers))
 
 <a id="nestedatt--servers"></a>
 ### Nested Schema for `servers`
 
 Optional:
 
-- `added_ip_addresses` (String)
-- `boxdiscount_id` (Number)
-- `custom_iso_id` (Number)
-- `custom_price` (Number)
-- `dropped_on` (String)
-- `last_action_date` (String)
-- `last_license_pay` (String)
-- `lib_iso_id` (Number)
-- `notes` (String)
-- `public_ip` (String)
-- `script_id` (String)
-- `sshkey_id` (String)
+- `added_ip_addresses` (String) Additional IP addresses added to the server.
+- `boxdiscount_id` (Number) The ID of the discount applied to the server.
+- `custom_iso_id` (Number) The ID of a custom ISO image attached to the server.
+- `custom_price` (Number) The custom price applied to the server.
+- `dropped_on` (String) The timestamp when the server was dropped or deleted.
+- `last_action_date` (String) The date of the last action performed on the server.
+- `last_license_pay` (String) The date of the last license payment.
+- `lib_iso_id` (Number) The ID of the library ISO image attached to the server.
+- `notes` (String) Optional notes or comments for the server.
+- `public_ip` (String) The public IP address of the server.
+- `script_id` (String) The identifier of a startup script on the server.
+- `sshkey_id` (String) The identifier of an SSH key on the server.
 
 Read-Only:
 
-- `box_virtualization_id` (String)
-- `boxes_suspended` (Number)
-- `boximage_id` (Number)
-- `boxsize_id` (Number)
-- `category` (String)
-- `cpu` (Number)
-- `created_on` (String)
-- `daily_snapshot` (Number)
-- `datacenter_id` (Number)
-- `dc_identifier` (String)
-- `default_ip` (String)
-- `default_ipv6` (String)
-- `firstname` (String)
-- `fullname` (String)
-- `has_ssl` (Number)
-- `hostname` (String)
-- `id` (Number)
-- `identifier` (String)
-- `in_pcs` (Number)
-- `initial_password` (String)
-- `is_active` (Number)
-- `is_autobackup` (Number)
-- `is_bucket_available` (Number)
-- `is_created_from_legacy` (Number)
-- `is_custom` (Number)
-- `is_deleted` (Number)
-- `is_fip_available` (Number)
-- `is_iso_image_bootable` (Number)
-- `is_locked` (Number)
-- `is_sata_available` (Number)
-- `is_smtp_allowed` (Number)
-- `is_ssd_available` (Number)
-- `is_suspended` (Number)
-- `is_terminated` (Number)
-- `is_work_with_new_version` (Number)
-- `last_action_in_min` (Number)
-- `last_updated` (String)
-- `lastname` (String)
-- `monthly_backup` (Number)
-- `monthly_snap` (Number)
-- `node_id` (Number)
-- `nr_added_ips` (Number)
-- `old_id` (Number)
-- `payable_license` (Number)
-- `power` (Number)
-- `private_ip` (String)
-- `project_id` (Number)
-- `ram` (Number)
-- `ssd` (Number)
-- `state` (String)
-- `traffic` (Number)
-- `user_id` (Number)
-- `username` (String)
-- `vm_description` (String)
-- `weekly_backup` (Number)
-- `weekly_snapshot` (Number)
+- `box_virtualization_id` (String) The virtualization type identifier for the server.
+- `boxes_suspended` (Number) The number of suspended boxes for the owner.
+- `boximage_id` (Number) The ID of the box image (OS template) for the server.
+- `boxsize_id` (Number) The ID of the box size (resource plan) for the server.
+- `category` (String) The category of the server.
+- `cpu` (Number) The number of CPU cores allocated to the server.
+- `created_on` (String) The timestamp when the server was created.
+- `daily_snapshot` (Number) Whether daily snapshots are enabled for the server.
+- `datacenter_id` (Number) The ID of the data center where the server is located.
+- `dc_identifier` (String) The identifier of the data center where the server is deployed.
+- `default_ip` (String) The default IPv4 address assigned to the server.
+- `default_ipv6` (String) The default IPv6 address assigned to the server.
+- `firstname` (String) The first name of the server owner.
+- `fullname` (String) The full name of the server owner.
+- `has_ssl` (Number) Whether SSL is enabled for the server.
+- `hostname` (String) The hostname assigned to the server.
+- `id` (Number) The numeric ID of the server.
+- `identifier` (String) The unique identifier of the server.
+- `in_pcs` (Number) The number of processes running on the server.
+- `initial_password` (String, Sensitive) The initial root password for the server.
+- `is_active` (Number) Whether the server is currently active.
+- `is_autobackup` (Number) Whether automatic backup is enabled for the server.
+- `is_bucket_available` (Number) Whether object storage bucket is available for the server.
+- `is_created_from_legacy` (Number) Whether the server was migrated from the legacy platform.
+- `is_custom` (Number) Whether the server uses a custom configuration.
+- `is_deleted` (Number) Whether the server has been deleted.
+- `is_fip_available` (Number) Whether floating IP is available for the server.
+- `is_iso_image_bootable` (Number) Whether the attached ISO image is bootable.
+- `is_locked` (Number) Whether the server is locked from modifications.
+- `is_sata_available` (Number) Whether SATA storage is available for the server.
+- `is_smtp_allowed` (Number) Whether SMTP traffic is allowed on the server.
+- `is_ssd_available` (Number) Whether SSD storage is available for the server.
+- `is_suspended` (Number) Whether the server is currently suspended.
+- `is_terminated` (Number) Whether the server has been terminated.
+- `is_work_with_new_version` (Number) Whether the server is compatible with the new platform version.
+- `last_action_in_min` (Number) The time in minutes since the last action on the server.
+- `last_updated` (String) The timestamp when the server was last updated.
+- `lastname` (String) The last name of the server owner.
+- `monthly_backup` (Number) Whether monthly backups are enabled for the server.
+- `monthly_snap` (Number) Whether monthly snapshots are enabled for the server.
+- `node_id` (Number) The ID of the physical node hosting the server.
+- `nr_added_ips` (Number) The number of additional IP addresses added to the server.
+- `old_id` (Number) The legacy ID of the server from the previous platform.
+- `payable_license` (Number) The payable license cost for the server.
+- `power` (Number) The power state of the server (0 = off, 1 = on).
+- `private_ip` (String) The private IP address assigned to the server.
+- `project_id` (Number) The ID of the project to which the server belongs.
+- `ram` (Number) The amount of RAM in MB allocated to the server.
+- `ssd` (Number) The SSD storage size in GB allocated to the server.
+- `state` (String) The current state of the server.
+- `traffic` (Number) The traffic bandwidth limit allocated to the server.
+- `user_id` (Number) The ID of the user who owns the server.
+- `username` (String) The username of the server owner.
+- `vm_description` (String) The description of the virtual machine.
+- `weekly_backup` (Number) Whether weekly backups are enabled for the server.
+- `weekly_snapshot` (Number) Whether weekly snapshots are enabled for the server.

@@ -24,7 +24,7 @@ var (
 )
 
 type gatewayResource struct {
-	client *govpsie.Client
+	client GatewayAPI
 }
 
 type gatewayResourceModel struct {
@@ -223,7 +223,7 @@ func (g *gatewayResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	g.client = client
+	g.client = client.Gateway
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -277,7 +277,7 @@ func (g *gatewayResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	gateway, err := g.client.Gateway.Get(ctx, state.ID.ValueInt64())
+	gateway, err := g.client.Get(ctx, state.ID.ValueInt64())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -350,7 +350,7 @@ func (g *gatewayResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	for _, vm := range plan.AttachedVms {
 		if setOfState[vm.Identifier.ValueString()] == 0 {
-			err := g.client.Gateway.AttachVM(ctx, state.ID.ValueInt64(), []string{vm.Identifier.ValueString()}, 1)
+			err := g.client.AttachVM(ctx, state.ID.ValueInt64(), []string{vm.Identifier.ValueString()}, 1)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error attaching vm to gateway",
@@ -363,7 +363,7 @@ func (g *gatewayResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	for identifier := range setOfState {
-		err := g.client.Gateway.DetachVM(ctx, state.ID.ValueInt64(), []int64{setOfState[identifier]})
+		err := g.client.DetachVM(ctx, state.ID.ValueInt64(), []int64{setOfState[identifier]})
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error detaching vm from gateway",
@@ -373,7 +373,7 @@ func (g *gatewayResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// Overwrite items with refreshed state
-	gateway, err := g.client.Gateway.Get(ctx, state.ID.ValueInt64())
+	gateway, err := g.client.Get(ctx, state.ID.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading vpsie gateways",
@@ -427,7 +427,7 @@ func (g *gatewayResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	err := g.client.Gateway.Delete(ctx, int(state.ID.ValueInt64()))
+	err := g.client.Delete(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting gateway",
@@ -443,7 +443,7 @@ func (g *gatewayResource) ImportState(ctx context.Context, req resource.ImportSt
 
 func (g *gatewayResource) CreateAndReturnGateway(ctx context.Context, ipType, dcIdentifier string) (*govpsie.Gateway, error) {
 
-	allGateways, err := g.client.Gateway.List(ctx, nil)
+	allGateways, err := g.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -458,12 +458,12 @@ func (g *gatewayResource) CreateAndReturnGateway(ctx context.Context, ipType, dc
 		DcIdentifier: dcIdentifier,
 	}
 
-	err = g.client.Gateway.Create(ctx, &createReq)
+	err = g.client.Create(ctx, &createReq)
 	if err != nil {
 		return nil, err
 	}
 
-	lstAllGateways, err := g.client.Gateway.List(ctx, nil)
+	lstAllGateways, err := g.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

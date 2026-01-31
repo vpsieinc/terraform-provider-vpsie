@@ -22,7 +22,8 @@ var (
 )
 
 type vpcServerAssignmentResource struct {
-	client *govpsie.Client
+	client   VpcAPI
+	ipClient IPLookupAPI
 }
 
 type vpcServerAssignmentResourceModel struct {
@@ -107,7 +108,8 @@ func (v *vpcServerAssignmentResource) Configure(_ context.Context, req resource.
 		return
 	}
 
-	v.client = client
+	v.client = client.VPC
+	v.ipClient = client.IP
 }
 
 func (v *vpcServerAssignmentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -124,7 +126,7 @@ func (v *vpcServerAssignmentResource) Create(ctx context.Context, req resource.C
 		DcIdentifier: plan.DcIdentifier.ValueString(),
 	}
 
-	err := v.client.VPC.AssignServer(ctx, assignReq)
+	err := v.client.AssignServer(ctx, assignReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error assigning server to VPC", err.Error())
 		return
@@ -133,7 +135,7 @@ func (v *vpcServerAssignmentResource) Create(ctx context.Context, req resource.C
 	plan.ID = types.StringValue(fmt.Sprintf("%s/%d", plan.VmIdentifier.ValueString(), plan.VpcID.ValueInt64()))
 
 	// Try to find the private IP ID from the IP list
-	ips, err := v.client.IP.ListPrivateIPs(ctx, nil)
+	ips, err := v.ipClient.ListPrivateIPs(ctx, nil)
 	if err == nil {
 		for _, ip := range ips {
 			if ip.BoxIdentifier == plan.VmIdentifier.ValueString() {
@@ -156,7 +158,7 @@ func (v *vpcServerAssignmentResource) Read(ctx context.Context, req resource.Rea
 	}
 
 	// Verify the private IP still exists
-	ips, err := v.client.IP.ListPrivateIPs(ctx, nil)
+	ips, err := v.ipClient.ListPrivateIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading private IPs", err.Error())
 		return
@@ -192,7 +194,7 @@ func (v *vpcServerAssignmentResource) Delete(ctx context.Context, req resource.D
 		return
 	}
 
-	err := v.client.VPC.ReleasePrivateIP(ctx, state.VmIdentifier.ValueString(), int(state.PrivateIPID.ValueInt64()))
+	err := v.client.ReleasePrivateIP(ctx, state.VmIdentifier.ValueString(), int(state.PrivateIPID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error releasing VPC server assignment",

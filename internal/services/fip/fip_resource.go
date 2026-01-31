@@ -20,7 +20,8 @@ var (
 )
 
 type fipResource struct {
-	client *govpsie.Client
+	client   FipAPI
+	ipClient FipIPAPI
 }
 
 type fipResourceModel struct {
@@ -105,7 +106,8 @@ func (f *fipResource) Configure(_ context.Context, req resource.ConfigureRequest
 		return
 	}
 
-	f.client = client
+	f.client = client.Fip
+	f.ipClient = client.IP
 }
 
 func (f *fipResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -117,7 +119,7 @@ func (f *fipResource) Create(ctx context.Context, req resource.CreateRequest, re
 	}
 
 	// Get existing IPs to find the new one after creation
-	existingIPs, err := f.client.IP.ListAllIPs(ctx, nil)
+	existingIPs, err := f.ipClient.ListAllIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error listing IPs", err.Error())
 		return
@@ -128,14 +130,14 @@ func (f *fipResource) Create(ctx context.Context, req resource.CreateRequest, re
 		existingSet[ip.IP] = true
 	}
 
-	err = f.client.Fip.CreateFloatingIP(ctx, plan.VmIdentifier.ValueString(), plan.DcIdentifier.ValueString(), plan.IpType.ValueString())
+	err = f.client.CreateFloatingIP(ctx, plan.VmIdentifier.ValueString(), plan.DcIdentifier.ValueString(), plan.IpType.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating floating IP", err.Error())
 		return
 	}
 
 	// Find the newly created IP
-	allIPs, err := f.client.IP.ListAllIPs(ctx, nil)
+	allIPs, err := f.ipClient.ListAllIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error listing IPs after creation", err.Error())
 		return
@@ -169,7 +171,7 @@ func (f *fipResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	allIPs, err := f.client.IP.ListAllIPs(ctx, nil)
+	allIPs, err := f.ipClient.ListAllIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading IPs", err.Error())
 		return
@@ -205,7 +207,7 @@ func (f *fipResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	err := f.client.Fip.UnassignFloatingIP(ctx, state.ID.ValueString())
+	err := f.client.UnassignFloatingIP(ctx, state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting floating IP",

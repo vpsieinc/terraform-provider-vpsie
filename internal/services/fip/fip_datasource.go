@@ -11,7 +11,7 @@ import (
 )
 
 type fipDataSource struct {
-	client *govpsie.Client
+	client FipIPAPI
 }
 
 type fipDataSourceModel struct {
@@ -119,13 +119,13 @@ func (d *fipDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 		return
 	}
 
-	d.client = client
+	d.client = client.IP
 }
 
 func (d *fipDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state fipDataSourceModel
 
-	ips, err := d.client.IP.ListPublicIPs(ctx, nil)
+	ips, err := d.client.ListPublicIPs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Floating IPs",

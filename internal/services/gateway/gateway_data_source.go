@@ -12,7 +12,7 @@ import (
 )
 
 type gatewayDataSource struct {
-	client *govpsie.Client
+	client GatewayAPI
 }
 
 type gatewayDataSourceModel struct {
@@ -166,7 +166,7 @@ func (g *gatewayDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 func (g *gatewayDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state gatewayDataSourceModel
 
-	gateways, err := g.client.Gateway.List(ctx, nil)
+	gateways, err := g.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting gateways",
@@ -233,5 +233,5 @@ func (g *gatewayDataSource) Configure(_ context.Context, req datasource.Configur
 		return
 	}
 
-	g.client = client
+	g.client = client.Gateway
 }

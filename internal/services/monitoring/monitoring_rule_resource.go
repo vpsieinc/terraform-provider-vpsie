@@ -20,7 +20,7 @@ var (
 )
 
 type monitoringRuleResource struct {
-	client *govpsie.Client
+	client MonitoringAPI
 }
 
 type monitoringRuleResourceModel struct {
@@ -198,7 +198,7 @@ func (m *monitoringRuleResource) Configure(_ context.Context, req resource.Confi
 		return
 	}
 
-	m.client = client
+	m.client = client.Monitoring
 }
 
 func (m *monitoringRuleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -234,7 +234,7 @@ func (m *monitoringRuleResource) Create(ctx context.Context, req resource.Create
 	createReq.Actions.ActionKey = plan.ActionKey.ValueString()
 	createReq.Actions.ActionName = plan.ActionName.ValueString()
 
-	err := m.client.Monitoring.CreateRule(ctx, createReq)
+	err := m.client.CreateRule(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating monitoring rule", err.Error())
 		return
@@ -264,7 +264,7 @@ func (m *monitoringRuleResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	rules, err := m.client.Monitoring.ListMonitoringRule(ctx, nil)
+	rules, err := m.client.ListMonitoringRule(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading monitoring rules", err.Error())
 		return
@@ -314,7 +314,7 @@ func (m *monitoringRuleResource) Update(ctx context.Context, req resource.Update
 	}
 
 	if !plan.Status.Equal(state.Status) {
-		err := m.client.Monitoring.ToggleMonitoringRuleStatus(ctx, plan.Status.ValueString(), state.Identifier.ValueString())
+		err := m.client.ToggleMonitoringRuleStatus(ctx, plan.Status.ValueString(), state.Identifier.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError("Error toggling monitoring rule status", err.Error())
 			return
@@ -334,7 +334,7 @@ func (m *monitoringRuleResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	err := m.client.Monitoring.DeleteMonitoringRule(ctx, state.Identifier.ValueString())
+	err := m.client.DeleteMonitoringRule(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting monitoring rule",
@@ -345,7 +345,7 @@ func (m *monitoringRuleResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (m *monitoringRuleResource) GetRuleByName(ctx context.Context, name string) (*govpsie.MonitoringRule, error) {
-	rules, err := m.client.Monitoring.ListMonitoringRule(ctx, nil)
+	rules, err := m.client.ListMonitoringRule(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

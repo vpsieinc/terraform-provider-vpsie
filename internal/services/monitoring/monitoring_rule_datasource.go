@@ -11,7 +11,7 @@ import (
 )
 
 type monitoringRuleDataSource struct {
-	client *govpsie.Client
+	client MonitoringAPI
 }
 
 type monitoringRuleDataSourceModel struct {
@@ -123,13 +123,13 @@ func (d *monitoringRuleDataSource) Configure(_ context.Context, req datasource.C
 		return
 	}
 
-	d.client = client
+	d.client = client.Monitoring
 }
 
 func (d *monitoringRuleDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state monitoringRuleDataSourceModel
 
-	rules, err := d.client.Monitoring.ListMonitoringRule(ctx, nil)
+	rules, err := d.client.ListMonitoringRule(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Monitoring Rules",

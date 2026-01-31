@@ -25,7 +25,7 @@ var (
 )
 
 type vpcResource struct {
-	client *govpsie.Client
+	client VpcAPI
 }
 
 type vpcResourceModel struct {
@@ -271,7 +271,7 @@ func (v *vpcResource) Configure(_ context.Context, req resource.ConfigureRequest
 		return
 	}
 
-	v.client = client
+	v.client = client.VPC
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -292,7 +292,7 @@ func (v *vpcResource) Create(ctx context.Context, req resource.CreateRequest, re
 		Description:  plan.Description.ValueString(),
 	}
 
-	err := v.client.VPC.CreateVpc(ctx, createReq)
+	err := v.client.CreateVpc(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating VPC", err.Error())
 		return
@@ -344,7 +344,7 @@ func (v *vpcResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 		return
 	}
 
-	vpc, err := v.client.VPC.Get(ctx, state.ID.String())
+	vpc, err := v.client.Get(ctx, state.ID.String())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -399,7 +399,7 @@ func (v *vpcResource) Delete(ctx context.Context, req resource.DeleteRequest, re
 		return
 	}
 
-	err := v.client.VPC.DeleteVpc(ctx, state.ID.String(), "terraform-provider", "terraform-provider")
+	err := v.client.DeleteVpc(ctx, state.ID.String(), "terraform-provider", "terraform-provider")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting vpc",
@@ -415,7 +415,7 @@ func (v *vpcResource) ImportState(ctx context.Context, req resource.ImportStateR
 }
 
 func (v *vpcResource) GetVpcByName(ctx context.Context, name string) (*govpsie.VPC, error) {
-	vpcs, err := v.client.VPC.List(ctx, nil)
+	vpcs, err := v.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

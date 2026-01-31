@@ -13,8 +13,6 @@ require (
 	golang.org/x/oauth2 v0.34.0
 )
 
-replace github.com/vpsie/govpsie => /Users/zozo/projects/govpsie
-
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Kunde21/markdownfmt/v3 v3.1.0 // indirect

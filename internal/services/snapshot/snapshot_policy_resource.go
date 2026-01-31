@@ -23,7 +23,7 @@ var (
 )
 
 type snapshotPolicyResource struct {
-	client *govpsie.Client
+	client SnapshotAPI
 }
 
 type snapshotPolicyResourceModel struct {
@@ -138,7 +138,7 @@ func (s *snapshotPolicyResource) Configure(_ context.Context, req resource.Confi
 		return
 	}
 
-	s.client = client
+	s.client = client.Snapshot
 }
 
 func (s *snapshotPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -166,7 +166,7 @@ func (s *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		Vms:        vms,
 	}
 
-	err := s.client.Snapshot.CreateSnapShotPolicy(ctx, createReq)
+	err := s.client.CreateSnapShotPolicy(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating snapshot policy", err.Error())
 		return
@@ -195,7 +195,7 @@ func (s *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	policy, err := s.client.Snapshot.GetSnapShotPolicy(ctx, state.Identifier.ValueString())
+	policy, err := s.client.GetSnapShotPolicy(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -275,7 +275,7 @@ func (s *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		}
 	}
 	if len(toAttach) > 0 {
-		err := s.client.Snapshot.AttachSnapShotPolicy(ctx, state.Identifier.ValueString(), toAttach)
+		err := s.client.AttachSnapShotPolicy(ctx, state.Identifier.ValueString(), toAttach)
 		if err != nil {
 			resp.Diagnostics.AddError("Error attaching VMs to snapshot policy", err.Error())
 			return
@@ -289,7 +289,7 @@ func (s *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		}
 	}
 	if len(toDetach) > 0 {
-		err := s.client.Snapshot.DetachSnapShotPolicy(ctx, state.Identifier.ValueString(), toDetach)
+		err := s.client.DetachSnapShotPolicy(ctx, state.Identifier.ValueString(), toDetach)
 		if err != nil {
 			resp.Diagnostics.AddError("Error detaching VMs from snapshot policy", err.Error())
 			return
@@ -310,7 +310,7 @@ func (s *snapshotPolicyResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	err := s.client.Snapshot.DeleteSnapShotPolicy(ctx, state.Identifier.ValueString(), state.Identifier.ValueString())
+	err := s.client.DeleteSnapShotPolicy(ctx, state.Identifier.ValueString(), state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting snapshot policy",
@@ -325,7 +325,7 @@ func (s *snapshotPolicyResource) ImportState(ctx context.Context, req resource.I
 }
 
 func (s *snapshotPolicyResource) GetPolicyByName(ctx context.Context, name string) (*govpsie.SnapShotPolicyListDetail, error) {
-	policies, err := s.client.Snapshot.ListSnapShotPolicies(ctx, nil)
+	policies, err := s.client.ListSnapShotPolicies(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

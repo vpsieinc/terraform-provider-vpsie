@@ -11,7 +11,7 @@ import (
 )
 
 type snapshotPolicyDataSource struct {
-	client *govpsie.Client
+	client SnapshotAPI
 }
 
 type snapshotPolicyDataSourceModel struct {
@@ -109,13 +109,13 @@ func (d *snapshotPolicyDataSource) Configure(_ context.Context, req datasource.C
 		return
 	}
 
-	d.client = client
+	d.client = client.Snapshot
 }
 
 func (d *snapshotPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state snapshotPolicyDataSourceModel
 
-	policies, err := d.client.Snapshot.ListSnapShotPolicies(ctx, nil)
+	policies, err := d.client.ListSnapShotPolicies(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Snapshot Policies",

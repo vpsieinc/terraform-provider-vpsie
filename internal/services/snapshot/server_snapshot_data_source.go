@@ -12,7 +12,7 @@ import (
 )
 
 type serverSnapshotDataSource struct {
-	client *govpsie.Client
+	client SnapshotAPI
 }
 
 type serverSnapshotDataSourceModel struct {
@@ -173,7 +173,7 @@ func (s *serverSnapshotDataSource) Schema(_ context.Context, _ datasource.Schema
 func (s *serverSnapshotDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state serverSnapshotDataSourceModel
 
-	snapshots, err := s.client.Snapshot.List(ctx, &govpsie.ListOptions{Page: 1, PerPage: 1000})
+	snapshots, err := s.client.List(ctx, &govpsie.ListOptions{Page: 1, PerPage: 1000})
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to get snapshots",
@@ -239,5 +239,5 @@ func (s *serverSnapshotDataSource) Configure(_ context.Context, req datasource.C
 		return
 	}
 
-	s.client = client
+	s.client = client.Snapshot
 }

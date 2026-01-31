@@ -12,7 +12,7 @@ import (
 )
 
 type backupDataSource struct {
-	client *govpsie.Client
+	client BackupAPI
 }
 
 type backupDataSourceModel struct {
@@ -128,7 +128,7 @@ func (b *backupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 func (b *backupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state backupDataSourceModel
 
-	backups, err := b.client.Backup.List(ctx, nil)
+	backups, err := b.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting backups",
@@ -182,5 +182,5 @@ func (b *backupDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	b.client = client
+	b.client = client.Backup
 }

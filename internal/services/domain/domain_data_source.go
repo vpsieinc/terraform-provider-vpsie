@@ -12,7 +12,7 @@ import (
 )
 
 type domainDataSource struct {
-	client *govpsie.Client
+	client DomainAPI
 }
 
 type domainDataSourceModel struct {
@@ -83,7 +83,7 @@ func (d *domainDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 func (d *domainDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state domainDataSourceModel
 
-	domains, err := d.client.Domain.ListDomains(ctx, &govpsie.ListOptions{Page: 0, PerPage: 50})
+	domains, err := d.client.ListDomains(ctx, &govpsie.ListOptions{Page: 0, PerPage: 50})
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting domains",
@@ -128,5 +128,5 @@ func (d *domainDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	d.client = client
+	d.client = client.Domain
 }

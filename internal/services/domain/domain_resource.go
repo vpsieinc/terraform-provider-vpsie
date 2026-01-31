@@ -24,7 +24,7 @@ var (
 )
 
 type domainResource struct {
-	client *govpsie.Client
+	client DomainAPI
 }
 
 type domainResourceModel struct {
@@ -115,7 +115,7 @@ func (d *domainResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	d.client = client
+	d.client = client.Domain
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -132,7 +132,7 @@ func (d *domainResource) Create(ctx context.Context, req resource.CreateRequest,
 		Domain:            plan.DomainName.ValueString(),
 	}
 
-	err := d.client.Domain.CreateDomain(ctx, &createDomainReq)
+	err := d.client.CreateDomain(ctx, &createDomainReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating domain", err.Error())
 		return
@@ -208,7 +208,7 @@ func (d *domainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := d.client.Domain.DeleteDomain(ctx, state.Identifier.ValueString(), "terraform delete", "terraform delete")
+	err := d.client.DeleteDomain(ctx, state.Identifier.ValueString(), "terraform delete", "terraform delete")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting domain",
@@ -224,7 +224,7 @@ func (d *domainResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (d *domainResource) GetDomainByName(ctx context.Context, domainName string) (*govpsie.Domain, error) {
-	domains, err := d.client.Domain.ListDomains(ctx, &govpsie.ListOptions{Page: 0, PerPage: 50})
+	domains, err := d.client.ListDomains(ctx, &govpsie.ListOptions{Page: 0, PerPage: 50})
 	if err != nil {
 		return nil, err
 	}

@@ -64,7 +64,8 @@ func (s *sshKeyDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 							Computed: true,
 						},
 						"private_key": schema.StringAttribute{
-							Computed: true,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"created_on": schema.StringAttribute{
 							Computed: true,

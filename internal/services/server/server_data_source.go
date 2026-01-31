@@ -172,7 +172,8 @@ func (s *serverDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 							Optional: true,
 						},
 						"initial_password": schema.StringAttribute{
-							Computed: true,
+							Computed:  true,
+							Sensitive: true,
 						},
 						"notes": schema.StringAttribute{
 							Computed: true,

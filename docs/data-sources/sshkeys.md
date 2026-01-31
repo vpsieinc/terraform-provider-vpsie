@@ -3,12 +3,12 @@
 page_title: "vpsie_sshkeys Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Use this data source to retrieve information about all VPSie SSH keys.
 ---
 
 # vpsie_sshkeys (Data Source)
 
-
+Use this data source to retrieve information about all VPSie SSH keys.
 
 ## Example Usage
 
@@ -21,18 +21,18 @@ data "vpsie_sshkeys" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `sshkeys` (Attributes List) (see [below for nested schema](#nestedatt--sshkeys))
+- `id` (String) The ID of this data source.
+- `sshkeys` (Attributes List) The list of SSH keys. (see [below for nested schema](#nestedatt--sshkeys))
 
 <a id="nestedatt--sshkeys"></a>
 ### Nested Schema for `sshkeys`
 
 Read-Only:
 
-- `created_by` (String)
-- `created_on` (String)
-- `id` (Number)
-- `identifier` (String)
-- `name` (String)
-- `private_key` (String)
-- `user_id` (Number)
+- `created_by` (String) The user who created the SSH key.
+- `created_on` (String) The timestamp when the SSH key was created.
+- `id` (Number) The numeric ID of the SSH key.
+- `identifier` (String) The unique identifier of the SSH key.
+- `name` (String) The name of the SSH key.
+- `private_key` (String, Sensitive) The public key content of the SSH key.
+- `user_id` (Number) The ID of the user who owns the SSH key.

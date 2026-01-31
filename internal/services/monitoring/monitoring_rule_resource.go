@@ -4,21 +4,25 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
 
 var (
-	_ resource.Resource              = &monitoringRuleResource{}
-	_ resource.ResourceWithConfigure = &monitoringRuleResource{}
+	_ resource.Resource                = &monitoringRuleResource{}
+	_ resource.ResourceWithConfigure   = &monitoringRuleResource{}
+	_ resource.ResourceWithImportState = &monitoringRuleResource{}
 )
 
 type monitoringRuleResource struct {
-	client *govpsie.Client
+	client MonitoringAPI
 }
 
 type monitoringRuleResourceModel struct {
@@ -51,90 +55,129 @@ func (m *monitoringRuleResource) Schema(_ context.Context, _ resource.SchemaRequ
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the monitoring rule.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"rule_name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the monitoring rule. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"metric_type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of metric to monitor (e.g., cpu, memory, disk). Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"condition": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The condition operator for the monitoring rule. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.OneOf("above", "below"),
 				},
 			},
 			"threshold_type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of threshold for the rule (e.g., percentage, absolute). Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"threshold_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The identifier of the threshold configuration. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"threshold": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The threshold value that triggers the alert. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"period": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The evaluation period for the monitoring rule in minutes. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"frequency": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The frequency of checks for the monitoring rule in minutes. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"status": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "The current status of the monitoring rule.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"email": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The email address to receive alert notifications. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"action_key": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The key identifying the action to take when the rule triggers. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"action_name": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The display name of the action to take when the rule triggers. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"vms": schema.ListAttribute{
-				Optional:    true,
-				ElementType: types.StringType,
+				Optional:            true,
+				MarkdownDescription: "The list of VM identifiers to which this monitoring rule applies.",
+				ElementType:         types.StringType,
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the monitoring rule was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -157,7 +200,7 @@ func (m *monitoringRuleResource) Configure(_ context.Context, req resource.Confi
 		return
 	}
 
-	m.client = client
+	m.client = client.Monitoring
 }
 
 func (m *monitoringRuleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -193,7 +236,7 @@ func (m *monitoringRuleResource) Create(ctx context.Context, req resource.Create
 	createReq.Actions.ActionKey = plan.ActionKey.ValueString()
 	createReq.Actions.ActionName = plan.ActionName.ValueString()
 
-	err := m.client.Monitoring.CreateRule(ctx, createReq)
+	err := m.client.CreateRule(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating monitoring rule", err.Error())
 		return
@@ -223,7 +266,7 @@ func (m *monitoringRuleResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	rules, err := m.client.Monitoring.ListMonitoringRule(ctx, nil)
+	rules, err := m.client.ListMonitoringRule(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading monitoring rules", err.Error())
 		return
@@ -273,7 +316,7 @@ func (m *monitoringRuleResource) Update(ctx context.Context, req resource.Update
 	}
 
 	if !plan.Status.Equal(state.Status) {
-		err := m.client.Monitoring.ToggleMonitoringRuleStatus(ctx, plan.Status.ValueString(), state.Identifier.ValueString())
+		err := m.client.ToggleMonitoringRuleStatus(ctx, plan.Status.ValueString(), state.Identifier.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError("Error toggling monitoring rule status", err.Error())
 			return
@@ -285,6 +328,10 @@ func (m *monitoringRuleResource) Update(ctx context.Context, req resource.Update
 	resp.Diagnostics.Append(diags...)
 }
 
+func (m *monitoringRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("identifier"), req, resp)
+}
+
 func (m *monitoringRuleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state monitoringRuleResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -293,7 +340,7 @@ func (m *monitoringRuleResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	err := m.client.Monitoring.DeleteMonitoringRule(ctx, state.Identifier.ValueString())
+	err := m.client.DeleteMonitoringRule(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting monitoring rule",
@@ -304,7 +351,7 @@ func (m *monitoringRuleResource) Delete(ctx context.Context, req resource.Delete
 }
 
 func (m *monitoringRuleResource) GetRuleByName(ctx context.Context, name string) (*govpsie.MonitoringRule, error) {
-	rules, err := m.client.Monitoring.ListMonitoringRule(ctx, nil)
+	rules, err := m.client.ListMonitoringRule(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

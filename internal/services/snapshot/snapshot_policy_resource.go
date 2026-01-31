@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -21,7 +23,7 @@ var (
 )
 
 type snapshotPolicyResource struct {
-	client *govpsie.Client
+	client SnapshotAPI
 }
 
 type snapshotPolicyResourceModel struct {
@@ -46,55 +48,77 @@ func (s *snapshotPolicyResource) Metadata(_ context.Context, req resource.Metada
 
 func (s *snapshotPolicyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a snapshot policy on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the snapshot policy.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the snapshot policy.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"backup_plan": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of snapshot plan (e.g., daily, weekly, monthly).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"plan_every": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The frequency interval for the snapshot plan.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"keep": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The number of snapshots to retain.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"vms": schema.ListAttribute{
-				Optional:    true,
-				ElementType: types.StringType,
+				Optional:            true,
+				MarkdownDescription: "A list of virtual machine identifiers to attach to this snapshot policy.",
+				ElementType:         types.StringType,
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The date and time when the snapshot policy was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The user who created the snapshot policy.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"disabled": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the snapshot policy is disabled (1 for disabled, 0 for enabled).",
 			},
 		},
 	}
@@ -114,7 +138,7 @@ func (s *snapshotPolicyResource) Configure(_ context.Context, req resource.Confi
 		return
 	}
 
-	s.client = client
+	s.client = client.Snapshot
 }
 
 func (s *snapshotPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -142,7 +166,7 @@ func (s *snapshotPolicyResource) Create(ctx context.Context, req resource.Create
 		Vms:        vms,
 	}
 
-	err := s.client.Snapshot.CreateSnapShotPolicy(ctx, createReq)
+	err := s.client.CreateSnapShotPolicy(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating snapshot policy", err.Error())
 		return
@@ -171,7 +195,7 @@ func (s *snapshotPolicyResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	policy, err := s.client.Snapshot.GetSnapShotPolicy(ctx, state.Identifier.ValueString())
+	policy, err := s.client.GetSnapShotPolicy(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -251,7 +275,7 @@ func (s *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		}
 	}
 	if len(toAttach) > 0 {
-		err := s.client.Snapshot.AttachSnapShotPolicy(ctx, state.Identifier.ValueString(), toAttach)
+		err := s.client.AttachSnapShotPolicy(ctx, state.Identifier.ValueString(), toAttach)
 		if err != nil {
 			resp.Diagnostics.AddError("Error attaching VMs to snapshot policy", err.Error())
 			return
@@ -265,7 +289,7 @@ func (s *snapshotPolicyResource) Update(ctx context.Context, req resource.Update
 		}
 	}
 	if len(toDetach) > 0 {
-		err := s.client.Snapshot.DetachSnapShotPolicy(ctx, state.Identifier.ValueString(), toDetach)
+		err := s.client.DetachSnapShotPolicy(ctx, state.Identifier.ValueString(), toDetach)
 		if err != nil {
 			resp.Diagnostics.AddError("Error detaching VMs from snapshot policy", err.Error())
 			return
@@ -286,7 +310,7 @@ func (s *snapshotPolicyResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	err := s.client.Snapshot.DeleteSnapShotPolicy(ctx, state.Identifier.ValueString(), state.Identifier.ValueString())
+	err := s.client.DeleteSnapShotPolicy(ctx, state.Identifier.ValueString(), state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting snapshot policy",
@@ -301,7 +325,7 @@ func (s *snapshotPolicyResource) ImportState(ctx context.Context, req resource.I
 }
 
 func (s *snapshotPolicyResource) GetPolicyByName(ctx context.Context, name string) (*govpsie.SnapShotPolicyListDetail, error) {
-	policies, err := s.client.Snapshot.ListSnapShotPolicies(ctx, nil)
+	policies, err := s.client.ListSnapShotPolicies(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

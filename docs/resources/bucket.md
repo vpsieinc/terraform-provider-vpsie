@@ -3,12 +3,12 @@
 page_title: "vpsie_bucket Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages an object storage bucket on the VPSie platform.
 ---
 
 # vpsie_bucket (Resource)
 
-
+Manages an object storage bucket on the VPSie platform.
 
 ## Example Usage
 
@@ -25,20 +25,20 @@ resource "vpsie_bucket" "example" {
 
 ### Required
 
-- `bucket_name` (String)
-- `datacenter_id` (String)
-- `project_id` (String)
+- `bucket_name` (String) The name of the bucket. Changing this forces a new resource.
+- `datacenter_id` (String) The identifier of the data center where the bucket is created. Changing this forces a new resource.
+- `project_id` (String) The identifier of the project this bucket belongs to. Changing this forces a new resource.
 
 ### Optional
 
-- `file_listing` (Boolean)
+- `file_listing` (Boolean) Whether file listing is enabled for the bucket.
 
 ### Read-Only
 
-- `access_key` (String, Sensitive)
-- `created_by` (String)
-- `created_on` (String)
-- `endpoint` (String)
-- `identifier` (String)
-- `secret_key` (String, Sensitive)
-- `state` (String)
+- `access_key` (String, Sensitive) The access key for the bucket.
+- `created_by` (String) The user who created the bucket.
+- `created_on` (String) The timestamp when the bucket was created.
+- `endpoint` (String) The S3-compatible endpoint URL for the bucket.
+- `identifier` (String) The unique identifier of the bucket.
+- `secret_key` (String, Sensitive) The secret key for the bucket.
+- `state` (String) The current state of the bucket.

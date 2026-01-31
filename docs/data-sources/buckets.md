@@ -3,12 +3,12 @@
 page_title: "vpsie_buckets Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Retrieves a list of all object storage buckets on the VPSie platform.
 ---
 
 # vpsie_buckets (Data Source)
 
-
+Retrieves a list of all object storage buckets on the VPSie platform.
 
 ## Example Usage
 
@@ -21,21 +21,21 @@ data "vpsie_buckets" "example" {}
 
 ### Read-Only
 
-- `buckets` (Attributes List) (see [below for nested schema](#nestedatt--buckets))
-- `id` (String) The ID of this resource.
+- `buckets` (Attributes List) The list of object storage buckets. (see [below for nested schema](#nestedatt--buckets))
+- `id` (String) The identifier for this data source.
 
 <a id="nestedatt--buckets"></a>
 ### Nested Schema for `buckets`
 
 Read-Only:
 
-- `access_key` (String, Sensitive)
-- `bucket_name` (String)
-- `country` (String)
-- `created_by` (String)
-- `created_on` (String)
-- `endpoint` (String)
-- `identifier` (String)
-- `project_name` (String)
-- `secret_key` (String, Sensitive)
-- `state` (String)
+- `access_key` (String, Sensitive) The access key for the bucket.
+- `bucket_name` (String) The name of the bucket.
+- `country` (String) The country where the bucket is located.
+- `created_by` (String) The user who created the bucket.
+- `created_on` (String) The timestamp when the bucket was created.
+- `endpoint` (String) The S3-compatible endpoint URL for the bucket.
+- `identifier` (String) The unique identifier of the bucket.
+- `project_name` (String) The name of the project the bucket belongs to.
+- `secret_key` (String, Sensitive) The secret key for the bucket.
+- `state` (String) The current state of the bucket.

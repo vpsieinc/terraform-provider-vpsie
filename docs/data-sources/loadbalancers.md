@@ -3,12 +3,12 @@
 page_title: "vpsie_loadbalancers Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Use this data source to retrieve information about all VPSie load balancers.
 ---
 
 # vpsie_loadbalancers (Data Source)
 
-
+Use this data source to retrieve information about all VPSie load balancers.
 
 ## Example Usage
 
@@ -21,25 +21,25 @@ data "vpsie_loadbalancers" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `loadbalancers` (Attributes List) (see [below for nested schema](#nestedatt--loadbalancers))
+- `id` (String) The ID of this data source.
+- `loadbalancers` (Attributes List) The list of load balancers. (see [below for nested schema](#nestedatt--loadbalancers))
 
 <a id="nestedatt--loadbalancers"></a>
 ### Nested Schema for `loadbalancers`
 
 Read-Only:
 
-- `boxsize_id` (Number)
-- `cpu` (Number)
-- `created_by` (String)
-- `created_on` (String)
-- `dc_name` (String)
-- `default_ip` (String)
-- `identifier` (String)
-- `lb_name` (String)
-- `package` (String)
-- `ram` (Number)
-- `ssd` (Number)
-- `traffic` (Number)
-- `updated_at` (String)
-- `user_id` (Number)
+- `boxsize_id` (Number) The box size ID defining the load balancer resources.
+- `cpu` (Number) The number of CPU cores allocated to the load balancer.
+- `created_by` (String) The user who created the load balancer.
+- `created_on` (String) The timestamp when the load balancer was created.
+- `dc_name` (String) The name of the data center where the load balancer resides.
+- `default_ip` (String) The default IP address of the load balancer.
+- `identifier` (String) The unique identifier of the load balancer.
+- `lb_name` (String) The name of the load balancer.
+- `package` (String) The package tier of the load balancer.
+- `ram` (Number) The RAM in MB allocated to the load balancer.
+- `ssd` (Number) The SSD storage in GB allocated to the load balancer.
+- `traffic` (Number) The traffic allowance for the load balancer in GB.
+- `updated_at` (String) The timestamp when the load balancer was last updated.
+- `user_id` (Number) The ID of the user who owns the load balancer.

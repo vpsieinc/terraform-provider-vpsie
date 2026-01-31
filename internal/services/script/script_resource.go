@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -22,7 +24,7 @@ var (
 )
 
 type scriptResource struct {
-	client *govpsie.Client
+	client ScriptAPI
 }
 
 type scriptResourceModel struct {
@@ -50,55 +52,74 @@ func (s *scriptResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the user who owns the script.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"script_name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The display name of the script.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"script": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The content of the script to execute.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the script was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"box_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the box associated with the script.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"box_identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the box associated with the script.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the script.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the script.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The resolved name of the script.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of the script (e.g., bash, cloud-init).",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 		},
 	}
@@ -119,7 +140,7 @@ func (s *scriptResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	s.client = client
+	s.client = client.Scripts
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -137,7 +158,7 @@ func (s *scriptResource) Create(ctx context.Context, req resource.CreateRequest,
 		ScriptType:    plan.Type.ValueString(),
 		Tags:          []string{},
 	}
-	err := s.client.Scripts.CreateScript(ctx, createScript)
+	err := s.client.CreateScript(ctx, createScript)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating script", err.Error())
 		return
@@ -178,7 +199,7 @@ func (s *scriptResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	script, err := s.client.Scripts.GetScript(ctx, state.Identifier.ValueString())
+	script, err := s.client.GetScript(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -228,13 +249,13 @@ func (s *scriptResource) Update(ctx context.Context, req resource.UpdateRequest,
 		ScriptIdentifier: plan.Identifier.ValueString(),
 	}
 
-	err := s.client.Scripts.UpdateScript(ctx, updateScript)
+	err := s.client.UpdateScript(ctx, updateScript)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating script", err.Error())
 		return
 	}
 
-	script, err := s.client.Scripts.GetScript(ctx, plan.Identifier.ValueString())
+	script, err := s.client.GetScript(ctx, plan.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading Vpsie script",
@@ -264,7 +285,7 @@ func (s *scriptResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := s.client.Scripts.DeleteScript(ctx, state.Identifier.ValueString())
+	err := s.client.DeleteScript(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting script",
@@ -280,14 +301,14 @@ func (s *scriptResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (s *scriptResource) GetScriptByName(ctx context.Context, scriptName string) (*govpsie.ScriptDetail, error) {
-	scripts, err := s.client.Scripts.GetScripts(ctx)
+	scripts, err := s.client.GetScripts(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, script := range scripts {
 		if scriptName == strings.Split(script.ScriptName, ".")[0] {
-			script, err := s.client.Scripts.GetScript(ctx, script.Identifier)
+			script, err := s.client.GetScript(ctx, script.Identifier)
 			if err != nil {
 				return nil, err
 			}

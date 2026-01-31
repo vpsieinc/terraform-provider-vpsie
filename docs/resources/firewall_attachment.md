@@ -3,12 +3,12 @@
 page_title: "vpsie_firewall_attachment Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages the attachment of a firewall group to a VM on the VPSie platform.
 ---
 
 # vpsie_firewall_attachment (Resource)
 
-
+Manages the attachment of a firewall group to a VM on the VPSie platform.
 
 ## Example Usage
 
@@ -24,9 +24,9 @@ resource "vpsie_firewall_attachment" "example" {
 
 ### Required
 
-- `group_id` (String)
-- `vm_identifier` (String)
+- `group_id` (String) The ID of the firewall group to attach.
+- `vm_identifier` (String) The identifier of the VM to attach the firewall group to.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) The composite ID of the firewall attachment (group_id/vm_identifier).

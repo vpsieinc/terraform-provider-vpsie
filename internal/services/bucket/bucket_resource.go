@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -21,7 +23,7 @@ var (
 )
 
 type bucketResource struct {
-	client *govpsie.Client
+	client BucketAPI
 }
 
 type bucketResourceModel struct {
@@ -48,68 +50,89 @@ func (b *bucketResource) Metadata(_ context.Context, req resource.MetadataReques
 
 func (b *bucketResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages an object storage bucket on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the bucket.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"bucket_name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the bucket. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"project_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the project this bucket belongs to. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"datacenter_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the data center where the bucket is created. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"file_listing": schema.BoolAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "Whether file listing is enabled for the bucket.",
 			},
 			"access_key": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+				Computed:            true,
+				Sensitive:           true,
+				MarkdownDescription: "The access key for the bucket.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"secret_key": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+				Computed:            true,
+				Sensitive:           true,
+				MarkdownDescription: "The secret key for the bucket.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"endpoint": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The S3-compatible endpoint URL for the bucket.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"state": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The current state of the bucket.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The user who created the bucket.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the bucket was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -132,7 +155,7 @@ func (b *bucketResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	b.client = client
+	b.client = client.Bucket
 }
 
 func (b *bucketResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -155,7 +178,7 @@ func (b *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 		DataCenterId: plan.DataCenterID.ValueString(),
 	}
 
-	err := b.client.Bucket.Create(ctx, createReq)
+	err := b.client.Create(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating bucket", err.Error())
 		return
@@ -187,7 +210,7 @@ func (b *bucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	bucket, err := b.client.Bucket.Get(ctx, state.Identifier.ValueString())
+	bucket, err := b.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -228,7 +251,7 @@ func (b *bucketResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	if !plan.FileListing.Equal(state.FileListing) && !plan.FileListing.IsNull() {
-		_, err := b.client.Bucket.ToggleFileListing(ctx, state.Identifier.ValueString(), plan.FileListing.ValueBool())
+		_, err := b.client.ToggleFileListing(ctx, state.Identifier.ValueString(), plan.FileListing.ValueBool())
 		if err != nil {
 			resp.Diagnostics.AddError("Error toggling file listing", err.Error())
 			return
@@ -248,7 +271,7 @@ func (b *bucketResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := b.client.Bucket.Delete(ctx, state.Identifier.ValueString(), "terraform-destroy", "terraform-destroy")
+	err := b.client.Delete(ctx, state.Identifier.ValueString(), "terraform-destroy", "terraform-destroy")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting bucket",
@@ -263,7 +286,7 @@ func (b *bucketResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (b *bucketResource) GetBucketByName(ctx context.Context, name string) (*govpsie.Bucket, error) {
-	buckets, err := b.client.Bucket.List(ctx, nil)
+	buckets, err := b.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/vpsie/govpsie"
@@ -55,96 +57,122 @@ func (s *storageSnapshotResource) Metadata(_ context.Context, req resource.Metad
 
 func (s *storageSnapshotResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a storage volume snapshot on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the snapshot.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the snapshot.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of the snapshot.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"storage_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the storage volume to snapshot.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"storage_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the storage volume the snapshot belongs to.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the snapshot.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"size": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The size of the snapshot in GB.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the snapshot was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the user who owns the snapshot.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_deleted": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the snapshot has been deleted.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"snapshot_key": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The key identifier for the snapshot.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"storage_name": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The name of the parent storage volume.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"storage_type": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The type of the parent storage volume.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"disk_format": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The disk format of the parent storage volume.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"box_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the server (box) associated with the snapshot.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"entity_type": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The entity type of the snapshot.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

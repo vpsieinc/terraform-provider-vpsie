@@ -3,12 +3,12 @@
 page_title: "vpsie_loadbalancer Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a load balancer on the VPSie platform.
 ---
 
 # vpsie_loadbalancer (Resource)
 
-
+Manages a load balancer on the VPSie platform.
 
 ## Example Usage
 
@@ -25,54 +25,54 @@ resource "vpsie_loadbalancer" "example" {
 
 ### Required
 
-- `boxsize_id` (Number)
-- `lb_name` (String)
-- `traffic` (Number)
+- `boxsize_id` (Number) The box size ID defining the load balancer resources.
+- `lb_name` (String) The name of the load balancer.
+- `traffic` (Number) The traffic allowance for the load balancer in GB.
 
 ### Read-Only
 
-- `algorithm` (String)
-- `check_interval` (Number)
-- `cookie_check` (Number)
-- `cookie_name` (String)
-- `created_by` (String)
-- `dc_id` (String)
-- `dc_name` (String)
-- `default_ip` (String)
-- `fall` (Number)
-- `fast_interval` (Number)
-- `health_check_path` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `redirect_http` (Number)
-- `rise` (Number)
-- `rules` (Attributes List) (see [below for nested schema](#nestedatt--rules))
-- `timeout` (Number)
-- `user_id` (Number)
+- `algorithm` (String) The load balancing algorithm (e.g., roundrobin, leastconn).
+- `check_interval` (Number) The interval in seconds between health checks.
+- `cookie_check` (Number) Whether sticky sessions via cookies are enabled.
+- `cookie_name` (String) The name of the cookie used for sticky sessions.
+- `created_by` (String) The user who created the load balancer.
+- `dc_id` (String) The ID of the data center where the load balancer resides.
+- `dc_name` (String) The name of the data center where the load balancer resides.
+- `default_ip` (String) The default IP address of the load balancer.
+- `fall` (Number) The number of consecutive failed checks to mark a backend as down.
+- `fast_interval` (Number) The fast check interval in seconds when a backend is marked down.
+- `health_check_path` (String) The URL path used for health checks.
+- `id` (Number) The numeric ID of the load balancer.
+- `identifier` (String) The unique identifier of the load balancer.
+- `redirect_http` (Number) Whether HTTP to HTTPS redirection is enabled.
+- `rise` (Number) The number of consecutive successful checks to mark a backend as up.
+- `rules` (Attributes List) The list of forwarding rules for the load balancer. (see [below for nested schema](#nestedatt--rules))
+- `timeout` (Number) The connection timeout value in seconds.
+- `user_id` (Number) The ID of the user who owns the load balancer.
 
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
 
 Read-Only:
 
-- `back_port` (Number)
-- `backends` (Attributes List) (see [below for nested schema](#nestedatt--rules--backends))
-- `created_on` (String)
-- `domain_name` (String)
-- `domains` (Attributes List) (see [below for nested schema](#nestedatt--rules--domains))
-- `front_port` (Number)
-- `rule_id` (String)
-- `scheme` (String)
+- `back_port` (Number) The backend port that traffic is forwarded to.
+- `backends` (Attributes List) The list of backend servers for this rule. (see [below for nested schema](#nestedatt--rules--backends))
+- `created_on` (String) The timestamp when the rule was created.
+- `domain_name` (String) The domain name associated with the rule.
+- `domains` (Attributes List) The list of domains configured for this rule. (see [below for nested schema](#nestedatt--rules--domains))
+- `front_port` (Number) The frontend port that the load balancer listens on.
+- `rule_id` (String) The unique ID of the forwarding rule.
+- `scheme` (String) The protocol scheme for the rule (e.g., http, https, tcp).
 
 <a id="nestedatt--rules--backends"></a>
 ### Nested Schema for `rules.backends`
 
 Read-Only:
 
-- `created_on` (String)
-- `identifier` (String)
-- `ip` (String)
-- `vm_identifier` (String)
+- `created_on` (String) The timestamp when the backend was created.
+- `identifier` (String) The unique identifier of the backend.
+- `ip` (String) The IP address of the backend server.
+- `vm_identifier` (String) The identifier of the VM serving as a backend.
 
 
 <a id="nestedatt--rules--domains"></a>
@@ -80,29 +80,29 @@ Read-Only:
 
 Read-Only:
 
-- `algorithm` (String)
-- `back_port` (Number)
-- `backend_scheme` (String)
-- `backends` (Attributes List) (see [below for nested schema](#nestedatt--rules--domains--backends))
-- `check_interval` (Number)
-- `cookie_check` (Number)
-- `cookie_name` (String)
-- `created_on` (String)
-- `domain_id` (String)
-- `domain_name` (String)
-- `fall` (Number)
-- `fast_interval` (Number)
-- `health_check_path` (String)
-- `redirect_http` (Number)
-- `rise` (Number)
-- `subdomain` (String)
+- `algorithm` (String) The load balancing algorithm for this domain.
+- `back_port` (Number) The backend port for this domain.
+- `backend_scheme` (String) The backend protocol scheme for this domain.
+- `backends` (Attributes List) The list of backend servers for this domain. (see [below for nested schema](#nestedatt--rules--domains--backends))
+- `check_interval` (Number) The health check interval in seconds for this domain.
+- `cookie_check` (Number) Whether sticky sessions are enabled for this domain.
+- `cookie_name` (String) The cookie name for sticky sessions on this domain.
+- `created_on` (String) The timestamp when the domain entry was created.
+- `domain_id` (String) The unique ID of the domain entry.
+- `domain_name` (String) The domain name for this entry.
+- `fall` (Number) The number of failed checks to mark backend as down for this domain.
+- `fast_interval` (Number) The fast check interval in seconds for this domain.
+- `health_check_path` (String) The health check path for this domain.
+- `redirect_http` (Number) Whether HTTP to HTTPS redirection is enabled for this domain.
+- `rise` (Number) The number of successful checks to mark backend as up for this domain.
+- `subdomain` (String) The subdomain for this domain entry.
 
 <a id="nestedatt--rules--domains--backends"></a>
 ### Nested Schema for `rules.domains.backends`
 
 Read-Only:
 
-- `created_on` (String)
-- `identifier` (String)
-- `ip` (String)
-- `vm_identifier` (String)
+- `created_on` (String) The timestamp when the backend was created.
+- `identifier` (String) The unique identifier of the backend.
+- `ip` (String) The IP address of the backend server.
+- `vm_identifier` (String) The identifier of the VM serving as a backend.

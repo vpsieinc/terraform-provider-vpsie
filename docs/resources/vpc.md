@@ -3,12 +3,12 @@
 page_title: "vpsie_vpc Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a VPC (Virtual Private Cloud) network on the VPSie platform.
 ---
 
 # vpsie_vpc (Resource)
 
-
+Manages a VPC (Virtual Private Cloud) network on the VPSie platform.
 
 ## Example Usage
 
@@ -27,34 +27,34 @@ resource "vpsie_vpc" "example" {
 
 ### Required
 
-- `auto_generate` (Number)
-- `dc_identifier` (String)
-- `name` (String)
-- `network_range` (String)
-- `network_size` (Number)
+- `auto_generate` (Number) Whether to auto-generate the network configuration. Changing this forces a new resource to be created.
+- `dc_identifier` (String) The identifier of the data center where the VPC will be created. Changing this forces a new resource to be created.
+- `name` (String) The name of the VPC. Changing this forces a new resource to be created.
+- `network_range` (String) The IP range of the VPC network in CIDR notation. Changing this forces a new resource to be created.
+- `network_size` (Number) The size of the VPC network (CIDR prefix length). Changing this forces a new resource to be created.
 
 ### Optional
 
-- `description` (String)
+- `description` (String) An optional description for the VPC.
 
 ### Read-Only
 
-- `created_by` (Number)
-- `created_on` (String)
-- `datacenter_id` (Number)
-- `dc_name` (String)
-- `firstname` (String)
-- `hight_ip_num` (Number)
-- `id` (Number) The ID of this resource.
-- `interface_number` (Number)
-- `is_default` (Number)
-- `is_upc_network` (Number)
-- `last_updated` (String)
-- `lastname` (String)
-- `low_ip_num` (Number)
-- `network_tag_number` (Number)
-- `owner_id` (Number)
-- `state` (String)
-- `updated_by` (Number)
-- `user_id` (Number)
-- `username` (String)
+- `created_by` (Number) The numeric ID of the user who created the VPC.
+- `created_on` (String) The date and time when the VPC was created.
+- `datacenter_id` (Number) The numeric ID of the data center.
+- `dc_name` (String) The name of the data center where the VPC is located.
+- `firstname` (String) The first name of the VPC owner.
+- `hight_ip_num` (Number) The highest IP number in the VPC network range.
+- `id` (Number) The unique numeric identifier of the VPC.
+- `interface_number` (Number) The number of network interfaces in the VPC.
+- `is_default` (Number) Whether this is the default VPC.
+- `is_upc_network` (Number) Whether the VPC is a UPC network.
+- `last_updated` (String) The date and time when the VPC was last updated.
+- `lastname` (String) The last name of the VPC owner.
+- `low_ip_num` (Number) The lowest IP number in the VPC network range.
+- `network_tag_number` (Number) The network tag number assigned to the VPC.
+- `owner_id` (Number) The numeric ID of the account owner.
+- `state` (String) The current state of the VPC.
+- `updated_by` (Number) The numeric ID of the user who last updated the VPC.
+- `user_id` (Number) The numeric ID of the user who owns the VPC.
+- `username` (String) The username of the VPC owner.

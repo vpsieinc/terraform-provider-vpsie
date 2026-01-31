@@ -12,7 +12,7 @@ import (
 )
 
 type firewallDataSource struct {
-	client *govpsie.Client
+	client FirewallAPI
 }
 
 type firewallDataSourceModel struct {
@@ -107,162 +107,208 @@ func (g *firewallDataSource) Metadata(_ context.Context, req datasource.Metadata
 
 var common map[string]schema.Attribute = map[string]schema.Attribute{
 	"id": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The numeric ID of the firewall rule.",
 	},
 	"group_id": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The ID of the firewall group this rule belongs to.",
 	},
 	"user_id": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The ID of the user who owns the rule.",
 	},
 	"action": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The action to take when the rule matches (e.g., ACCEPT, DROP).",
 	},
 	"type": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The direction type of the rule (e.g., in, out).",
 	},
 	"comment": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "A comment describing the firewall rule.",
 	},
 	"dest": schema.ListAttribute{
 		ElementType: types.ListType{
 			ElemType: types.StringType,
 		},
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The destination addresses for the firewall rule.",
 	},
 	"dport": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The destination port or port range for the rule.",
 	},
 	"proto": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The protocol for the rule (e.g., tcp, udp, icmp).",
 	},
 	"source": schema.ListAttribute{
 		ElementType: types.ListType{
 			ElemType: types.StringType,
 		},
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The source addresses for the firewall rule.",
 	},
 	"sport": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The source port or port range for the rule.",
 	},
 	"enable": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "Whether the rule is enabled (1 = enabled, 0 = disabled).",
 	},
 	"iface": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The network interface the rule applies to.",
 	},
 	"log": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The logging level for the rule.",
 	},
 	"macro": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The macro name for predefined rule sets.",
 	},
 	"identifier": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The unique identifier of the firewall rule.",
 	},
 	"created_on": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The timestamp when the rule was created.",
 	},
 	"updated_on": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The timestamp when the rule was last updated.",
 	},
 }
 
 // Schema defines the schema for the data source.
 func (g *firewallDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Use this data source to retrieve information about all VPSie firewall groups.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"firewalls": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of firewall groups.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the firewall group.",
 						},
 						"group_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The internal group ID of the firewall.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user who owns the firewall group.",
 						},
 						"action": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The default action for the firewall group.",
 						},
 						"type": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The type of the firewall group.",
 						},
 						"comment": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "A comment describing the firewall group.",
 						},
 						"dest": schema.ListAttribute{
 							ElementType: types.ListType{
 								ElemType: types.StringType,
 							},
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The destination addresses for the firewall group.",
 						},
 						"dport": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The destination port or port range.",
 						},
 						"proto": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The protocol (e.g., tcp, udp, icmp).",
 						},
 						"source": schema.ListAttribute{
 							ElementType: types.ListType{
 								ElemType: types.StringType,
 							},
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The source addresses for the firewall group.",
 						},
 						"sport": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The source port or port range.",
 						},
 						"enable": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the firewall group is enabled.",
 						},
 						"iface": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The network interface the firewall group applies to.",
 						},
 						"log": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The logging level for the firewall group.",
 						},
 						"macro": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The macro name for predefined rule sets.",
 						},
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the firewall group.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the firewall group was created.",
 						},
 						"updated_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the firewall group was last updated.",
 						},
 						"inbound_count": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of inbound rules in the firewall group.",
 						},
 						"outbound_count": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of outbound rules in the firewall group.",
 						},
 						"vms": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of VMs attached to the firewall group.",
 						},
 						"created_by": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user who created the firewall group.",
 						},
 						"rules": schema.ListNestedAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The list of firewall rules in the group.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"in_bound": schema.ListNestedAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The list of inbound firewall rules.",
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: common,
 										},
 									},
 									"out_bound": schema.ListNestedAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The list of outbound firewall rules.",
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: common,
 										},
@@ -271,20 +317,25 @@ func (g *firewallDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 							},
 						},
 						"vms_data": schema.ListNestedAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The list of VMs attached to the firewall group.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"hostname": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The hostname of the attached VM.",
 									},
 									"identifier": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The unique identifier of the attached VM.",
 									},
 									"fullname": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The full name of the attached VM.",
 									},
 									"category": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The category of the attached VM.",
 									},
 								},
 							},
@@ -300,7 +351,7 @@ func (g *firewallDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state firewallDataSourceModel
 
-	firewalls, err := f.client.FirewallGroup.List(ctx, nil)
+	firewalls, err := f.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting firewalls",
@@ -329,8 +380,13 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 					source = append(source, types.StringValue(s))
 				}
 
-				dest_list, _ := types.ListValueFrom(ctx, types.StringType, dest)
-				source_list, _ := types.ListValueFrom(ctx, types.StringType, source)
+				destList, destDiags := types.ListValueFrom(ctx, types.StringType, dest)
+				resp.Diagnostics.Append(destDiags...)
+				sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, source)
+				resp.Diagnostics.Append(sourceDiags...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
 
 				inBound = append(inBound, InBoundFirewallRules{
 					ID:         types.Int64Value(in.ID),
@@ -339,10 +395,10 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 					Action:     types.StringValue(in.Action),
 					Type:       types.StringValue(in.Type),
 					Comment:    types.StringValue(in.Comment),
-					Dest:       dest_list,
+					Dest:       destList,
 					Dport:      types.StringValue(in.Dport),
 					Proto:      types.StringValue(in.Proto),
-					Source:     source_list,
+					Source:     sourceList,
 					Sport:      types.StringValue(in.Sport),
 					Enable:     types.Int64Value(in.Enable),
 					Iface:      types.StringValue(in.Iface),
@@ -356,8 +412,13 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 			for _, out := range rule.OutBound {
 
-				dest_list, _ := types.ListValueFrom(ctx, types.StringType, out.Dest)
-				source_list, _ := types.ListValueFrom(ctx, types.StringType, out.Source)
+				destList, destDiags := types.ListValueFrom(ctx, types.StringType, out.Dest)
+				resp.Diagnostics.Append(destDiags...)
+				sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, out.Source)
+				resp.Diagnostics.Append(sourceDiags...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
 
 				outBound = append(outBound, OutBoundFirewallRules{
 					ID:         types.Int64Value(out.ID),
@@ -366,10 +427,10 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 					Action:     types.StringValue(out.Action),
 					Type:       types.StringValue(out.Type),
 					Comment:    types.StringValue(out.Comment),
-					Dest:       dest_list,
+					Dest:       destList,
 					Dport:      types.StringValue(out.Dport),
 					Proto:      types.StringValue(out.Proto),
-					Source:     source_list,
+					Source:     sourceList,
 					Sport:      types.StringValue(out.Sport),
 					Enable:     types.Int64Value(out.Enable),
 					Iface:      types.StringValue(out.Iface),
@@ -437,5 +498,5 @@ func (g *firewallDataSource) Configure(_ context.Context, req datasource.Configu
 		return
 	}
 
-	g.client = client
+	g.client = client.FirewallGroup
 }

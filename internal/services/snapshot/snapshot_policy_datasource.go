@@ -11,7 +11,7 @@ import (
 )
 
 type snapshotPolicyDataSource struct {
-	client *govpsie.Client
+	client SnapshotAPI
 }
 
 type snapshotPolicyDataSourceModel struct {
@@ -41,40 +41,52 @@ func (d *snapshotPolicyDataSource) Metadata(_ context.Context, req datasource.Me
 
 func (d *snapshotPolicyDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Fetches the list of snapshot policies on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"policies": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of snapshot policies.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the snapshot policy.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the snapshot policy.",
 						},
 						"backup_plan": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The type of snapshot plan.",
 						},
 						"plan_every": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The frequency interval for the snapshot plan.",
 						},
 						"keep": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of snapshots to retain.",
 						},
 						"disabled": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the snapshot policy is disabled (1 for disabled, 0 for enabled).",
 						},
 						"vms_count": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of virtual machines attached to this snapshot policy.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The date and time when the snapshot policy was created.",
 						},
 						"created_by": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The user who created the snapshot policy.",
 						},
 					},
 				},
@@ -97,13 +109,13 @@ func (d *snapshotPolicyDataSource) Configure(_ context.Context, req datasource.C
 		return
 	}
 
-	d.client = client
+	d.client = client.Snapshot
 }
 
 func (d *snapshotPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state snapshotPolicyDataSourceModel
 
-	policies, err := d.client.Snapshot.ListSnapShotPolicies(ctx, nil)
+	policies, err := d.client.ListSnapShotPolicies(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Snapshot Policies",

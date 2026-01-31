@@ -21,15 +21,15 @@ data "vpsie_access_tokens" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `tokens` (Attributes List) (see [below for nested schema](#nestedatt--tokens))
+- `id` (String) The ID of this data source.
+- `tokens` (Attributes List) The list of access tokens. (see [below for nested schema](#nestedatt--tokens))
 
 <a id="nestedatt--tokens"></a>
 ### Nested Schema for `tokens`
 
 Read-Only:
 
-- `created_on` (String)
-- `expiration_date` (String)
-- `identifier` (String)
-- `name` (String)
+- `created_on` (String) The timestamp when the access token was created.
+- `expiration_date` (String) The expiration date of the access token.
+- `identifier` (String) The unique identifier of the access token.
+- `name` (String) The name of the access token.

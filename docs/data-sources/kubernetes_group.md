@@ -3,12 +3,12 @@
 page_title: "vpsie_kubernetes_group Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Use this data source to retrieve information about all Kubernetes node groups.
 ---
 
 # vpsie_kubernetes_group (Data Source)
 
-
+Use this data source to retrieve information about all Kubernetes node groups.
 
 ## Example Usage
 
@@ -21,31 +21,31 @@ data "vpsie_kubernetes_group" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `kubernetes_group` (Attributes List) (see [below for nested schema](#nestedatt--kubernetes_group))
+- `id` (String) The ID of this data source.
+- `kubernetes_group` (Attributes List) The list of Kubernetes node groups. (see [below for nested schema](#nestedatt--kubernetes_group))
 
 <a id="nestedatt--kubernetes_group"></a>
 ### Nested Schema for `kubernetes_group`
 
 Read-Only:
 
-- `boxsize_id` (Number)
-- `cluster_id` (Number)
-- `cpu` (Number)
-- `created_on` (String)
-- `datacenter_id` (Number)
-- `dc_identifier` (String)
-- `dropped_on` (String)
-- `group_name` (String)
-- `id` (Number)
-- `identifier` (String)
-- `is_active` (Number)
-- `is_deleted` (Number)
-- `last_updated` (String)
-- `nodes_count` (Number)
-- `notes` (String)
-- `project_id` (Number)
-- `ram` (Number)
-- `ssd` (Number)
-- `traffic` (Number)
-- `user_id` (Number)
+- `boxsize_id` (Number) The box size ID used for nodes in this group.
+- `cluster_id` (Number) The ID of the parent Kubernetes cluster.
+- `cpu` (Number) The number of CPU cores allocated per node in the group.
+- `created_on` (String) The timestamp when the node group was created.
+- `datacenter_id` (Number) The ID of the data center where the node group resides.
+- `dc_identifier` (String) The identifier of the data center for the node group.
+- `dropped_on` (String) The timestamp when the node group was dropped.
+- `group_name` (String) The name of the node group.
+- `id` (Number) The numeric ID of the node group.
+- `identifier` (String) The unique identifier of the node group.
+- `is_active` (Number) Whether the node group is active (1 = active, 0 = inactive).
+- `is_deleted` (Number) Whether the node group has been deleted (1 = deleted, 0 = not deleted).
+- `last_updated` (String) The timestamp when the node group was last updated.
+- `nodes_count` (Number) The number of nodes in the group.
+- `notes` (String) Notes associated with the node group.
+- `project_id` (Number) The ID of the project the node group belongs to.
+- `ram` (Number) The RAM in MB allocated per node in the group.
+- `ssd` (Number) The SSD storage in GB allocated per node in the group.
+- `traffic` (Number) The traffic allowance in GB per node in the group.
+- `user_id` (Number) The ID of the user who owns the node group.

@@ -23,17 +23,17 @@ resource "vpsie_project" "example" {
 
 ### Required
 
-- `name` (String)
+- `name` (String) The name of the project. Changing this forces a new resource to be created.
 
 ### Optional
 
-- `description` (String)
+- `description` (String) A description of the project. Changing this forces a new resource to be created.
 
 ### Read-Only
 
-- `created_by` (Number)
-- `created_on` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `is_default` (Number)
-- `updated_at` (String)
+- `created_by` (Number) The numeric ID of the user who created the project.
+- `created_on` (String) The timestamp when the project was created.
+- `id` (Number) The numeric ID of the project.
+- `identifier` (String) The unique identifier of the project.
+- `is_default` (Number) Whether this is the default project (1 = default, 0 = not default).
+- `updated_at` (String) The timestamp when the project was last updated.

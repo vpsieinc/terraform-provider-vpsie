@@ -12,7 +12,7 @@ import (
 )
 
 type gatewayDataSource struct {
-	client *govpsie.Client
+	client GatewayAPI
 }
 
 type gatewayDataSourceModel struct {
@@ -59,75 +59,98 @@ func (g *gatewayDataSource) Metadata(_ context.Context, req datasource.MetadataR
 // Schema defines the schema for the data source.
 func (g *gatewayDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves a list of all gateways on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier for this data source.",
 			},
 			"gateways": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of gateways.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique numeric identifier of the gateway.",
 						},
 						"datacenter_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the data center where the gateway is located.",
 						},
 						"ip_properties_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the IP properties record.",
 						},
 						"ip": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The IP address assigned to the gateway.",
 						},
 						"is_reserved": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the IP address is reserved.",
 						},
 						"ip_version": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The IP version of the gateway address.",
 						},
 						"box_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the server (box) associated with this gateway.",
 						},
 						"is_primary": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this is the primary IP for the associated server.",
 						},
 						"notes": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Notes associated with the gateway.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the user who owns the gateway.",
 						},
 						"updated_at": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The date and time when the gateway was last updated.",
 						},
 						"is_gateway_reserved": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the gateway reservation is active.",
 						},
 						"is_user_account_gateway": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this gateway is the user account gateway.",
 						},
 						"datacenter_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the data center where the gateway is located.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the gateway.",
 						},
 						"dc_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the gateway is located.",
 						},
 						"created_by": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The user who created the gateway.",
 						},
 						"attached_vms": schema.ListNestedAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The list of virtual machines attached to this gateway.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"identifier": schema.StringAttribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The identifier of the attached virtual machine.",
 									},
 									"gateway_mapping_id": schema.Int64Attribute{
-										Computed: true,
+										Computed:            true,
+										MarkdownDescription: "The numeric ID of the gateway-to-VM mapping.",
 									},
 								},
 							},
@@ -143,7 +166,7 @@ func (g *gatewayDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 func (g *gatewayDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state gatewayDataSourceModel
 
-	gateways, err := g.client.Gateway.List(ctx, nil)
+	gateways, err := g.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting gateways",
@@ -210,5 +233,5 @@ func (g *gatewayDataSource) Configure(_ context.Context, req datasource.Configur
 		return
 	}
 
-	g.client = client
+	g.client = client.Gateway
 }

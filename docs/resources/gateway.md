@@ -3,12 +3,12 @@
 page_title: "vpsie_gateway Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a gateway IP on the VPSie platform.
 ---
 
 # vpsie_gateway (Resource)
 
-
+Manages a gateway IP on the VPSie platform.
 
 ## Example Usage
 
@@ -24,38 +24,38 @@ resource "vpsie_gateway" "example" {
 
 ### Required
 
-- `dc_identifier` (String)
-- `ip_version` (String)
+- `dc_identifier` (String) The identifier of the data center where the gateway will be created.
+- `ip_version` (String) The IP version for the gateway, such as ipv4 or ipv6.
 
 ### Optional
 
-- `attached_vms` (Attributes List) (see [below for nested schema](#nestedatt--attached_vms))
-- `box_id` (Number)
-- `notes` (String)
+- `attached_vms` (Attributes List) The list of virtual machines attached to this gateway. (see [below for nested schema](#nestedatt--attached_vms))
+- `box_id` (Number) The numeric ID of the server (box) associated with this gateway.
+- `notes` (String) Optional notes for the gateway.
 
 ### Read-Only
 
-- `created_by` (String)
-- `datacenter_id` (Number)
-- `datacenter_name` (String)
-- `id` (Number) The ID of this resource.
-- `ip` (String)
-- `ip_properties_id` (Number)
-- `is_gateway_reserved` (Number)
-- `is_primary` (Number)
-- `is_reserved` (Number)
-- `is_user_account_gateway` (Number)
-- `state` (String)
-- `updated_at` (String)
-- `user_id` (Number)
+- `created_by` (String) The user who created the gateway.
+- `datacenter_id` (Number) The numeric ID of the data center where the gateway is located.
+- `datacenter_name` (String) The name of the data center where the gateway is located.
+- `id` (Number) The unique numeric identifier of the gateway.
+- `ip` (String) The IP address assigned to the gateway.
+- `ip_properties_id` (Number) The numeric ID of the IP properties record.
+- `is_gateway_reserved` (Number) Whether the gateway reservation is active.
+- `is_primary` (Number) Whether this is the primary IP for the associated server.
+- `is_reserved` (Number) Whether the IP address is reserved.
+- `is_user_account_gateway` (Number) Whether this gateway is the user account gateway.
+- `state` (String) The current state of the gateway.
+- `updated_at` (String) The date and time when the gateway was last updated.
+- `user_id` (Number) The numeric ID of the user who owns the gateway.
 
 <a id="nestedatt--attached_vms"></a>
 ### Nested Schema for `attached_vms`
 
 Required:
 
-- `identifier` (String)
+- `identifier` (String) The identifier of the virtual machine to attach.
 
 Read-Only:
 
-- `gateway_mapping_id` (Number)
+- `gateway_mapping_id` (Number) The numeric ID of the gateway-to-VM mapping.

@@ -11,7 +11,7 @@ import (
 )
 
 type accessTokenDataSource struct {
-	client *govpsie.Client
+	client AccessTokenAPI
 }
 
 type accessTokenDataSourceModel struct {
@@ -38,23 +38,29 @@ func (d *accessTokenDataSource) Schema(_ context.Context, _ datasource.SchemaReq
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"tokens": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of access tokens.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the access token.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the access token.",
 						},
 						"expiration_date": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The expiration date of the access token.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the access token was created.",
 						},
 					},
 				},
@@ -77,13 +83,13 @@ func (d *accessTokenDataSource) Configure(_ context.Context, req datasource.Conf
 		return
 	}
 
-	d.client = client
+	d.client = client.AccessToken
 }
 
 func (d *accessTokenDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state accessTokenDataSourceModel
 
-	tokens, err := d.client.AccessToken.List(ctx, nil)
+	tokens, err := d.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Access Tokens",

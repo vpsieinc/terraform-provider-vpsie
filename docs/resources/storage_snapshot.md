@@ -3,12 +3,12 @@
 page_title: "vpsie_storage_snapshot Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a storage volume snapshot on the VPSie platform.
 ---
 
 # vpsie_storage_snapshot (Resource)
 
-
+Manages a storage volume snapshot on the VPSie platform.
 
 ## Example Usage
 
@@ -25,22 +25,22 @@ resource "vpsie_storage_snapshot" "example" {
 
 ### Required
 
-- `name` (String)
-- `storage_identifier` (String)
-- `type` (String)
+- `name` (String) The name of the snapshot.
+- `storage_identifier` (String) The identifier of the storage volume to snapshot.
+- `type` (String) The type of the snapshot.
 
 ### Read-Only
 
-- `box_id` (Number)
-- `created_on` (String)
-- `disk_format` (String)
-- `entity_type` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `is_deleted` (Number)
-- `size` (Number)
-- `snapshot_key` (String)
-- `storage_id` (Number)
-- `storage_name` (String)
-- `storage_type` (String)
-- `user_id` (Number)
+- `box_id` (Number) The ID of the server (box) associated with the snapshot.
+- `created_on` (String) The timestamp when the snapshot was created.
+- `disk_format` (String) The disk format of the parent storage volume.
+- `entity_type` (String) The entity type of the snapshot.
+- `id` (Number) The numeric ID of the snapshot.
+- `identifier` (String) The unique identifier of the snapshot.
+- `is_deleted` (Number) Whether the snapshot has been deleted.
+- `size` (Number) The size of the snapshot in GB.
+- `snapshot_key` (String) The key identifier for the snapshot.
+- `storage_id` (Number) The ID of the storage volume the snapshot belongs to.
+- `storage_name` (String) The name of the parent storage volume.
+- `storage_type` (String) The type of the parent storage volume.
+- `user_id` (Number) The ID of the user who owns the snapshot.

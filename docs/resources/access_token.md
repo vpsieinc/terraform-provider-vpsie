@@ -25,11 +25,11 @@ resource "vpsie_access_token" "example" {
 
 ### Required
 
-- `access_token` (String, Sensitive)
-- `expiration_date` (String)
-- `name` (String)
+- `access_token` (String, Sensitive) The access token value. Changing this forces a new resource to be created.
+- `expiration_date` (String) The expiration date of the access token.
+- `name` (String) The name of the access token.
 
 ### Read-Only
 
-- `created_on` (String)
-- `identifier` (String)
+- `created_on` (String) The timestamp when the access token was created.
+- `identifier` (String) The unique identifier of the access token.

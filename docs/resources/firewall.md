@@ -3,12 +3,12 @@
 page_title: "vpsie_firewall Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a firewall group on the VPSie platform.
 ---
 
 # vpsie_firewall (Resource)
 
-
+Manages a firewall group on the VPSie platform.
 
 ## Example Usage
 
@@ -23,53 +23,53 @@ resource "vpsie_firewall" "example" {
 
 ### Required
 
-- `group_name` (String)
+- `group_name` (String) The name of the firewall group.
 
 ### Read-Only
 
-- `action` (String)
-- `category` (String)
-- `fullname` (String)
-- `group_id` (Number)
-- `hostname` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `rules` (Attributes List) (see [below for nested schema](#nestedatt--rules))
-- `type` (String)
-- `user_id` (Number)
-- `vms_data` (Attributes List) (see [below for nested schema](#nestedatt--vms_data))
+- `action` (String) The default action for the firewall group.
+- `category` (String) The category of the firewall group.
+- `fullname` (String) The full name of the firewall group owner.
+- `group_id` (Number) The internal group ID of the firewall.
+- `hostname` (String) The hostname associated with the firewall group.
+- `id` (Number) The numeric ID of the firewall group.
+- `identifier` (String) The unique identifier of the firewall group.
+- `rules` (Attributes List) The list of firewall rules in the group. (see [below for nested schema](#nestedatt--rules))
+- `type` (String) The type of the firewall group.
+- `user_id` (Number) The ID of the user who owns the firewall group.
+- `vms_data` (Attributes List) The list of VMs attached to the firewall group. (see [below for nested schema](#nestedatt--vms_data))
 
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
 
 Read-Only:
 
-- `in_bound` (Attributes List) (see [below for nested schema](#nestedatt--rules--in_bound))
-- `out_bound` (Attributes List) (see [below for nested schema](#nestedatt--rules--out_bound))
+- `in_bound` (Attributes List) The list of inbound firewall rules. (see [below for nested schema](#nestedatt--rules--in_bound))
+- `out_bound` (Attributes List) The list of outbound firewall rules. (see [below for nested schema](#nestedatt--rules--out_bound))
 
 <a id="nestedatt--rules--in_bound"></a>
 ### Nested Schema for `rules.in_bound`
 
 Read-Only:
 
-- `action` (String)
-- `comment` (String)
-- `created_on` (String)
-- `dest` (List of List of String)
-- `dport` (String)
-- `enable` (Number)
-- `group_id` (Number)
-- `id` (Number)
-- `identifier` (String)
-- `iface` (String)
-- `log` (String)
-- `macro` (String)
-- `proto` (String)
-- `source` (List of List of String)
-- `sport` (String)
-- `type` (String)
-- `updated_on` (String)
-- `user_id` (Number)
+- `action` (String) The action to take when the rule matches (e.g., ACCEPT, DROP).
+- `comment` (String) A comment describing the firewall rule.
+- `created_on` (String) The timestamp when the rule was created.
+- `dest` (List of List of String) The destination addresses for the firewall rule.
+- `dport` (String) The destination port or port range for the rule.
+- `enable` (Number) Whether the rule is enabled (1 = enabled, 0 = disabled).
+- `group_id` (Number) The ID of the firewall group this rule belongs to.
+- `id` (Number) The numeric ID of the firewall rule.
+- `identifier` (String) The unique identifier of the firewall rule.
+- `iface` (String) The network interface the rule applies to.
+- `log` (String) The logging level for the rule.
+- `macro` (String) The macro name for predefined rule sets.
+- `proto` (String) The protocol for the rule (e.g., tcp, udp, icmp).
+- `source` (List of List of String) The source addresses for the firewall rule.
+- `sport` (String) The source port or port range for the rule.
+- `type` (String) The direction type of the rule (e.g., in, out).
+- `updated_on` (String) The timestamp when the rule was last updated.
+- `user_id` (Number) The ID of the user who owns the rule.
 
 
 <a id="nestedatt--rules--out_bound"></a>
@@ -77,24 +77,24 @@ Read-Only:
 
 Read-Only:
 
-- `action` (String)
-- `comment` (String)
-- `created_on` (String)
-- `dest` (List of List of String)
-- `dport` (String)
-- `enable` (Number)
-- `group_id` (Number)
-- `id` (Number)
-- `identifier` (String)
-- `iface` (String)
-- `log` (String)
-- `macro` (String)
-- `proto` (String)
-- `source` (List of List of String)
-- `sport` (String)
-- `type` (String)
-- `updated_on` (String)
-- `user_id` (Number)
+- `action` (String) The action to take when the rule matches (e.g., ACCEPT, DROP).
+- `comment` (String) A comment describing the firewall rule.
+- `created_on` (String) The timestamp when the rule was created.
+- `dest` (List of List of String) The destination addresses for the firewall rule.
+- `dport` (String) The destination port or port range for the rule.
+- `enable` (Number) Whether the rule is enabled (1 = enabled, 0 = disabled).
+- `group_id` (Number) The ID of the firewall group this rule belongs to.
+- `id` (Number) The numeric ID of the firewall rule.
+- `identifier` (String) The unique identifier of the firewall rule.
+- `iface` (String) The network interface the rule applies to.
+- `log` (String) The logging level for the rule.
+- `macro` (String) The macro name for predefined rule sets.
+- `proto` (String) The protocol for the rule (e.g., tcp, udp, icmp).
+- `source` (List of List of String) The source addresses for the firewall rule.
+- `sport` (String) The source port or port range for the rule.
+- `type` (String) The direction type of the rule (e.g., in, out).
+- `updated_on` (String) The timestamp when the rule was last updated.
+- `user_id` (Number) The ID of the user who owns the rule.
 
 
 
@@ -103,7 +103,7 @@ Read-Only:
 
 Read-Only:
 
-- `category` (String)
-- `fullname` (String)
-- `hostname` (String)
-- `identifier` (String)
+- `category` (String) The category of the attached VM.
+- `fullname` (String) The full name of the attached VM.
+- `hostname` (String) The hostname of the attached VM.
+- `identifier` (String) The unique identifier of the attached VM.

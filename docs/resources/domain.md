@@ -3,12 +3,12 @@
 page_title: "vpsie_domain Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a domain on the VPSie platform.
 ---
 
 # vpsie_domain (Resource)
 
-
+Manages a domain on the VPSie platform.
 
 ## Example Usage
 
@@ -24,12 +24,12 @@ resource "vpsie_domain" "example" {
 
 ### Required
 
-- `domain_name` (String)
-- `project_identifier` (String)
+- `domain_name` (String) The name of the domain (e.g. example.com). Changing this forces a new resource.
+- `project_identifier` (String) The identifier of the project this domain belongs to. Changing this forces a new resource.
 
 ### Read-Only
 
-- `created_on` (String)
-- `identifier` (String)
-- `last_check` (String)
-- `ns_validated` (Number)
+- `created_on` (String) The timestamp when the domain was created.
+- `identifier` (String) The unique identifier of the domain.
+- `last_check` (String) The timestamp of the last nameserver validation check.
+- `ns_validated` (Number) Whether the domain nameservers have been validated (1 = validated, 0 = not validated).

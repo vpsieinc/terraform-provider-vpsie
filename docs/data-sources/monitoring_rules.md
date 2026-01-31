@@ -21,23 +21,23 @@ data "vpsie_monitoring_rules" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `rules` (Attributes List) (see [below for nested schema](#nestedatt--rules))
+- `id` (String) The ID of this data source.
+- `rules` (Attributes List) The list of monitoring rules. (see [below for nested schema](#nestedatt--rules))
 
 <a id="nestedatt--rules"></a>
 ### Nested Schema for `rules`
 
 Read-Only:
 
-- `condition` (String)
-- `created_by` (String)
-- `created_on` (String)
-- `email` (String)
-- `frequency` (Number)
-- `identifier` (String)
-- `metric_type` (String)
-- `period` (Number)
-- `rule_name` (String)
-- `status` (Number)
-- `threshold` (Number)
-- `threshold_type` (String)
+- `condition` (String) The condition operator for the monitoring rule (e.g., above, below).
+- `created_by` (String) The user who created the monitoring rule.
+- `created_on` (String) The timestamp when the monitoring rule was created.
+- `email` (String) The email address that receives alert notifications.
+- `frequency` (Number) The frequency of checks for the monitoring rule in minutes.
+- `identifier` (String) The unique identifier of the monitoring rule.
+- `metric_type` (String) The type of metric being monitored.
+- `period` (Number) The evaluation period for the monitoring rule in minutes.
+- `rule_name` (String) The name of the monitoring rule.
+- `status` (Number) The current status of the monitoring rule.
+- `threshold` (Number) The threshold value that triggers the alert.
+- `threshold_type` (String) The type of threshold for the rule.

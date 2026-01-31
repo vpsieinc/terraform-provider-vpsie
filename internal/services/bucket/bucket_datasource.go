@@ -11,7 +11,7 @@ import (
 )
 
 type bucketDataSource struct {
-	client *govpsie.Client
+	client BucketAPI
 }
 
 type bucketDataSourceModel struct {
@@ -42,45 +42,58 @@ func (d *bucketDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 
 func (d *bucketDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves a list of all object storage buckets on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier for this data source.",
 			},
 			"buckets": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of object storage buckets.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the bucket.",
 						},
 						"bucket_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the bucket.",
 						},
 						"access_key": schema.StringAttribute{
-							Computed:  true,
-							Sensitive: true,
+							Computed:            true,
+							Sensitive:           true,
+							MarkdownDescription: "The access key for the bucket.",
 						},
 						"secret_key": schema.StringAttribute{
-							Computed:  true,
-							Sensitive: true,
+							Computed:            true,
+							Sensitive:           true,
+							MarkdownDescription: "The secret key for the bucket.",
 						},
 						"endpoint": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The S3-compatible endpoint URL for the bucket.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the bucket.",
 						},
 						"country": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The country where the bucket is located.",
 						},
 						"created_by": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The user who created the bucket.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the bucket was created.",
 						},
 						"project_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the project the bucket belongs to.",
 						},
 					},
 				},
@@ -103,13 +116,13 @@ func (d *bucketDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	d.client = client
+	d.client = client.Bucket
 }
 
 func (d *bucketDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state bucketDataSourceModel
 
-	buckets, err := d.client.Bucket.List(ctx, nil)
+	buckets, err := d.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Buckets",

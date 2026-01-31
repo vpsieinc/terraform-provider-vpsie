@@ -4,21 +4,25 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
 
 var (
-	_ resource.Resource              = &accessTokenResource{}
-	_ resource.ResourceWithConfigure = &accessTokenResource{}
+	_ resource.Resource                = &accessTokenResource{}
+	_ resource.ResourceWithConfigure   = &accessTokenResource{}
+	_ resource.ResourceWithImportState = &accessTokenResource{}
 )
 
 type accessTokenResource struct {
-	client *govpsie.Client
+	client AccessTokenAPI
 }
 
 type accessTokenResourceModel struct {
@@ -27,7 +31,6 @@ type accessTokenResourceModel struct {
 	AccessToken    types.String `tfsdk:"access_token"`
 	ExpirationDate types.String `tfsdk:"expiration_date"`
 	CreatedOn      types.String `tfsdk:"created_on"`
-	Status         types.String `tfsdk:"status"`
 }
 
 func NewAccessTokenResource() resource.Resource {
@@ -42,33 +45,43 @@ func (a *accessTokenResource) Schema(_ context.Context, _ resource.SchemaRequest
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the access token.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the access token.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"access_token": schema.StringAttribute{
-				Required:  true,
-				Sensitive: true,
+				Required:            true,
+				Sensitive:           true,
+				MarkdownDescription: "The access token value. Changing this forces a new resource to be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"expiration_date": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The expiration date of the access token.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the access token was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
-			},
-			"status": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
 			},
 		},
 	}
@@ -88,7 +101,7 @@ func (a *accessTokenResource) Configure(_ context.Context, req resource.Configur
 		return
 	}
 
-	a.client = client
+	a.client = client.AccessToken
 }
 
 func (a *accessTokenResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -99,7 +112,7 @@ func (a *accessTokenResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	err := a.client.AccessToken.Create(ctx, plan.Name.ValueString(), plan.AccessToken.ValueString(), plan.ExpirationDate.ValueString(), plan.Status.ValueString())
+	err := a.client.Create(ctx, plan.Name.ValueString(), plan.AccessToken.ValueString(), plan.ExpirationDate.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating access token", err.Error())
 		return
@@ -113,7 +126,6 @@ func (a *accessTokenResource) Create(ctx context.Context, req resource.CreateReq
 
 	plan.Identifier = types.StringValue(token.AccessTokenIdentifier)
 	plan.CreatedOn = types.StringValue(token.CreatedOn)
-	plan.Status = types.StringValue(token.Status)
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -127,7 +139,7 @@ func (a *accessTokenResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	tokens, err := a.client.AccessToken.List(ctx, nil)
+	tokens, err := a.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading access tokens", err.Error())
 		return
@@ -139,7 +151,6 @@ func (a *accessTokenResource) Read(ctx context.Context, req resource.ReadRequest
 			state.Name = types.StringValue(token.Name)
 			state.ExpirationDate = types.StringValue(token.ExpirationDate)
 			state.CreatedOn = types.StringValue(token.CreatedOn)
-			state.Status = types.StringValue(token.Status)
 			found = true
 			break
 		}
@@ -169,7 +180,7 @@ func (a *accessTokenResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	err := a.client.AccessToken.Update(ctx, state.Identifier.ValueString(), plan.Name.ValueString(), plan.ExpirationDate.ValueString())
+	err := a.client.Update(ctx, state.Identifier.ValueString(), plan.Name.ValueString(), plan.ExpirationDate.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating access token", err.Error())
 		return
@@ -182,6 +193,10 @@ func (a *accessTokenResource) Update(ctx context.Context, req resource.UpdateReq
 	resp.Diagnostics.Append(diags...)
 }
 
+func (a *accessTokenResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("identifier"), req, resp)
+}
+
 func (a *accessTokenResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state accessTokenResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -190,7 +205,7 @@ func (a *accessTokenResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	err := a.client.AccessToken.Delete(ctx, state.Identifier.ValueString())
+	err := a.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting access token",
@@ -201,7 +216,7 @@ func (a *accessTokenResource) Delete(ctx context.Context, req resource.DeleteReq
 }
 
 func (a *accessTokenResource) GetTokenByName(ctx context.Context, name string) (*govpsie.AccessToken, error) {
-	tokens, err := a.client.AccessToken.List(ctx, nil)
+	tokens, err := a.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

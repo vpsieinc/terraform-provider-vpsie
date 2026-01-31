@@ -3,12 +3,12 @@
 page_title: "vpsie_vpcs Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Retrieves a list of all VPCs on the VPSie platform.
 ---
 
 # vpsie_vpcs (Data Source)
 
-
+Retrieves a list of all VPCs on the VPSie platform.
 
 ## Example Usage
 
@@ -21,35 +21,35 @@ data "vpsie_vpcs" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `vpcs` (Attributes List) (see [below for nested schema](#nestedatt--vpcs))
+- `id` (String) The identifier for this data source.
+- `vpcs` (Attributes List) The list of VPCs. (see [below for nested schema](#nestedatt--vpcs))
 
 <a id="nestedatt--vpcs"></a>
 ### Nested Schema for `vpcs`
 
 Read-Only:
 
-- `created_by` (Number)
-- `created_on` (String)
-- `datacenter_id` (Number)
-- `dc_identifier` (String)
-- `dc_name` (String)
-- `description` (String)
-- `firstname` (String)
-- `hight_ip_num` (Number)
-- `id` (Number)
-- `interface_number` (Number)
-- `is_default` (Number)
-- `is_upc_network` (Number)
-- `last_updated` (String)
-- `lastname` (String)
-- `low_ip_num` (Number)
-- `name` (String)
-- `network_range` (String)
-- `network_size` (Number)
-- `network_tag_number` (Number)
-- `owner_id` (Number)
-- `state` (String)
-- `updated_by` (Number)
-- `user_id` (Number)
-- `username` (String)
+- `created_by` (Number) The numeric ID of the user who created the VPC.
+- `created_on` (String) The date and time when the VPC was created.
+- `datacenter_id` (Number) The numeric ID of the data center.
+- `dc_identifier` (String) The identifier of the data center where the VPC is located.
+- `dc_name` (String) The name of the data center where the VPC is located.
+- `description` (String) The description of the VPC.
+- `firstname` (String) The first name of the VPC owner.
+- `hight_ip_num` (Number) The highest IP number in the VPC network range.
+- `id` (Number) The unique numeric identifier of the VPC.
+- `interface_number` (Number) The number of network interfaces in the VPC.
+- `is_default` (Number) Whether this is the default VPC.
+- `is_upc_network` (Number) Whether the VPC is a UPC network.
+- `last_updated` (String) The date and time when the VPC was last updated.
+- `lastname` (String) The last name of the VPC owner.
+- `low_ip_num` (Number) The lowest IP number in the VPC network range.
+- `name` (String) The name of the VPC.
+- `network_range` (String) The IP range of the VPC network in CIDR notation.
+- `network_size` (Number) The size of the VPC network (CIDR prefix length).
+- `network_tag_number` (Number) The network tag number assigned to the VPC.
+- `owner_id` (Number) The numeric ID of the account owner.
+- `state` (String) The current state of the VPC.
+- `updated_by` (Number) The numeric ID of the user who last updated the VPC.
+- `user_id` (Number) The numeric ID of the user who owns the VPC.
+- `username` (String) The username of the VPC owner.

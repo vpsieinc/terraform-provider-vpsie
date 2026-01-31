@@ -17,7 +17,7 @@ var (
 
 // storageDataSource is the data source implementation.
 type storageDataSource struct {
-	client *govpsie.Client
+	client StorageAPI
 }
 
 type storageDataSourceModel struct {
@@ -62,76 +62,100 @@ func (s *storageDataSource) Metadata(_ context.Context, req datasource.MetadataR
 // Schema defines the schema for the data source.
 func (s *storageDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Use this data source to retrieve information about all VPSie storage volumes.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"storages": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of storage volumes.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the storage volume.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the storage volume.",
 						},
 						"description": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "A description of the storage volume.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user who owns the storage volume.",
 						},
 						"box_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the server (box) the storage is attached to.",
 						},
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the storage volume.",
 						},
 						"user_template_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user template associated with the storage volume.",
 						},
 						"storage_type": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The type of storage (e.g., ssd, sata).",
 						},
 						"disk_format": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The disk format of the storage volume.",
 						},
 						"is_automatic": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the storage volume was created automatically.",
 						},
 						"size": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The size of the storage volume in GB.",
 						},
 						"storage_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The internal storage ID.",
 						},
 						"disk_key": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The disk key identifier for the storage volume.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the storage volume was created.",
 						},
 						"vm_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the VM the storage is attached to.",
 						},
 						"hostname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The hostname of the server the storage is attached to.",
 						},
 						"os_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The OS identifier of the server the storage is attached to.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the storage volume.",
 						},
 						"dc_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the storage volume resides.",
 						},
 						"bus_device": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The bus device name of the storage volume.",
 						},
 						"bus_number": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The bus number of the storage volume.",
 						},
 					},
 				},
@@ -144,7 +168,7 @@ func (s *storageDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 func (s *storageDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state storageDataSourceModel
 
-	storages, err := s.client.Storage.ListAll(ctx, nil)
+	storages, err := s.client.ListAll(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to read Vpsie Storages",
@@ -207,5 +231,5 @@ func (s *storageDataSource) Configure(_ context.Context, req datasource.Configur
 		return
 	}
 
-	s.client = client
+	s.client = client.Storage
 }

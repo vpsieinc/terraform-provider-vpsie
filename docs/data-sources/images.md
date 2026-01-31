@@ -21,25 +21,25 @@ data "vpsie_images" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `images` (Attributes List) (see [below for nested schema](#nestedatt--images))
+- `id` (String) The ID of this data source.
+- `images` (Attributes List) The list of custom images. (see [below for nested schema](#nestedatt--images))
 
 <a id="nestedatt--images"></a>
 ### Nested Schema for `images`
 
 Read-Only:
 
-- `created_by` (String)
-- `created_on` (String)
-- `datacenter_id` (Number)
-- `dc_identifier` (String)
-- `dc_name` (String)
-- `deleted` (Number)
-- `fetched_from_url` (String)
-- `id` (Number)
-- `identifier` (String)
-- `image_hash` (String)
-- `image_label` (String)
-- `image_size` (Number)
-- `original_name` (String)
-- `user_id` (Number)
+- `created_by` (String) The user who created the image.
+- `created_on` (String) The timestamp when the image was created.
+- `datacenter_id` (Number) The numeric ID of the datacenter where the image is stored.
+- `dc_identifier` (String) The unique identifier of the datacenter where the image is stored.
+- `dc_name` (String) The name of the datacenter where the image is stored.
+- `deleted` (Number) Whether the image has been deleted (0 = active, 1 = deleted).
+- `fetched_from_url` (String) The URL from which the image was fetched.
+- `id` (Number) The numeric ID of the image.
+- `identifier` (String) The unique identifier of the image.
+- `image_hash` (String) The hash of the image content for integrity verification.
+- `image_label` (String) The label for the custom image.
+- `image_size` (Number) The size of the image in bytes.
+- `original_name` (String) The original file name of the image.
+- `user_id` (Number) The numeric ID of the user who owns the image.

@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -22,7 +24,7 @@ var (
 )
 
 type gatewayResource struct {
-	client *govpsie.Client
+	client GatewayAPI
 }
 
 type gatewayResourceModel struct {
@@ -56,118 +58,148 @@ func (g *gatewayResource) Metadata(_ context.Context, req resource.MetadataReque
 
 func (g *gatewayResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a gateway IP on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique numeric identifier of the gateway.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"datacenter_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the data center where the gateway is located.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"ip_properties_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the IP properties record.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"ip": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The IP address assigned to the gateway.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_reserved": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the IP address is reserved.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"ip_version": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The IP version for the gateway, such as ipv4 or ipv6.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"box_id": schema.Int64Attribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The numeric ID of the server (box) associated with this gateway.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_primary": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether this is the primary IP for the associated server.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"notes": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "Optional notes for the gateway.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the user who owns the gateway.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"updated_at": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The date and time when the gateway was last updated.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_gateway_reserved": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether the gateway reservation is active.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"is_user_account_gateway": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "Whether this gateway is the user account gateway.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"datacenter_name": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The name of the data center where the gateway is located.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"state": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The current state of the gateway.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"dc_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the data center where the gateway will be created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The user who created the gateway.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"attached_vms": schema.ListNestedAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The list of virtual machines attached to this gateway.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"gateway_mapping_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the gateway-to-VM mapping.",
 						},
 						"identifier": schema.StringAttribute{
-							Required: true,
+							Required:            true,
+							MarkdownDescription: "The identifier of the virtual machine to attach.",
+							Validators: []validator.String{
+								stringvalidator.LengthAtLeast(1),
+							},
 						},
 					},
 				},
@@ -191,7 +223,7 @@ func (g *gatewayResource) Configure(_ context.Context, req resource.ConfigureReq
 		return
 	}
 
-	g.client = client
+	g.client = client.Gateway
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -245,7 +277,7 @@ func (g *gatewayResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	gateway, err := g.client.Gateway.Get(ctx, state.ID.ValueInt64())
+	gateway, err := g.client.Get(ctx, state.ID.ValueInt64())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -318,7 +350,7 @@ func (g *gatewayResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	for _, vm := range plan.AttachedVms {
 		if setOfState[vm.Identifier.ValueString()] == 0 {
-			err := g.client.Gateway.AttachVM(ctx, state.ID.ValueInt64(), []string{vm.Identifier.ValueString()}, 1)
+			err := g.client.AttachVM(ctx, state.ID.ValueInt64(), []string{vm.Identifier.ValueString()}, 1)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error attaching vm to gateway",
@@ -331,7 +363,7 @@ func (g *gatewayResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	for identifier := range setOfState {
-		err := g.client.Gateway.DetachVM(ctx, state.ID.ValueInt64(), []int64{setOfState[identifier]})
+		err := g.client.DetachVM(ctx, state.ID.ValueInt64(), []int64{setOfState[identifier]})
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error detaching vm from gateway",
@@ -341,7 +373,7 @@ func (g *gatewayResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	// Overwrite items with refreshed state
-	gateway, err := g.client.Gateway.Get(ctx, state.ID.ValueInt64())
+	gateway, err := g.client.Get(ctx, state.ID.ValueInt64())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading vpsie gateways",
@@ -395,7 +427,7 @@ func (g *gatewayResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
-	err := g.client.Gateway.Delete(ctx, int(state.ID.ValueInt64()))
+	err := g.client.Delete(ctx, int(state.ID.ValueInt64()))
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting gateway",
@@ -411,7 +443,7 @@ func (g *gatewayResource) ImportState(ctx context.Context, req resource.ImportSt
 
 func (g *gatewayResource) CreateAndReturnGateway(ctx context.Context, ipType, dcIdentifier string) (*govpsie.Gateway, error) {
 
-	allGateways, err := g.client.Gateway.List(ctx, nil)
+	allGateways, err := g.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -426,12 +458,12 @@ func (g *gatewayResource) CreateAndReturnGateway(ctx context.Context, ipType, dc
 		DcIdentifier: dcIdentifier,
 	}
 
-	err = g.client.Gateway.Create(ctx, &createReq)
+	err = g.client.Create(ctx, &createReq)
 	if err != nil {
 		return nil, err
 	}
 
-	lstAllGateways, err := g.client.Gateway.List(ctx, nil)
+	lstAllGateways, err := g.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

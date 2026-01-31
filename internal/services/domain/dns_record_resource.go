@@ -3,23 +3,28 @@ package domain
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
 
 var (
-	_ resource.Resource              = &dnsRecordResource{}
-	_ resource.ResourceWithConfigure = &dnsRecordResource{}
+	_ resource.Resource                = &dnsRecordResource{}
+	_ resource.ResourceWithConfigure   = &dnsRecordResource{}
+	_ resource.ResourceWithImportState = &dnsRecordResource{}
 )
 
 type dnsRecordResource struct {
-	client *govpsie.Client
+	client DomainAPI
 }
 
 type dnsRecordResourceModel struct {
@@ -41,34 +46,53 @@ func (d *dnsRecordResource) Metadata(_ context.Context, req resource.MetadataReq
 
 func (d *dnsRecordResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a DNS record for a domain on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The composite identifier of the DNS record (domain_identifier/type/name).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"domain_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the domain this DNS record belongs to. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the DNS record (e.g. subdomain or @ for root).",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"content": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The content or value of the DNS record (e.g. an IP address or hostname).",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"type": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The type of the DNS record (e.g. A, AAAA, CNAME, MX, TXT). Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"ttl": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "The time-to-live of the DNS record in seconds. Defaults to 3600 if not specified.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -91,7 +115,7 @@ func (d *dnsRecordResource) Configure(_ context.Context, req resource.ConfigureR
 		return
 	}
 
-	d.client = client
+	d.client = client.Domain
 }
 
 func (d *dnsRecordResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -117,7 +141,7 @@ func (d *dnsRecordResource) Create(ctx context.Context, req resource.CreateReque
 		},
 	}
 
-	err := d.client.Domain.CreateDnsRecord(ctx, createReq)
+	err := d.client.CreateDnsRecord(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating DNS record", err.Error())
 		return
@@ -184,7 +208,7 @@ func (d *dnsRecordResource) Update(ctx context.Context, req resource.UpdateReque
 		},
 	}
 
-	err := d.client.Domain.UpdateDnsRecord(ctx, updateReq)
+	err := d.client.UpdateDnsRecord(ctx, updateReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating DNS record", err.Error())
 		return
@@ -195,6 +219,22 @@ func (d *dnsRecordResource) Update(ctx context.Context, req resource.UpdateReque
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
+}
+
+func (d *dnsRecordResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	parts := strings.Split(req.ID, "/")
+	if len(parts) != 3 || parts[0] == "" || parts[1] == "" || parts[2] == "" {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected import identifier with format: <domain_identifier>/<type>/<name>. Got: %s", req.ID),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("domain_identifier"), parts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("type"), parts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("name"), parts[2])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }
 
 func (d *dnsRecordResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
@@ -217,7 +257,7 @@ func (d *dnsRecordResource) Delete(ctx context.Context, req resource.DeleteReque
 		TTL:     ttl,
 	}
 
-	err := d.client.Domain.DeleteDnsRecord(ctx, state.DomainIdentifier.ValueString(), record)
+	err := d.client.DeleteDnsRecord(ctx, state.DomainIdentifier.ValueString(), record)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting DNS record",

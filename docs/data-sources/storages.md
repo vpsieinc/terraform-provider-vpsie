@@ -3,12 +3,12 @@
 page_title: "vpsie_storages Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Use this data source to retrieve information about all VPSie storage volumes.
 ---
 
 # vpsie_storages (Data Source)
 
-
+Use this data source to retrieve information about all VPSie storage volumes.
 
 ## Example Usage
 
@@ -21,32 +21,32 @@ data "vpsie_storages" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `storages` (Attributes List) (see [below for nested schema](#nestedatt--storages))
+- `id` (String) The ID of this data source.
+- `storages` (Attributes List) The list of storage volumes. (see [below for nested schema](#nestedatt--storages))
 
 <a id="nestedatt--storages"></a>
 ### Nested Schema for `storages`
 
 Read-Only:
 
-- `box_id` (Number)
-- `bus_device` (String)
-- `bus_number` (Number)
-- `created_on` (String)
-- `dc_identifier` (String)
-- `description` (String)
-- `disk_format` (String)
-- `disk_key` (String)
-- `hostname` (String)
-- `id` (Number)
-- `identifier` (String)
-- `is_automatic` (Number)
-- `name` (String)
-- `os_identifier` (String)
-- `size` (Number)
-- `state` (String)
-- `storage_id` (Number)
-- `storage_type` (String)
-- `user_id` (Number)
-- `user_template_id` (Number)
-- `vm_identifier` (String)
+- `box_id` (Number) The ID of the server (box) the storage is attached to.
+- `bus_device` (String) The bus device name of the storage volume.
+- `bus_number` (Number) The bus number of the storage volume.
+- `created_on` (String) The timestamp when the storage volume was created.
+- `dc_identifier` (String) The identifier of the data center where the storage volume resides.
+- `description` (String) A description of the storage volume.
+- `disk_format` (String) The disk format of the storage volume.
+- `disk_key` (String) The disk key identifier for the storage volume.
+- `hostname` (String) The hostname of the server the storage is attached to.
+- `id` (Number) The numeric ID of the storage volume.
+- `identifier` (String) The unique identifier of the storage volume.
+- `is_automatic` (Number) Whether the storage volume was created automatically.
+- `name` (String) The name of the storage volume.
+- `os_identifier` (String) The OS identifier of the server the storage is attached to.
+- `size` (Number) The size of the storage volume in GB.
+- `state` (String) The current state of the storage volume.
+- `storage_id` (Number) The internal storage ID.
+- `storage_type` (String) The type of storage (e.g., ssd, sata).
+- `user_id` (Number) The ID of the user who owns the storage volume.
+- `user_template_id` (Number) The ID of the user template associated with the storage volume.
+- `vm_identifier` (String) The identifier of the VM the storage is attached to.

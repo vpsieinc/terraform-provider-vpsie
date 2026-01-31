@@ -24,7 +24,7 @@ var (
 )
 
 type kubernetesResource struct {
-	client *govpsie.Client
+	client KubernetesAPI
 }
 
 type kubernetesResourceModel struct {
@@ -74,130 +74,153 @@ func (k *kubernetesResource) Metadata(_ context.Context, req resource.MetadataRe
 
 func (k *kubernetesResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a Kubernetes cluster on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the Kubernetes cluster.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the Kubernetes cluster.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"cluster_name": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The name of the Kubernetes cluster.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"master_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The number of master nodes in the cluster.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the cluster was created.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"updated_on": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The timestamp when the cluster was last updated.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"created_by": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The user who created the cluster.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"nickname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The nickname of the cluster owner.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"cpu": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The total CPU cores allocated to the cluster.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"ram": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The total RAM in MB allocated to the cluster.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"traffic": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The traffic allowance for the cluster in GB.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"price": schema.Float64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The price of the Kubernetes cluster.",
 			},
 			"nodes": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of nodes in the Kubernetes cluster.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the node.",
 							PlanModifiers: []planmodifier.Int64{
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user who owns the node.",
 							PlanModifiers: []planmodifier.Int64{
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 						"hostname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The hostname of the node.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"default_ip": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The default public IP address of the node.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"private_ip": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The private IP address of the node.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"node_type": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The type of the node (e.g., master or worker).",
 							PlanModifiers: []planmodifier.Int64{
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 						"node_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The internal node ID.",
 							PlanModifiers: []planmodifier.Int64{
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 						"datacenter_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the data center where the node is located.",
 							PlanModifiers: []planmodifier.Int64{
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the node was created.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
@@ -210,34 +233,40 @@ func (k *kubernetesResource) Schema(ctx context.Context, _ resource.SchemaReques
 			}),
 
 			"dc_identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier of the data center for the cluster.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"resource_identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The resource identifier used for node sizing.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"project_identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier of the project the cluster belongs to.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"manager_count": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The number of manager nodes in the cluster.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"slave_count": schema.Int64Attribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The desired number of worker (slave) nodes in the cluster.",
 			},
 			"vpc_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the VPC the cluster belongs to.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
@@ -261,7 +290,7 @@ func (k *kubernetesResource) Configure(_ context.Context, req resource.Configure
 		return
 	}
 
-	k.client = client
+	k.client = client.K8s
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -284,7 +313,7 @@ func (k *kubernetesResource) Create(ctx context.Context, req resource.CreateRequ
 		ProjectIdentifier:  plan.ProjectIdentifier.ValueString(),
 	}
 
-	err := k.client.K8s.Create(ctx, &createReq)
+	err := k.client.Create(ctx, &createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating kubernetes", err.Error())
 		return
@@ -370,7 +399,7 @@ func (k *kubernetesResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	k8s, err := k.client.K8s.Get(ctx, state.Identifier.ValueString())
+	k8s, err := k.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -439,7 +468,7 @@ func (k *kubernetesResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	if plan.SlaveCount.ValueInt64() > state.SlaveCount.ValueInt64() {
 		for i := state.SlaveCount.ValueInt64(); i < plan.SlaveCount.ValueInt64(); i++ {
-			err := k.client.K8s.AddSlave(ctx, state.Identifier.ValueString())
+			err := k.client.AddSlave(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating kubernetes",
@@ -452,7 +481,7 @@ func (k *kubernetesResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	} else if plan.SlaveCount.ValueInt64() < state.SlaveCount.ValueInt64() {
 		for i := plan.SlaveCount.ValueInt64(); i < state.SlaveCount.ValueInt64(); i++ {
-			err := k.client.K8s.RemoveSlave(ctx, state.Identifier.ValueString())
+			err := k.client.RemoveSlave(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating kubernetes",
@@ -476,7 +505,7 @@ func (k *kubernetesResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	err := k.client.K8s.Delete(ctx, state.Identifier.ValueString(), "terraform", "terraform")
+	err := k.client.Delete(ctx, state.Identifier.ValueString(), "terraform", "terraform")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting kubernetes",
@@ -492,14 +521,14 @@ func (k *kubernetesResource) ImportState(ctx context.Context, req resource.Impor
 }
 
 func (k *kubernetesResource) checkResourceStatus(ctx context.Context, cluster_name string) (*govpsie.K8s, bool, error) {
-	kubernetes, err := k.client.K8s.List(ctx, nil)
+	kubernetes, err := k.client.List(ctx, nil)
 	if err != nil {
 		return nil, false, err
 	}
 
 	for _, k8s := range kubernetes {
 		if k8s.ClusterName == cluster_name {
-			newK8s, err := k.client.K8s.Get(ctx, k8s.Identifier)
+			newK8s, err := k.client.Get(ctx, k8s.Identifier)
 			if err != nil {
 				return nil, false, err
 			}

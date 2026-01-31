@@ -12,7 +12,7 @@ import (
 )
 
 type serverDataSource struct {
-	client *govpsie.Client
+	client ServerAPI
 }
 
 type serverDataSourceModel struct {
@@ -104,229 +104,301 @@ func (s *serverDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 // Schema defines the schema for the data source.
 func (s *serverDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Use this data source to retrieve information about all VPSie servers.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"servers": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of servers.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the server.",
 						},
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the server.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user who owns the server.",
 						},
 						"boxsize_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the box size (resource plan) for the server.",
 						},
 						"boximage_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the box image (OS template) for the server.",
 						},
 						"datacenter_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the data center where the server is located.",
 						},
 						"node_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the physical node hosting the server.",
 						},
 						"boxdiscount_id": schema.Int64Attribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The ID of the discount applied to the server.",
 						},
 						"hostname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The hostname assigned to the server.",
 						},
 						"default_ip": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The default IPv4 address assigned to the server.",
 						},
 						"default_ipv6": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The default IPv6 address assigned to the server.",
 						},
 						"private_ip": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The private IP address assigned to the server.",
 						},
 						"is_autobackup": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether automatic backup is enabled for the server.",
 						},
 						"box_virtualization_id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The virtualization type identifier for the server.",
 						},
 						"ram": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The amount of RAM in MB allocated to the server.",
 						},
 						"cpu": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of CPU cores allocated to the server.",
 						},
 						"ssd": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The SSD storage size in GB allocated to the server.",
 						},
 						"traffic": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The traffic bandwidth limit allocated to the server.",
 						},
 						"added_ip_addresses": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "Additional IP addresses added to the server.",
 						},
 						"initial_password": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Sensitive:           true,
+							MarkdownDescription: "The initial root password for the server.",
 						},
 						"notes": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "Optional notes or comments for the server.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the server was created.",
 						},
 						"last_updated": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the server was last updated.",
 						},
 						"dropped_on": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The timestamp when the server was dropped or deleted.",
 						},
 						"is_active": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server is currently active.",
 						},
 						"is_deleted": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server has been deleted.",
 						},
 						"power": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The power state of the server (0 = off, 1 = on).",
 						},
 						"project_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the project to which the server belongs.",
 						},
 						"is_custom": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server uses a custom configuration.",
 						},
 						"nr_added_ips": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of additional IP addresses added to the server.",
 						},
 						"in_pcs": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of processes running on the server.",
 						},
 						"custom_price": schema.Int64Attribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The custom price applied to the server.",
 						},
 						"payable_license": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The payable license cost for the server.",
 						},
 						"last_license_pay": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The date of the last license payment.",
 						},
 						"script_id": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The identifier of a startup script on the server.",
 						},
 						"sshkey_id": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The identifier of an SSH key on the server.",
 						},
 						"is_locked": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server is locked from modifications.",
 						},
 						"is_work_with_new_version": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server is compatible with the new platform version.",
 						},
 						"is_suspended": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server is currently suspended.",
 						},
 						"is_terminated": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server has been terminated.",
 						},
 						"old_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The legacy ID of the server from the previous platform.",
 						},
 						"custom_iso_id": schema.Int64Attribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The ID of a custom ISO image attached to the server.",
 						},
 						"is_iso_image_bootable": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the attached ISO image is bootable.",
 						},
 						"has_ssl": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether SSL is enabled for the server.",
 						},
 						"last_action_date": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The date of the last action performed on the server.",
 						},
 						"is_created_from_legacy": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the server was migrated from the legacy platform.",
 						},
 						"is_smtp_allowed": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether SMTP traffic is allowed on the server.",
 						},
 						"weekly_backup": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether weekly backups are enabled for the server.",
 						},
 						"monthly_backup": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether monthly backups are enabled for the server.",
 						},
 						"lib_iso_id": schema.Int64Attribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The ID of the library ISO image attached to the server.",
 						},
 						"daily_snapshot": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether daily snapshots are enabled for the server.",
 						},
 						"weekly_snapshot": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether weekly snapshots are enabled for the server.",
 						},
 						"monthly_snap": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether monthly snapshots are enabled for the server.",
 						},
 						"last_action_in_min": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The time in minutes since the last action on the server.",
 						},
 						"firstname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The first name of the server owner.",
 						},
 						"lastname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The last name of the server owner.",
 						},
 						"username": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The username of the server owner.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the server.",
 						},
 						"is_fip_available": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether floating IP is available for the server.",
 						},
 						"is_bucket_available": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether object storage bucket is available for the server.",
 						},
 						"dc_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the server is deployed.",
 						},
 						"category": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The category of the server.",
 						},
 						"fullname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The full name of the server owner.",
 						},
 						"vm_description": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The description of the virtual machine.",
 						},
 						"boxes_suspended": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of suspended boxes for the owner.",
 						},
 						"is_sata_available": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether SATA storage is available for the server.",
 						},
 						"is_ssd_available": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether SSD storage is available for the server.",
 						},
 						"public_ip": schema.StringAttribute{
-							Computed: true,
-							Optional: true,
+							Computed:            true,
+							Optional:            true,
+							MarkdownDescription: "The public IP address of the server.",
 						},
 					},
 				},
@@ -339,7 +411,7 @@ func (s *serverDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 func (s *serverDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state serverDataSourceModel
 
-	servers, err := s.client.Server.List(ctx, nil)
+	servers, err := s.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading servers",
@@ -449,5 +521,5 @@ func (s *serverDataSource) Configure(_ context.Context, req datasource.Configure
 		return
 	}
 
-	s.client = client
+	s.client = client.Server
 }

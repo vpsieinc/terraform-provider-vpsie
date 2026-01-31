@@ -5,13 +5,15 @@ go 1.24.0
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.24.0
 	github.com/hashicorp/terraform-plugin-framework v1.17.0
-	github.com/hashicorp/terraform-plugin-framework-timeouts v0.4.1
+	github.com/hashicorp/terraform-plugin-framework-timeouts v0.7.0
 	github.com/hashicorp/terraform-plugin-go v0.29.0
 	github.com/hashicorp/terraform-plugin-log v0.10.0
 	github.com/hashicorp/terraform-plugin-testing v1.14.0
 	github.com/vpsie/govpsie v0.0.0-20241020152435-33a7b18a901e
 	golang.org/x/oauth2 v0.34.0
 )
+
+replace github.com/vpsie/govpsie => /Users/zozo/projects/govpsie
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect

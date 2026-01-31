@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -39,30 +41,48 @@ func (r *reverseDnsResource) Metadata(_ context.Context, req resource.MetadataRe
 
 func (r *reverseDnsResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a reverse DNS (PTR) record on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The composite identifier of the reverse DNS record (vm_identifier/ip).",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"vm_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the virtual machine associated with this reverse DNS record. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
+				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"ip": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The IP address for the reverse DNS record. Changing this forces a new resource.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"domain_identifier": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The identifier of the domain for this reverse DNS record.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"hostname": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The hostname that the IP address resolves to.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 		},
 	}

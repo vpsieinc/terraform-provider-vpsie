@@ -43,46 +43,60 @@ func (d *fipDataSource) Metadata(_ context.Context, req datasource.MetadataReque
 
 func (d *fipDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves a list of all floating IPs on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier for this data source.",
 			},
 			"ips": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of floating IPs.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique numeric identifier of the floating IP.",
 						},
 						"dc_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the data center where the IP is allocated.",
 						},
 						"dc_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the IP is allocated.",
 						},
 						"ip": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The floating IP address.",
 						},
 						"ip_version": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The IP version of the floating IP address.",
 						},
 						"is_primary": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this is the primary IP for the associated server.",
 						},
 						"hostname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The hostname of the server associated with the floating IP.",
 						},
 						"box_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the server (box) associated with the floating IP.",
 						},
 						"full_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The full name of the user who owns the floating IP.",
 						},
 						"category": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The category of the floating IP.",
 						},
 						"type": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The type of the floating IP.",
 						},
 					},
 				},

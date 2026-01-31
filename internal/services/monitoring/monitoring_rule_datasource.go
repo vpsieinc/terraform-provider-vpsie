@@ -46,24 +46,62 @@ func (d *monitoringRuleDataSource) Schema(_ context.Context, _ datasource.Schema
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"rules": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of monitoring rules.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"identifier":     schema.StringAttribute{Computed: true},
-						"rule_name":      schema.StringAttribute{Computed: true},
-						"metric_type":    schema.StringAttribute{Computed: true},
-						"condition":      schema.StringAttribute{Computed: true},
-						"threshold_type": schema.StringAttribute{Computed: true},
-						"threshold":      schema.Int64Attribute{Computed: true},
-						"period":         schema.Int64Attribute{Computed: true},
-						"frequency":      schema.Int64Attribute{Computed: true},
-						"status":         schema.Int64Attribute{Computed: true},
-						"email":          schema.StringAttribute{Computed: true},
-						"created_on":     schema.StringAttribute{Computed: true},
-						"created_by":     schema.StringAttribute{Computed: true},
+						"identifier": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the monitoring rule.",
+						},
+						"rule_name": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The name of the monitoring rule.",
+						},
+						"metric_type": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The type of metric being monitored.",
+						},
+						"condition": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The condition operator for the monitoring rule (e.g., above, below).",
+						},
+						"threshold_type": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The type of threshold for the rule.",
+						},
+						"threshold": schema.Int64Attribute{
+							Computed:            true,
+							MarkdownDescription: "The threshold value that triggers the alert.",
+						},
+						"period": schema.Int64Attribute{
+							Computed:            true,
+							MarkdownDescription: "The evaluation period for the monitoring rule in minutes.",
+						},
+						"frequency": schema.Int64Attribute{
+							Computed:            true,
+							MarkdownDescription: "The frequency of checks for the monitoring rule in minutes.",
+						},
+						"status": schema.Int64Attribute{
+							Computed:            true,
+							MarkdownDescription: "The current status of the monitoring rule.",
+						},
+						"email": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The email address that receives alert notifications.",
+						},
+						"created_on": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the monitoring rule was created.",
+						},
+						"created_by": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: "The user who created the monitoring rule.",
+						},
 					},
 				},
 			},

@@ -3,8 +3,10 @@ package firewall
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -15,8 +17,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &firewallAttachmentResource{}
-	_ resource.ResourceWithConfigure = &firewallAttachmentResource{}
+	_ resource.Resource                = &firewallAttachmentResource{}
+	_ resource.ResourceWithConfigure   = &firewallAttachmentResource{}
+	_ resource.ResourceWithImportState = &firewallAttachmentResource{}
 )
 
 type firewallAttachmentResource struct {
@@ -142,6 +145,21 @@ func (f *firewallAttachmentResource) Read(ctx context.Context, req resource.Read
 
 func (f *firewallAttachmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// All fields are ForceNew, so Update is never called
+}
+
+func (f *firewallAttachmentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	parts := strings.Split(req.ID, "/")
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected import identifier with format: <group_id>/<vm_identifier>. Got: %s", req.ID),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("group_id"), parts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vm_identifier"), parts[1])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }
 
 func (f *firewallAttachmentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

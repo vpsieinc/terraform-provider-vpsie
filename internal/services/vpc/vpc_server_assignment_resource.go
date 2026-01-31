@@ -3,9 +3,12 @@ package vpc
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
@@ -17,8 +20,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &vpcServerAssignmentResource{}
-	_ resource.ResourceWithConfigure = &vpcServerAssignmentResource{}
+	_ resource.Resource                = &vpcServerAssignmentResource{}
+	_ resource.ResourceWithConfigure   = &vpcServerAssignmentResource{}
+	_ resource.ResourceWithImportState = &vpcServerAssignmentResource{}
 )
 
 type vpcServerAssignmentResource struct {
@@ -184,6 +188,30 @@ func (v *vpcServerAssignmentResource) Read(ctx context.Context, req resource.Rea
 
 func (v *vpcServerAssignmentResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// All fields are ForceNew, so Update is never called
+}
+
+func (v *vpcServerAssignmentResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	parts := strings.Split(req.ID, "/")
+	if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected import identifier with format: <vm_identifier>/<vpc_id>. Got: %s", req.ID),
+		)
+		return
+	}
+
+	vpcID, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			fmt.Sprintf("Expected vpc_id to be an integer, got: %s", parts[1]),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vm_identifier"), parts[0])...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("vpc_id"), vpcID)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), req.ID)...)
 }
 
 func (v *vpcServerAssignmentResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

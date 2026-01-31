@@ -183,6 +183,8 @@ func TestAccFirewallErrorPropagation(t *testing.T) {
 //                produce clear error messages with expected format hint.
 
 func TestAccImportStateCompositeID(t *testing.T) {
+	t.Skip("Acceptance test requires TF_ACC and live API credentials; test steps are placeholders pending full implementation")
+
 	// Arrange:
 	// - Pre-create resources via Terraform config
 	// - Then use ImportState step with composite ID strings
@@ -225,6 +227,8 @@ func TestAccImportStateCompositeID(t *testing.T) {
 // The invalid import ID test uses ExpectError to verify the diagnostic message.
 
 func TestAccImportStateCompositeID_InvalidFormat(t *testing.T) {
+	t.Skip("Acceptance test requires TF_ACC and live API credentials; test steps are placeholders pending full implementation")
+
 	// Arrange:
 	// - Attempt terraform import with malformed composite ID
 

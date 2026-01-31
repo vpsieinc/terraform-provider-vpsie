@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -15,8 +16,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &monitoringRuleResource{}
-	_ resource.ResourceWithConfigure = &monitoringRuleResource{}
+	_ resource.Resource                = &monitoringRuleResource{}
+	_ resource.ResourceWithConfigure   = &monitoringRuleResource{}
+	_ resource.ResourceWithImportState = &monitoringRuleResource{}
 )
 
 type monitoringRuleResource struct {
@@ -324,6 +326,10 @@ func (m *monitoringRuleResource) Update(ctx context.Context, req resource.Update
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+}
+
+func (m *monitoringRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("identifier"), req, resp)
 }
 
 func (m *monitoringRuleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

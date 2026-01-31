@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -15,8 +16,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &accessTokenResource{}
-	_ resource.ResourceWithConfigure = &accessTokenResource{}
+	_ resource.Resource                = &accessTokenResource{}
+	_ resource.ResourceWithConfigure   = &accessTokenResource{}
+	_ resource.ResourceWithImportState = &accessTokenResource{}
 )
 
 type accessTokenResource struct {
@@ -189,6 +191,10 @@ func (a *accessTokenResource) Update(ctx context.Context, req resource.UpdateReq
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
+}
+
+func (a *accessTokenResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("identifier"), req, resp)
 }
 
 func (a *accessTokenResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

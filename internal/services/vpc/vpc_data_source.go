@@ -12,7 +12,7 @@ import (
 )
 
 type vpcDataSource struct {
-	client *govpsie.Client
+	client VpcAPI
 }
 
 type vpcDataSourceModel struct {
@@ -178,7 +178,7 @@ func (v *vpcDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, re
 func (v *vpcDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state vpcDataSourceModel
 
-	vpcs, err := v.client.VPC.List(ctx, nil)
+	vpcs, err := v.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting VPCs",
@@ -243,5 +243,5 @@ func (v *vpcDataSource) Configure(_ context.Context, req datasource.ConfigureReq
 		return
 	}
 
-	v.client = client
+	v.client = client.VPC
 }

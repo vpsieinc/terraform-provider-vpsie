@@ -11,7 +11,7 @@ import (
 )
 
 type datacenterDataSource struct {
-	client *govpsie.Client
+	client DataCenterAPI
 }
 
 type datacenterDataSourceModel struct {
@@ -114,13 +114,13 @@ func (d *datacenterDataSource) Configure(_ context.Context, req datasource.Confi
 		return
 	}
 
-	d.client = client
+	d.client = client.DataCenter
 }
 
 func (d *datacenterDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state datacenterDataSourceModel
 
-	datacenters, err := d.client.DataCenter.List(ctx, nil)
+	datacenters, err := d.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Datacenters",

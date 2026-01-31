@@ -23,7 +23,7 @@ var (
 )
 
 type bucketResource struct {
-	client *govpsie.Client
+	client BucketAPI
 }
 
 type bucketResourceModel struct {
@@ -155,7 +155,7 @@ func (b *bucketResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	b.client = client
+	b.client = client.Bucket
 }
 
 func (b *bucketResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -178,7 +178,7 @@ func (b *bucketResource) Create(ctx context.Context, req resource.CreateRequest,
 		DataCenterId: plan.DataCenterID.ValueString(),
 	}
 
-	err := b.client.Bucket.Create(ctx, createReq)
+	err := b.client.Create(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating bucket", err.Error())
 		return
@@ -210,7 +210,7 @@ func (b *bucketResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	bucket, err := b.client.Bucket.Get(ctx, state.Identifier.ValueString())
+	bucket, err := b.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -251,7 +251,7 @@ func (b *bucketResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	if !plan.FileListing.Equal(state.FileListing) && !plan.FileListing.IsNull() {
-		_, err := b.client.Bucket.ToggleFileListing(ctx, state.Identifier.ValueString(), plan.FileListing.ValueBool())
+		_, err := b.client.ToggleFileListing(ctx, state.Identifier.ValueString(), plan.FileListing.ValueBool())
 		if err != nil {
 			resp.Diagnostics.AddError("Error toggling file listing", err.Error())
 			return
@@ -271,7 +271,7 @@ func (b *bucketResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := b.client.Bucket.Delete(ctx, state.Identifier.ValueString(), "terraform-destroy", "terraform-destroy")
+	err := b.client.Delete(ctx, state.Identifier.ValueString(), "terraform-destroy", "terraform-destroy")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting bucket",
@@ -286,7 +286,7 @@ func (b *bucketResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (b *bucketResource) GetBucketByName(ctx context.Context, name string) (*govpsie.Bucket, error) {
-	buckets, err := b.client.Bucket.List(ctx, nil)
+	buckets, err := b.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

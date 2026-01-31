@@ -24,7 +24,7 @@ var (
 )
 
 type scriptResource struct {
-	client *govpsie.Client
+	client ScriptAPI
 }
 
 type scriptResourceModel struct {
@@ -140,7 +140,7 @@ func (s *scriptResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	s.client = client
+	s.client = client.Scripts
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -158,7 +158,7 @@ func (s *scriptResource) Create(ctx context.Context, req resource.CreateRequest,
 		ScriptType:    plan.Type.ValueString(),
 		Tags:          []string{},
 	}
-	err := s.client.Scripts.CreateScript(ctx, createScript)
+	err := s.client.CreateScript(ctx, createScript)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating script", err.Error())
 		return
@@ -199,7 +199,7 @@ func (s *scriptResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	script, err := s.client.Scripts.GetScript(ctx, state.Identifier.ValueString())
+	script, err := s.client.GetScript(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -249,13 +249,13 @@ func (s *scriptResource) Update(ctx context.Context, req resource.UpdateRequest,
 		ScriptIdentifier: plan.Identifier.ValueString(),
 	}
 
-	err := s.client.Scripts.UpdateScript(ctx, updateScript)
+	err := s.client.UpdateScript(ctx, updateScript)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating script", err.Error())
 		return
 	}
 
-	script, err := s.client.Scripts.GetScript(ctx, plan.Identifier.ValueString())
+	script, err := s.client.GetScript(ctx, plan.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Reading Vpsie script",
@@ -285,7 +285,7 @@ func (s *scriptResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := s.client.Scripts.DeleteScript(ctx, state.Identifier.ValueString())
+	err := s.client.DeleteScript(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting script",
@@ -301,14 +301,14 @@ func (s *scriptResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (s *scriptResource) GetScriptByName(ctx context.Context, scriptName string) (*govpsie.ScriptDetail, error) {
-	scripts, err := s.client.Scripts.GetScripts(ctx)
+	scripts, err := s.client.GetScripts(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, script := range scripts {
 		if scriptName == strings.Split(script.ScriptName, ".")[0] {
-			script, err := s.client.Scripts.GetScript(ctx, script.Identifier)
+			script, err := s.client.GetScript(ctx, script.Identifier)
 			if err != nil {
 				return nil, err
 			}

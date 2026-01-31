@@ -20,7 +20,7 @@ var (
 )
 
 type accessTokenResource struct {
-	client *govpsie.Client
+	client AccessTokenAPI
 }
 
 type accessTokenResourceModel struct {
@@ -99,7 +99,7 @@ func (a *accessTokenResource) Configure(_ context.Context, req resource.Configur
 		return
 	}
 
-	a.client = client
+	a.client = client.AccessToken
 }
 
 func (a *accessTokenResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -110,7 +110,7 @@ func (a *accessTokenResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	err := a.client.AccessToken.Create(ctx, plan.Name.ValueString(), plan.AccessToken.ValueString(), plan.ExpirationDate.ValueString())
+	err := a.client.Create(ctx, plan.Name.ValueString(), plan.AccessToken.ValueString(), plan.ExpirationDate.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating access token", err.Error())
 		return
@@ -137,7 +137,7 @@ func (a *accessTokenResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	tokens, err := a.client.AccessToken.List(ctx, nil)
+	tokens, err := a.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading access tokens", err.Error())
 		return
@@ -178,7 +178,7 @@ func (a *accessTokenResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	err := a.client.AccessToken.Update(ctx, state.Identifier.ValueString(), plan.Name.ValueString(), plan.ExpirationDate.ValueString())
+	err := a.client.Update(ctx, state.Identifier.ValueString(), plan.Name.ValueString(), plan.ExpirationDate.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating access token", err.Error())
 		return
@@ -199,7 +199,7 @@ func (a *accessTokenResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	err := a.client.AccessToken.Delete(ctx, state.Identifier.ValueString())
+	err := a.client.Delete(ctx, state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting access token",
@@ -210,7 +210,7 @@ func (a *accessTokenResource) Delete(ctx context.Context, req resource.DeleteReq
 }
 
 func (a *accessTokenResource) GetTokenByName(ctx context.Context, name string) (*govpsie.AccessToken, error) {
-	tokens, err := a.client.AccessToken.List(ctx, nil)
+	tokens, err := a.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

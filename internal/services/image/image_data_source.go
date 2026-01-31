@@ -12,7 +12,7 @@ import (
 )
 
 type imageDataSource struct {
-	client *govpsie.Client
+	client ImageAPI
 }
 
 type imageDataSourceModel struct {
@@ -127,7 +127,7 @@ func (i *imageDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, 
 func (i *imageDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state imageDataSourceModel
 
-	images, err := i.client.Image.List(ctx, nil)
+	images, err := i.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Images",
@@ -181,5 +181,5 @@ func (i *imageDataSource) Configure(_ context.Context, req datasource.ConfigureR
 		return
 	}
 
-	i.client = client
+	i.client = client.Image
 }

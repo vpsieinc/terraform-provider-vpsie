@@ -12,7 +12,7 @@ import (
 )
 
 type projectDataSource struct {
-	client *govpsie.Client
+	client ProjectAPI
 }
 
 type projectDataSourceModel struct {
@@ -97,7 +97,7 @@ func (p *projectDataSource) Schema(_ context.Context, _ datasource.SchemaRequest
 func (p *projectDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state projectDataSourceModel
 
-	projects, err := p.client.Project.List(ctx, nil)
+	projects, err := p.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Projects",
@@ -145,5 +145,5 @@ func (p *projectDataSource) Configure(_ context.Context, req datasource.Configur
 		return
 	}
 
-	p.client = client
+	p.client = client.Project
 }

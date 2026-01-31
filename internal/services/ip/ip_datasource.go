@@ -11,7 +11,7 @@ import (
 )
 
 type ipDataSource struct {
-	client *govpsie.Client
+	client IPAPI
 }
 
 type ipDataSourceModel struct {
@@ -134,7 +134,7 @@ func (d *ipDataSource) Configure(_ context.Context, req datasource.ConfigureRequ
 		return
 	}
 
-	d.client = client
+	d.client = client.IP
 }
 
 func (d *ipDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -155,11 +155,11 @@ func (d *ipDataSource) Read(ctx context.Context, req datasource.ReadRequest, res
 
 	switch ipType {
 	case "public":
-		ips, err = d.client.IP.ListPublicIPs(ctx, nil)
+		ips, err = d.client.ListPublicIPs(ctx, nil)
 	case "private":
-		ips, err = d.client.IP.ListPrivateIPs(ctx, nil)
+		ips, err = d.client.ListPrivateIPs(ctx, nil)
 	default:
-		ips, err = d.client.IP.ListAllIPs(ctx, nil)
+		ips, err = d.client.ListAllIPs(ctx, nil)
 	}
 
 	if err != nil {

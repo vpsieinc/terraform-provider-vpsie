@@ -329,8 +329,13 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 					source = append(source, types.StringValue(s))
 				}
 
-				dest_list, _ := types.ListValueFrom(ctx, types.StringType, dest)
-				source_list, _ := types.ListValueFrom(ctx, types.StringType, source)
+				destList, destDiags := types.ListValueFrom(ctx, types.StringType, dest)
+				resp.Diagnostics.Append(destDiags...)
+				sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, source)
+				resp.Diagnostics.Append(sourceDiags...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
 
 				inBound = append(inBound, InBoundFirewallRules{
 					ID:         types.Int64Value(in.ID),
@@ -339,10 +344,10 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 					Action:     types.StringValue(in.Action),
 					Type:       types.StringValue(in.Type),
 					Comment:    types.StringValue(in.Comment),
-					Dest:       dest_list,
+					Dest:       destList,
 					Dport:      types.StringValue(in.Dport),
 					Proto:      types.StringValue(in.Proto),
-					Source:     source_list,
+					Source:     sourceList,
 					Sport:      types.StringValue(in.Sport),
 					Enable:     types.Int64Value(in.Enable),
 					Iface:      types.StringValue(in.Iface),
@@ -356,8 +361,13 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 			for _, out := range rule.OutBound {
 
-				dest_list, _ := types.ListValueFrom(ctx, types.StringType, out.Dest)
-				source_list, _ := types.ListValueFrom(ctx, types.StringType, out.Source)
+				destList, destDiags := types.ListValueFrom(ctx, types.StringType, out.Dest)
+				resp.Diagnostics.Append(destDiags...)
+				sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, out.Source)
+				resp.Diagnostics.Append(sourceDiags...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
 
 				outBound = append(outBound, OutBoundFirewallRules{
 					ID:         types.Int64Value(out.ID),
@@ -366,10 +376,10 @@ func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadReques
 					Action:     types.StringValue(out.Action),
 					Type:       types.StringValue(out.Type),
 					Comment:    types.StringValue(out.Comment),
-					Dest:       dest_list,
+					Dest:       destList,
 					Dport:      types.StringValue(out.Dport),
 					Proto:      types.StringValue(out.Proto),
-					Source:     source_list,
+					Source:     sourceList,
 					Sport:      types.StringValue(out.Sport),
 					Enable:     types.Int64Value(out.Enable),
 					Iface:      types.StringValue(out.Iface),

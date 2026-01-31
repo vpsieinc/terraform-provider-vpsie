@@ -391,17 +391,22 @@ func (g *firewallResource) Create(ctx context.Context, req resource.CreateReques
 				source = append(source, types.StringValue(s))
 			}
 
-			dest_list, _ := types.ListValueFrom(ctx, types.StringType, dest)
-			source_list, _ := types.ListValueFrom(ctx, types.StringType, source)
+			destList, destDiags := types.ListValueFrom(ctx, types.StringType, dest)
+			resp.Diagnostics.Append(destDiags...)
+			sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, source)
+			resp.Diagnostics.Append(sourceDiags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
 
 			inBound = append(inBound, InBoundFirewallRules{
 				Action:  types.StringValue(in.Action),
 				Type:    types.StringValue(in.Type),
 				Comment: types.StringValue(in.Comment),
-				Dest:    dest_list,
+				Dest:    destList,
 				Dport:   types.StringValue(in.Dport),
 				Proto:   types.StringValue(in.Proto),
-				Source:  source_list,
+				Source:  sourceList,
 				Sport:   types.StringValue(in.Sport),
 				Enable:  types.Int64Value(in.Enable),
 				Macro:   types.StringValue(in.Macro),
@@ -418,17 +423,22 @@ func (g *firewallResource) Create(ctx context.Context, req resource.CreateReques
 				source = append(source, types.StringValue(s))
 			}
 
-			dest_list, _ := types.ListValueFrom(ctx, types.StringType, dest)
-			source_list, _ := types.ListValueFrom(ctx, types.StringType, source)
+			destList, destDiags := types.ListValueFrom(ctx, types.StringType, dest)
+			resp.Diagnostics.Append(destDiags...)
+			sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, source)
+			resp.Diagnostics.Append(sourceDiags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
 
 			outBound = append(outBound, OutBoundFirewallRules{
 				Action:  types.StringValue(out.Action),
 				Type:    types.StringValue(out.Type),
 				Comment: types.StringValue(out.Comment),
-				Dest:    dest_list,
+				Dest:    destList,
 				Dport:   types.StringValue(out.Dport),
 				Proto:   types.StringValue(out.Proto),
-				Source:  source_list,
+				Source:  sourceList,
 				Sport:   types.StringValue(out.Sport),
 				Enable:  types.Int64Value(out.Enable),
 				Macro:   types.StringValue(out.Macro),
@@ -505,17 +515,22 @@ func (g *firewallResource) Read(ctx context.Context, req resource.ReadRequest, r
 				source = append(source, types.StringValue(s))
 			}
 
-			dest_list, _ := types.ListValueFrom(ctx, types.StringType, dest)
-			source_list, _ := types.ListValueFrom(ctx, types.StringType, source)
+			destList, destDiags := types.ListValueFrom(ctx, types.StringType, dest)
+			resp.Diagnostics.Append(destDiags...)
+			sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, source)
+			resp.Diagnostics.Append(sourceDiags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
 
 			inBound = append(inBound, InBoundFirewallRules{
 				Action:  types.StringValue(in.Action),
 				Type:    types.StringValue(in.Type),
 				Comment: types.StringValue(in.Comment),
-				Dest:    dest_list,
+				Dest:    destList,
 				Dport:   types.StringValue(in.Dport),
 				Proto:   types.StringValue(in.Proto),
-				Source:  source_list,
+				Source:  sourceList,
 				Sport:   types.StringValue(in.Sport),
 				Enable:  types.Int64Value(in.Enable),
 				Macro:   types.StringValue(in.Macro),
@@ -532,17 +547,22 @@ func (g *firewallResource) Read(ctx context.Context, req resource.ReadRequest, r
 				source = append(source, types.StringValue(s))
 			}
 
-			dest_list, _ := types.ListValueFrom(ctx, types.StringType, dest)
-			source_list, _ := types.ListValueFrom(ctx, types.StringType, source)
+			destList, destDiags := types.ListValueFrom(ctx, types.StringType, dest)
+			resp.Diagnostics.Append(destDiags...)
+			sourceList, sourceDiags := types.ListValueFrom(ctx, types.StringType, source)
+			resp.Diagnostics.Append(sourceDiags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
 
 			outBound = append(outBound, OutBoundFirewallRules{
 				Action:  types.StringValue(out.Action),
 				Type:    types.StringValue(out.Type),
 				Comment: types.StringValue(out.Comment),
-				Dest:    dest_list,
+				Dest:    destList,
 				Dport:   types.StringValue(out.Dport),
 				Proto:   types.StringValue(out.Proto),
-				Source:  source_list,
+				Source:  sourceList,
 				Sport:   types.StringValue(out.Sport),
 				Enable:  types.Int64Value(out.Enable),
 				Macro:   types.StringValue(out.Macro),

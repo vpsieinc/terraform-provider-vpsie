@@ -310,7 +310,8 @@ func (s *serverResource) Schema(ctx context.Context, _ resource.SchemaRequest, r
 				Optional: true,
 			},
 			"initial_password": schema.StringAttribute{
-				Computed: true,
+				Computed:  true,
+				Sensitive: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

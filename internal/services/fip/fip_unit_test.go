@@ -47,9 +47,7 @@ func TestUnitFipAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var fipAPI FipAPI = fipMock
-	if fipAPI == nil {
-		t.Fatal("expected mock to satisfy FipAPI interface")
-	}
+	_ = fipAPI // compile-time interface satisfaction verified by var _ above
 
 	ipMock := &mockFipIPAPI{
 		ListAllIPsFn:    func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.IP, error) { return nil, nil },
@@ -57,9 +55,7 @@ func TestUnitFipAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var ipAPI FipIPAPI = ipMock
-	if ipAPI == nil {
-		t.Fatal("expected mock to satisfy FipIPAPI interface")
-	}
+	_ = ipAPI // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitFipAPI_CreateFloatingIP(t *testing.T) {
@@ -88,7 +84,7 @@ func TestUnitFipAPI_CreateFloatingIP(t *testing.T) {
 				},
 			}
 
-			err := mock.CreateFloatingIP(context.Background(), "vm-1", "dc-1", "ipv4")
+			err := mock.CreateFloatingIP(t.Context(), "vm-1", "dc-1", "ipv4")
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
 			}
@@ -101,7 +97,7 @@ func TestUnitFipAPI_CreateFloatingIP(t *testing.T) {
 
 func TestUnitFipAPI_UnassignFloatingIP(t *testing.T) {
 	tests := []struct {
-		name      string
+		name        string
 		unassignErr error
 		expectErr   bool
 	}{
@@ -125,7 +121,7 @@ func TestUnitFipAPI_UnassignFloatingIP(t *testing.T) {
 				},
 			}
 
-			err := mock.UnassignFloatingIP(context.Background(), "ip-1")
+			err := mock.UnassignFloatingIP(t.Context(), "ip-1")
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
 			}
@@ -178,7 +174,7 @@ func TestUnitFipIPAPI_ListAllIPs(t *testing.T) {
 				},
 			}
 
-			ips, err := mock.ListAllIPs(context.Background(), nil)
+			ips, err := mock.ListAllIPs(t.Context(), nil)
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
 			}

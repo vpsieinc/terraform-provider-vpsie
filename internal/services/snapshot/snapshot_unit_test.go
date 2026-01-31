@@ -10,17 +10,17 @@ import (
 
 // mockSnapshotAPI implements SnapshotAPI for unit testing.
 type mockSnapshotAPI struct {
-	CreateFn                func(ctx context.Context, name, vmIdentifier, note string) error
-	ListFn                  func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.Snapshot, error)
-	GetFn                   func(ctx context.Context, buckupIdentifier string) (*govpsie.Snapshot, error)
-	UpdateFn                func(ctx context.Context, snapshotIdentifier, newNote string) error
-	DeleteFn                func(ctx context.Context, snapshotIdentifier, reason, note string) error
-	CreateSnapShotPolicyFn  func(ctx context.Context, createReq *govpsie.CreateSnapShotPolicyReq) error
-	GetSnapShotPolicyFn     func(ctx context.Context, identifier string) (*govpsie.SnapShotPolicy, error)
-	ListSnapShotPoliciesFn  func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.SnapShotPolicyListDetail, error)
-	AttachSnapShotPolicyFn  func(ctx context.Context, policyId string, vms []string) error
-	DetachSnapShotPolicyFn  func(ctx context.Context, policyId string, vms []string) error
-	DeleteSnapShotPolicyFn  func(ctx context.Context, policyId, identifier string) error
+	CreateFn               func(ctx context.Context, name, vmIdentifier, note string) error
+	ListFn                 func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.Snapshot, error)
+	GetFn                  func(ctx context.Context, buckupIdentifier string) (*govpsie.Snapshot, error)
+	UpdateFn               func(ctx context.Context, snapshotIdentifier, newNote string) error
+	DeleteFn               func(ctx context.Context, snapshotIdentifier, reason, note string) error
+	CreateSnapShotPolicyFn func(ctx context.Context, createReq *govpsie.CreateSnapShotPolicyReq) error
+	GetSnapShotPolicyFn    func(ctx context.Context, identifier string) (*govpsie.SnapShotPolicy, error)
+	ListSnapShotPoliciesFn func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.SnapShotPolicyListDetail, error)
+	AttachSnapShotPolicyFn func(ctx context.Context, policyId string, vms []string) error
+	DetachSnapShotPolicyFn func(ctx context.Context, policyId string, vms []string) error
+	DeleteSnapShotPolicyFn func(ctx context.Context, policyId, identifier string) error
 }
 
 func (m *mockSnapshotAPI) Create(ctx context.Context, name, vmIdentifier, note string) error {
@@ -79,16 +79,16 @@ func TestUnitSnapshotAPI_MockSatisfiesInterface(t *testing.T) {
 		DeleteFn:               func(ctx context.Context, snapshotIdentifier, reason, note string) error { return nil },
 		CreateSnapShotPolicyFn: func(ctx context.Context, createReq *govpsie.CreateSnapShotPolicyReq) error { return nil },
 		GetSnapShotPolicyFn:    func(ctx context.Context, identifier string) (*govpsie.SnapShotPolicy, error) { return nil, nil },
-		ListSnapShotPoliciesFn: func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.SnapShotPolicyListDetail, error) { return nil, nil },
+		ListSnapShotPoliciesFn: func(ctx context.Context, options *govpsie.ListOptions) ([]govpsie.SnapShotPolicyListDetail, error) {
+			return nil, nil
+		},
 		AttachSnapShotPolicyFn: func(ctx context.Context, policyId string, vms []string) error { return nil },
 		DetachSnapShotPolicyFn: func(ctx context.Context, policyId string, vms []string) error { return nil },
 		DeleteSnapShotPolicyFn: func(ctx context.Context, policyId, identifier string) error { return nil },
 	}
 
 	var api SnapshotAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy SnapshotAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitSnapshotAPI_GetSnapshotByName(t *testing.T) {
@@ -136,7 +136,7 @@ func TestUnitSnapshotAPI_GetSnapshotByName(t *testing.T) {
 			}
 
 			r := &serverSnapshotResource{client: mock}
-			snap, err := r.GetSnapshotByName(context.Background(), tt.snapshotName)
+			snap, err := r.GetSnapshotByName(t.Context(), tt.snapshotName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -199,7 +199,7 @@ func TestUnitSnapshotAPI_GetPolicyByName(t *testing.T) {
 			}
 
 			r := &snapshotPolicyResource{client: mock}
-			policy, err := r.GetPolicyByName(context.Background(), tt.policyName)
+			policy, err := r.GetPolicyByName(t.Context(), tt.policyName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -225,7 +225,7 @@ func TestUnitSnapshotAPI_ListError(t *testing.T) {
 	}
 
 	r := &serverSnapshotResource{client: mock}
-	_, err := r.GetSnapshotByName(context.Background(), "test")
+	_, err := r.GetSnapshotByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from List failure, got nil")
 	}
@@ -239,7 +239,7 @@ func TestUnitSnapshotAPI_ListSnapShotPoliciesError(t *testing.T) {
 	}
 
 	r := &snapshotPolicyResource{client: mock}
-	_, err := r.GetPolicyByName(context.Background(), "test")
+	_, err := r.GetPolicyByName(t.Context(), "test")
 	if err == nil {
 		t.Fatal("expected error from ListSnapShotPolicies failure, got nil")
 	}

@@ -259,6 +259,14 @@ func TestAccImportStateCompositeID_InvalidFormat(t *testing.T) {
 // Test Config Helpers
 // ---------------------------------------------------------------------------
 
+// Blank identifier references ensure these helpers are not flagged as unused
+// while the acceptance test steps remain placeholder TODOs. Remove these once
+// the test steps call the helpers directly.
+var (
+	_ = testAccDnsRecordConfig
+	_ = testAccImportStateIDFunc
+)
+
 // testAccSensitiveFieldConfig returns a Terraform config for testing sensitive
 // field masking. Includes an sshkey resource with a private_key.
 func testAccSensitiveFieldConfig() string {
@@ -291,10 +299,6 @@ data "vpsie_firewalls" "test" {}
 // testAccDnsRecordConfig returns a Terraform config for a DNS record resource
 // that can be used to test composite ID import.
 func testAccDnsRecordConfig(domainName, recordType, recordName, value string) string {
-	// TODO: Return HCL config string with:
-	// - vpsie_project resource (required by domain)
-	// - vpsie_domain resource with domain_name
-	// - vpsie_dns_record resource with domain_identifier, type, name, value
 	return fmt.Sprintf(`
 resource "vpsie_project" "test" {
   name        = "tf-acc-import-test-project"
@@ -306,8 +310,9 @@ resource "vpsie_domain" "test" {
   project_identifier = vpsie_project.test.identifier
 }
 
-# TODO: Complete dns_record config once resource schema is confirmed
-`, domainName)
+# TODO: Complete dns_record resource block once resource schema is confirmed
+# Placeholder values: type=%q name=%q value=%q
+`, domainName, recordType, recordName, value)
 }
 
 // testAccImportStateIDFunc constructs a composite import ID from resource

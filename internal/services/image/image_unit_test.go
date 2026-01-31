@@ -51,9 +51,7 @@ func TestUnitImageAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api ImageAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy ImageAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitImageAPI_CheckResourceStatus(t *testing.T) {
@@ -101,7 +99,7 @@ func TestUnitImageAPI_CheckResourceStatus(t *testing.T) {
 			}
 
 			r := &imageResource{client: mock}
-			image, found, err := r.checkResourceStatus(context.Background(), tt.imageLabel)
+			image, found, err := r.checkResourceStatus(t.Context(), tt.imageLabel)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -132,7 +130,7 @@ func TestUnitImageAPI_DeleteImage(t *testing.T) {
 		},
 	}
 
-	err := mock.DeleteImage(context.Background(), "image-id-123")
+	err := mock.DeleteImage(t.Context(), "image-id-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

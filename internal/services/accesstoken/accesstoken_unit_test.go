@@ -52,9 +52,7 @@ func TestUnitAccessTokenAPI_MockSatisfiesInterface(t *testing.T) {
 	}
 
 	var api AccessTokenAPI = mock
-	if api == nil {
-		t.Fatal("expected mock to satisfy AccessTokenAPI interface")
-	}
+	_ = api // compile-time interface satisfaction verified by var _ above
 }
 
 func TestUnitAccessTokenAPI_GetTokenByName(t *testing.T) {
@@ -98,7 +96,7 @@ func TestUnitAccessTokenAPI_GetTokenByName(t *testing.T) {
 			}
 
 			r := &accessTokenResource{client: mock}
-			token, err := r.GetTokenByName(context.Background(), tt.tokenName)
+			token, err := r.GetTokenByName(t.Context(), tt.tokenName)
 
 			if tt.expectErr && err == nil {
 				t.Fatal("expected error, got nil")
@@ -126,7 +124,7 @@ func TestUnitAccessTokenAPI_Delete(t *testing.T) {
 		},
 	}
 
-	err := mock.Delete(context.Background(), "token-id-123")
+	err := mock.Delete(t.Context(), "token-id-123")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -143,7 +141,7 @@ func TestUnitAccessTokenAPI_ListError(t *testing.T) {
 	}
 
 	r := &accessTokenResource{client: mock}
-	_, err := r.GetTokenByName(context.Background(), "any-token")
+	_, err := r.GetTokenByName(t.Context(), "any-token")
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}

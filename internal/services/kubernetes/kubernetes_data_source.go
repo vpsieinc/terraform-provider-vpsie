@@ -50,55 +50,72 @@ func (i *kubernetesDataSource) Metadata(_ context.Context, req datasource.Metada
 // Schema defines the schema for the data source.
 func (i *kubernetesDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Use this data source to retrieve information about all Kubernetes clusters.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"kubernetes": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of Kubernetes clusters.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the Kubernetes cluster.",
 						},
 						"cluster_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the Kubernetes cluster.",
 						},
 						"master_count": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of master nodes in the cluster.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the cluster was created.",
 						},
 						"updated_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the cluster was last updated.",
 						},
 						"created_by": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The user who created the cluster.",
 						},
 						"nickname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The nickname of the cluster owner.",
 						},
 						"cpu": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The total CPU cores allocated to the cluster.",
 						},
 						"ram": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The total RAM in MB allocated to the cluster.",
 						},
 						"traffic": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The traffic allowance for the cluster in GB.",
 						},
 						"color": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The display color associated with the cluster.",
 						},
 						"price": schema.Float64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The price of the Kubernetes cluster.",
 						},
 						"manager_count": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of manager nodes in the cluster.",
 						},
 						"slave_count": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The number of worker (slave) nodes in the cluster.",
 						},
 					},
 				},

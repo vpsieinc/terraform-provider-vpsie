@@ -9,40 +9,40 @@ Metadata:
 Add `MarkdownDescription` to every attribute and `Validators` to Required string attributes in the kubernetes, loadbalancer, and firewall service files (both resources and data sources). All files within each service are grouped together.
 
 ## Target Files
-- [ ] `internal/services/kubernetes/kubernetes_resource.go` (descriptions + validators)
-- [ ] `internal/services/kubernetes/kubernetes_group_resource.go` (descriptions + validators)
-- [ ] `internal/services/kubernetes/kubernetes_data_source.go` (descriptions only)
-- [ ] `internal/services/kubernetes/kubernetes_group_data_source.go` (descriptions only)
-- [ ] `internal/services/loadbalancer/loadbalancer_resource.go` (descriptions + validators)
-- [ ] `internal/services/loadbalancer/loadbalancer_data_source.go` (descriptions only)
-- [ ] `internal/services/firewall/firewall_resource.go` (descriptions + validators)
-- [ ] `internal/services/firewall/firewall_attachment_resource.go` (descriptions + validators)
-- [ ] `internal/services/firewall/firewall_data_source.go` (descriptions only)
+- [x] `internal/services/kubernetes/kubernetes_resource.go` (descriptions + validators)
+- [x] `internal/services/kubernetes/kubernetes_group_resource.go` (descriptions + validators)
+- [x] `internal/services/kubernetes/kubernetes_data_source.go` (descriptions only)
+- [x] `internal/services/kubernetes/kubernetes_group_data_source.go` (descriptions only)
+- [x] `internal/services/loadbalancer/loadbalancer_resource.go` (descriptions + validators)
+- [x] `internal/services/loadbalancer/loadbalancer_data_source.go` (descriptions only)
+- [x] `internal/services/firewall/firewall_resource.go` (descriptions + validators)
+- [x] `internal/services/firewall/firewall_attachment_resource.go` (descriptions + validators)
+- [x] `internal/services/firewall/firewall_data_source.go` (descriptions only)
 
 ## Implementation Steps
 ### 1. Confirm Skill Constraints
-- [ ] Read each target file to catalog all schema attributes
-- [ ] Identify Required vs Optional vs Computed attributes
+- [x] Read each target file to catalog all schema attributes
+- [x] Identify Required vs Optional vs Computed attributes
 
 ### 2. Implementation
 For each resource file:
-- [ ] Add `MarkdownDescription` to every attribute (1-2 sentence descriptions)
-- [ ] Add `stringvalidator.LengthAtLeast(1)` to all Required string attributes
-- [ ] Add appropriate int64 validators for numeric Required fields
-- [ ] Import validator packages as needed
+- [x] Add `MarkdownDescription` to every attribute (1-2 sentence descriptions)
+- [x] Add `stringvalidator.LengthAtLeast(1)` to all Required string attributes
+- [x] Add appropriate int64 validators for numeric Required fields
+- [x] Import validator packages as needed
 
 For each data source file:
-- [ ] Add `MarkdownDescription` to every attribute (descriptions only, no validators for Computed)
+- [x] Add `MarkdownDescription` to every attribute (descriptions only, no validators for Computed)
 
 ### 3. Verify Skill Fidelity
-- [ ] Every attribute in all 9 files has a non-empty MarkdownDescription
-- [ ] All Required string attributes have LengthAtLeast(1)
+- [x] Every attribute in all 9 files has a non-empty MarkdownDescription
+- [x] All Required string attributes have LengthAtLeast(1)
 
 ## Completion Criteria
-- [ ] All 9 files have `MarkdownDescription` on every attribute
-- [ ] All Required string attributes have validators
-- [ ] `go build -v .` succeeds
-- [ ] Verification level: L3 (build success)
+- [x] All 9 files have `MarkdownDescription` on every attribute
+- [x] All Required string attributes have validators
+- [x] `go build -v .` succeeds
+- [x] Verification level: L3 (build success)
 
 ## Verification Steps
 ```bash

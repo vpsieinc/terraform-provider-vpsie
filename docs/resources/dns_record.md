@@ -3,12 +3,12 @@
 page_title: "vpsie_dns_record Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a DNS record for a domain on the VPSie platform.
 ---
 
 # vpsie_dns_record (Resource)
 
-
+Manages a DNS record for a domain on the VPSie platform.
 
 ## Example Usage
 
@@ -27,15 +27,15 @@ resource "vpsie_dns_record" "example" {
 
 ### Required
 
-- `content` (String)
-- `domain_identifier` (String)
-- `name` (String)
-- `type` (String)
+- `content` (String) The content or value of the DNS record (e.g. an IP address or hostname).
+- `domain_identifier` (String) The identifier of the domain this DNS record belongs to. Changing this forces a new resource.
+- `name` (String) The name of the DNS record (e.g. subdomain or @ for root).
+- `type` (String) The type of the DNS record (e.g. A, AAAA, CNAME, MX, TXT). Changing this forces a new resource.
 
 ### Optional
 
-- `ttl` (Number)
+- `ttl` (Number) The time-to-live of the DNS record in seconds. Defaults to 3600 if not specified.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) The composite identifier of the DNS record (domain_identifier/type/name).

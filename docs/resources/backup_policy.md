@@ -3,12 +3,12 @@
 page_title: "vpsie_backup_policy Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a backup policy on the VPSie platform.
 ---
 
 # vpsie_backup_policy (Resource)
 
-
+Manages a backup policy on the VPSie platform.
 
 ## Example Usage
 
@@ -26,18 +26,18 @@ resource "vpsie_backup_policy" "example" {
 
 ### Required
 
-- `backup_plan` (String)
-- `keep` (String)
-- `name` (String)
-- `plan_every` (String)
+- `backup_plan` (String) The type of backup plan (e.g., daily, weekly, monthly).
+- `keep` (String) The number of backups to retain.
+- `name` (String) The name of the backup policy.
+- `plan_every` (String) The frequency interval for the backup plan.
 
 ### Optional
 
-- `vms` (List of String)
+- `vms` (List of String) A list of virtual machine identifiers to attach to this backup policy.
 
 ### Read-Only
 
-- `created_by` (String)
-- `created_on` (String)
-- `disabled` (Number)
-- `identifier` (String)
+- `created_by` (String) The user who created the backup policy.
+- `created_on` (String) The date and time when the backup policy was created.
+- `disabled` (Number) Whether the backup policy is disabled (1 for disabled, 0 for enabled).
+- `identifier` (String) The unique identifier of the backup policy.

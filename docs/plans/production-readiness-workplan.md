@@ -278,29 +278,29 @@ graph LR
 
 #### Tasks
 
-- [ ] 3.1: Confirm skill constraints -- verify all 12 `ListValueFrom` call locations in firewall code match Design Doc line references
-- [ ] 3.2: Fix `firewall_resource.go` Create method -- replace `_, _ :=` with diagnostic capture at lines 394-395 (InBound) and 421-422 (OutBound)
+- [x] 3.1: Confirm skill constraints -- verify all 12 `ListValueFrom` call locations in firewall code match Design Doc line references
+- [x] 3.2: Fix `firewall_resource.go` Create method -- replace `_, _ :=` with diagnostic capture at lines 394-395 (InBound) and 421-422 (OutBound)
   - Pattern: `destList, destDiags := types.ListValueFrom(...); resp.Diagnostics.Append(destDiags...); sourceList, sourceDiags := types.ListValueFrom(...); resp.Diagnostics.Append(sourceDiags...); if resp.Diagnostics.HasError() { return }`
   - Completion: 4 ListValueFrom calls in Create properly propagate errors
-- [ ] 3.3: Fix `firewall_resource.go` Read method -- same pattern at lines 508-509 (InBound) and 535-536 (OutBound)
+- [x] 3.3: Fix `firewall_resource.go` Read method -- same pattern at lines 508-509 (InBound) and 535-536 (OutBound)
   - Completion: 4 ListValueFrom calls in Read properly propagate errors
-- [ ] 3.4: Fix `firewall_data_source.go` Read method -- same pattern at lines 332-333 (InBound) and 359-360 (OutBound)
+- [x] 3.4: Fix `firewall_data_source.go` Read method -- same pattern at lines 332-333 (InBound) and 359-360 (OutBound)
   - Completion: 4 ListValueFrom calls in data source Read properly propagate errors
-- [ ] 3.5: Implement `TestAccFirewallErrorPropagation` from integration test skeleton (`tests/integration_test.go`)
+- [x] 3.5: Implement `TestAccFirewallErrorPropagation` from integration test skeleton (`tests/integration_test.go`)
   - Complete the TODO items: firewall config with rules, verify CRUD succeeds without silent failures
   - AC support: AC-3.1, AC-3.2, AC-3.3
   - // @category: core-functionality | @complexity: high | @dependency: firewall resource, firewall data source
-- [ ] 3.6: Build verification and static analysis
-- [ ] 3.7: Verify skill fidelity -- confirm zero `_, _ :=` patterns remain in firewall code
+- [x] 3.6: Build verification and static analysis
+- [x] 3.7: Verify skill fidelity -- confirm zero `_, _ :=` patterns remain in firewall code
 
 #### Phase Completion Criteria
 
-- [ ] All 12 `ListValueFrom` calls across 6 pairs have diagnostic capture and propagation
-- [ ] `go build -v .` succeeds
-- [ ] `grep -rn '_, _ :=' internal/services/firewall/` returns zero results
-- [ ] `grep -rn '_, _\s*=' internal/services/firewall/` returns zero results
-- [ ] `TestAccFirewallErrorPropagation` integration test implemented and compiles
-- [ ] Each error pair includes `if resp.Diagnostics.HasError() { return }` guard
+- [x] All 12 `ListValueFrom` calls across 6 pairs have diagnostic capture and propagation
+- [x] `go build -v .` succeeds
+- [x] `grep -rn '_, _ :=' internal/services/firewall/` returns zero results
+- [x] `grep -rn '_, _\s*=' internal/services/firewall/` returns zero results
+- [x] `TestAccFirewallErrorPropagation` integration test implemented and compiles
+- [x] Each error pair includes `if resp.Diagnostics.HasError() { return }` guard
 - [ ] Independently committable as a single commit
 
 #### Operational Verification Procedures
@@ -336,8 +336,8 @@ graph LR
 
 #### Task Group A: Dependency Setup
 
-- [ ] 4.1: Confirm skill constraints -- verify validator library compatibility with terraform-plugin-framework v1.17.0; confirm all 51 files need descriptions
-- [ ] 4.2: Add `terraform-plugin-framework-validators` dependency to `go.mod`
+- [x] 4.1: Confirm skill constraints -- verify validator library compatibility with terraform-plugin-framework v1.17.0; confirm all 51 files need descriptions
+- [x] 4.2: Add `terraform-plugin-framework-validators` dependency to `go.mod`
   ```bash
   go get github.com/hashicorp/terraform-plugin-framework-validators@v0.17.0
   go mod tidy
@@ -356,13 +356,13 @@ Descriptions must explain each attribute's purpose in 1-2 sentences. Validators 
 - [ ] 4.8: `internal/services/domain/dns_record_resource.go` -- add descriptions + validators (including `OneOf` for record type: A, AAAA, CNAME, MX, TXT, NS, SRV)
 - [ ] 4.9: `internal/services/domain/reverse_dns_resource.go` -- add descriptions + validators
 - [ ] 4.10: `internal/services/fip/fip_resource.go` -- add descriptions + validators (including `OneOf` for ip_type: ipv4, ipv6)
-- [ ] 4.11: `internal/services/firewall/firewall_resource.go` -- add descriptions + validators
-- [ ] 4.12: `internal/services/firewall/firewall_attachment_resource.go` -- add descriptions + validators
+- [x] 4.11: `internal/services/firewall/firewall_resource.go` -- add descriptions + validators
+- [x] 4.12: `internal/services/firewall/firewall_attachment_resource.go` -- add descriptions + validators
 - [ ] 4.13: `internal/services/gateway/gateway_resource.go` -- add descriptions + validators
 - [ ] 4.14: `internal/services/image/image_resource.go` -- add descriptions + validators
-- [ ] 4.15: `internal/services/kubernetes/kubernetes_resource.go` -- add descriptions + validators
-- [ ] 4.16: `internal/services/kubernetes/kubernetes_group_resource.go` -- add descriptions + validators
-- [ ] 4.17: `internal/services/loadbalancer/loadbalancer_resource.go` -- add descriptions + validators
+- [x] 4.15: `internal/services/kubernetes/kubernetes_resource.go` -- add descriptions + validators
+- [x] 4.16: `internal/services/kubernetes/kubernetes_group_resource.go` -- add descriptions + validators
+- [x] 4.17: `internal/services/loadbalancer/loadbalancer_resource.go` -- add descriptions + validators
 - [ ] 4.18: `internal/services/monitoring/monitoring_rule_resource.go` -- add descriptions + validators (including `OneOf` for condition)
 - [ ] 4.19: `internal/services/project/project_resource.go` -- add descriptions + validators
 - [ ] 4.20: `internal/services/script/script_resource.go` -- add descriptions + validators
@@ -387,13 +387,13 @@ Data source attributes are typically all Computed and do not need validators.
 - [ ] 4.34: `internal/services/datacenter/datacenter_datasource.go` -- add descriptions
 - [ ] 4.35: `internal/services/domain/domain_data_source.go` -- add descriptions
 - [ ] 4.36: `internal/services/fip/fip_datasource.go` -- add descriptions
-- [ ] 4.37: `internal/services/firewall/firewall_data_source.go` -- add descriptions
+- [x] 4.37: `internal/services/firewall/firewall_data_source.go` -- add descriptions
 - [ ] 4.38: `internal/services/gateway/gateway_data_source.go` -- add descriptions
 - [ ] 4.39: `internal/services/image/image_data_source.go` -- add descriptions
 - [ ] 4.40: `internal/services/ip/ip_datasource.go` -- add descriptions
-- [ ] 4.41: `internal/services/kubernetes/kubernetes_data_source.go` -- add descriptions
-- [ ] 4.42: `internal/services/kubernetes/kubernetes_group_data_source.go` -- add descriptions
-- [ ] 4.43: `internal/services/loadbalancer/loadbalancer_data_source.go` -- add descriptions
+- [x] 4.41: `internal/services/kubernetes/kubernetes_data_source.go` -- add descriptions
+- [x] 4.42: `internal/services/kubernetes/kubernetes_group_data_source.go` -- add descriptions
+- [x] 4.43: `internal/services/loadbalancer/loadbalancer_data_source.go` -- add descriptions
 - [ ] 4.44: `internal/services/monitoring/monitoring_rule_datasource.go` -- add descriptions
 - [ ] 4.45: `internal/services/project/project_data_source.go` -- add descriptions
 - [ ] 4.46: `internal/services/script/script_data_source.go` -- add descriptions
@@ -407,7 +407,7 @@ Data source attributes are typically all Computed and do not need validators.
 
 #### Task Group D: Provider Description + Doc Regeneration
 
-- [ ] 4.54: Add `MarkdownDescription` to provider-level schema in `internal/provider/provider.go` (FR-S2)
+- [x] 4.54: Add `MarkdownDescription` to provider-level schema in `internal/provider/provider.go` (FR-S2)
 - [ ] 4.55: Regenerate documentation:
   ```bash
   go generate ./...
@@ -801,9 +801,9 @@ Implement custom `ImportState` methods with `/` separator parsing, format valida
 - Notes:
 
 ### Phase 3: Fix Firewall Error Suppression
-- Start:
-- Complete:
-- Notes:
+- Start: 2026-01-31
+- Complete: 2026-01-31
+- Notes: All 12 ListValueFrom calls fixed across 6 pairs (3 locations x 2 files). Integration test implemented. Build verified.
 
 ### Phase 4: Schema Validators and Descriptions
 - Start:

@@ -56,55 +56,72 @@ func (s *storageSnapshotDataSource) Metadata(_ context.Context, req datasource.M
 // Schema defines the schema for the data source.
 func (s *storageSnapshotDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves a list of all storage volume snapshots on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier for this data source.",
 			},
 			"storage_snapshots": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of storage volume snapshots.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique numeric identifier of the storage snapshot.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the storage snapshot.",
 						},
 						"storage_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric ID of the storage volume this snapshot belongs to.",
 						},
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the storage snapshot.",
 						},
 						"size": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The size of the storage snapshot in bytes.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The timestamp when the storage snapshot was created.",
 						},
 						"user_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the user who owns the storage snapshot.",
 						},
 						"is_deleted": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the storage snapshot has been deleted (1 = deleted, 0 = active).",
 						},
 						"snapshot_key": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The key identifier for the storage snapshot.",
 						},
 						"storage_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the storage volume this snapshot belongs to.",
 						},
 						"storage_type": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The type of the storage volume (e.g., ssd, sata).",
 						},
 						"disk_format": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The disk format of the storage volume (e.g., EXT4, XFS).",
 						},
 						"box_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The ID of the server (box) the storage volume is attached to.",
 						},
 						"entity_type": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The entity type of the storage snapshot.",
 						},
 					},
 				},

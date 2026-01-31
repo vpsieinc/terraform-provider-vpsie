@@ -9,40 +9,40 @@ Metadata:
 Replace all 12 silently discarded `ListValueFrom` errors in firewall code with proper diagnostic propagation. The pattern `_, _ :=` becomes `destList, destDiags :=` followed by `resp.Diagnostics.Append(destDiags...)` and an early return guard. Implement the `TestAccFirewallErrorPropagation` integration test skeleton.
 
 ## Target Files
-- [ ] `internal/services/firewall/firewall_resource.go` (8 ListValueFrom calls: Create lines 394-395, 421-422; Read lines 508-509, 535-536)
-- [ ] `internal/services/firewall/firewall_data_source.go` (4 ListValueFrom calls: Read lines 332-333, 359-360)
-- [ ] `tests/integration_test.go` (implement TestAccFirewallErrorPropagation)
+- [x] `internal/services/firewall/firewall_resource.go` (8 ListValueFrom calls: Create lines 394-395, 421-422; Read lines 508-509, 535-536)
+- [x] `internal/services/firewall/firewall_data_source.go` (4 ListValueFrom calls: Read lines 332-333, 359-360)
+- [x] `tests/integration_test.go` (implement TestAccFirewallErrorPropagation)
 
 ## Implementation Steps
 ### 1. Confirm Skill Constraints
-- [ ] Read both firewall files and verify all 12 `ListValueFrom` call locations match the plan
-- [ ] Confirm the current pattern is `_, _ :=` (discarded diagnostics)
+- [x] Read both firewall files and verify all 12 `ListValueFrom` call locations match the plan
+- [x] Confirm the current pattern is `_, _ :=` (discarded diagnostics)
 
 ### 2. Implementation
-- [ ] Fix `firewall_resource.go` Create method (lines 394-395 InBound, lines 421-422 OutBound):
+- [x] Fix `firewall_resource.go` Create method (lines 394-395 InBound, lines 421-422 OutBound):
   - Replace `_, _ :=` with diagnostic capture variables
   - Append diagnostics to `resp.Diagnostics`
   - Add `if resp.Diagnostics.HasError() { return }` guard after each pair
-- [ ] Fix `firewall_resource.go` Read method (lines 508-509 InBound, lines 535-536 OutBound):
+- [x] Fix `firewall_resource.go` Read method (lines 508-509 InBound, lines 535-536 OutBound):
   - Same pattern as Create
-- [ ] Fix `firewall_data_source.go` Read method (lines 332-333 InBound, lines 359-360 OutBound):
+- [x] Fix `firewall_data_source.go` Read method (lines 332-333 InBound, lines 359-360 OutBound):
   - Same pattern as above
-- [ ] Implement `TestAccFirewallErrorPropagation` in `tests/integration_test.go`:
+- [x] Implement `TestAccFirewallErrorPropagation` in `tests/integration_test.go`:
   - Complete the TODO items for firewall config with inbound/outbound rules
   - Complete `testAccFirewallWithRulesConfig()` helper
   - Verify CRUD succeeds without silent failures
 
 ### 3. Verify Skill Fidelity
-- [ ] Confirm zero `_, _ :=` patterns remain in firewall code
-- [ ] Each error pair includes `if resp.Diagnostics.HasError() { return }` guard
+- [x] Confirm zero `_, _ :=` patterns remain in firewall code
+- [x] Each error pair includes `if resp.Diagnostics.HasError() { return }` guard
 
 ## Completion Criteria
-- [ ] All 12 `ListValueFrom` calls have diagnostic capture and propagation
-- [ ] `go build -v .` succeeds
-- [ ] `grep -rn '_, _ :=' internal/services/firewall/` returns zero results
-- [ ] `grep -rn '_, _\s*=' internal/services/firewall/` returns zero results
-- [ ] `TestAccFirewallErrorPropagation` integration test implemented and compiles
-- [ ] Verification level: L3 (build success) + L2 (test compiles)
+- [x] All 12 `ListValueFrom` calls have diagnostic capture and propagation
+- [x] `go build -v .` succeeds
+- [x] `grep -rn '_, _ :=' internal/services/firewall/` returns zero results
+- [x] `grep -rn '_, _\s*=' internal/services/firewall/` returns zero results
+- [x] `TestAccFirewallErrorPropagation` integration test implemented and compiles
+- [x] Verification level: L3 (build success) + L2 (test compiles)
 
 ## Verification Steps
 ```bash

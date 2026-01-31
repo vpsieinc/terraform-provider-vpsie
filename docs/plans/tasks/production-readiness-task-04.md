@@ -9,34 +9,34 @@ Metadata:
 Add the `terraform-plugin-framework-validators` dependency to `go.mod` and add `MarkdownDescription` plus `Sensitive` validator awareness to the provider-level schema in `provider.go`. This establishes the foundation for all subsequent Phase 4 description/validator tasks.
 
 ## Target Files
-- [ ] `go.mod` (add terraform-plugin-framework-validators dependency)
-- [ ] `internal/provider/provider.go` (add MarkdownDescription to provider schema and access_token attribute)
+- [x] `go.mod` (add terraform-plugin-framework-validators dependency)
+- [x] `internal/provider/provider.go` (add MarkdownDescription to provider schema and access_token attribute)
 
 ## Implementation Steps
 ### 1. Confirm Skill Constraints
-- [ ] Verify validator library compatibility with terraform-plugin-framework v1.17.0
-- [ ] Read `internal/provider/provider.go` to understand current schema structure
+- [x] Verify validator library compatibility with terraform-plugin-framework v1.17.0
+- [x] Read `internal/provider/provider.go` to understand current schema structure
 
 ### 2. Implementation
-- [ ] Add validator dependency:
+- [x] Add validator dependency:
   ```bash
   go get github.com/hashicorp/terraform-plugin-framework-validators@v0.17.0
   go mod tidy
   ```
-- [ ] Add `MarkdownDescription` to provider-level schema in `provider.go`:
+- [x] Add `MarkdownDescription` to provider-level schema in `provider.go`:
   - Provider schema description (what the VPSie provider does)
   - `access_token` attribute description (API authentication token)
-- [ ] Verify build succeeds with new dependency
+- [x] Verify build succeeds with new dependency
 
 ### 3. Verify Skill Fidelity
-- [ ] Validator library version is compatible
-- [ ] Provider schema has MarkdownDescription
+- [x] Validator library version is compatible
+- [x] Provider schema has MarkdownDescription
 
 ## Completion Criteria
-- [ ] `terraform-plugin-framework-validators` present in `go.mod`
-- [ ] `go build -v .` succeeds
-- [ ] Provider schema has `MarkdownDescription` on the provider and `access_token` attribute
-- [ ] Verification level: L3 (build success)
+- [x] `terraform-plugin-framework-validators` present in `go.mod`
+- [x] `go build -v .` succeeds
+- [x] Provider schema has `MarkdownDescription` on the provider and `access_token` attribute
+- [x] Verification level: L3 (build success)
 
 ## Verification Steps
 ```bash

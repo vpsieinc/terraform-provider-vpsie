@@ -3,12 +3,12 @@
 page_title: "vpsie_domains Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Use this data source to retrieve information about all VPSie domains.
 ---
 
 # vpsie_domains (Data Source)
 
-
+Use this data source to retrieve information about all VPSie domains.
 
 ## Example Usage
 
@@ -21,16 +21,16 @@ data "vpsie_domains" "example" {}
 
 ### Read-Only
 
-- `domains` (Attributes List) (see [below for nested schema](#nestedatt--domains))
-- `id` (String) The ID of this resource.
+- `domains` (Attributes List) The list of domains. (see [below for nested schema](#nestedatt--domains))
+- `id` (String) The ID of this data source.
 
 <a id="nestedatt--domains"></a>
 ### Nested Schema for `domains`
 
 Read-Only:
 
-- `created_on` (String)
-- `domain_name` (String)
-- `identifier` (String)
-- `last_check` (String)
-- `ns_validated` (Number)
+- `created_on` (String) The timestamp when the domain was created.
+- `domain_name` (String) The name of the domain.
+- `identifier` (String) The unique identifier of the domain.
+- `last_check` (String) The timestamp of the last nameserver validation check.
+- `ns_validated` (Number) Whether the domain nameservers have been validated (1 = validated, 0 = not validated).

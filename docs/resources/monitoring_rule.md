@@ -30,24 +30,24 @@ resource "vpsie_monitoring_rule" "example" {
 
 ### Required
 
-- `condition` (String)
-- `email` (String)
-- `frequency` (String)
-- `metric_type` (String)
-- `period` (String)
-- `rule_name` (String)
-- `threshold` (String)
-- `threshold_type` (String)
+- `condition` (String) The condition operator for the monitoring rule. Changing this forces a new resource to be created.
+- `email` (String) The email address to receive alert notifications. Changing this forces a new resource to be created.
+- `frequency` (String) The frequency of checks for the monitoring rule in minutes. Changing this forces a new resource to be created.
+- `metric_type` (String) The type of metric to monitor (e.g., cpu, memory, disk). Changing this forces a new resource to be created.
+- `period` (String) The evaluation period for the monitoring rule in minutes. Changing this forces a new resource to be created.
+- `rule_name` (String) The name of the monitoring rule. Changing this forces a new resource to be created.
+- `threshold` (String) The threshold value that triggers the alert. Changing this forces a new resource to be created.
+- `threshold_type` (String) The type of threshold for the rule (e.g., percentage, absolute). Changing this forces a new resource to be created.
 
 ### Optional
 
-- `action_key` (String)
-- `action_name` (String)
-- `status` (String)
-- `threshold_id` (String)
-- `vms` (List of String)
+- `action_key` (String) The key identifying the action to take when the rule triggers. Changing this forces a new resource to be created.
+- `action_name` (String) The display name of the action to take when the rule triggers. Changing this forces a new resource to be created.
+- `status` (String) The current status of the monitoring rule.
+- `threshold_id` (String) The identifier of the threshold configuration. Changing this forces a new resource to be created.
+- `vms` (List of String) The list of VM identifiers to which this monitoring rule applies.
 
 ### Read-Only
 
-- `created_on` (String)
-- `identifier` (String)
+- `created_on` (String) The timestamp when the monitoring rule was created.
+- `identifier` (String) The unique identifier of the monitoring rule.

@@ -3,12 +3,12 @@
 page_title: "vpsie_kubernetes Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a Kubernetes cluster on the VPSie platform.
 ---
 
 # vpsie_kubernetes (Resource)
 
-
+Manages a Kubernetes cluster on the VPSie platform.
 
 ## Example Usage
 
@@ -23,29 +23,29 @@ resource "vpsie_kubernetes" "example" {
 
 ### Optional
 
-- `slave_count` (Number)
+- `slave_count` (Number) The desired number of worker (slave) nodes in the cluster.
 - `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
-- `cluster_name` (String)
-- `cpu` (Number)
-- `created_by` (String)
-- `created_on` (String)
-- `dc_identifier` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `manager_count` (Number)
-- `master_count` (Number)
-- `nickname` (String)
-- `nodes` (Attributes List) (see [below for nested schema](#nestedatt--nodes))
-- `price` (Number)
-- `project_identifier` (String)
-- `ram` (Number)
-- `resource_identifier` (String)
-- `traffic` (Number)
-- `updated_on` (String)
-- `vpc_id` (Number)
+- `cluster_name` (String) The name of the Kubernetes cluster.
+- `cpu` (Number) The total CPU cores allocated to the cluster.
+- `created_by` (String) The user who created the cluster.
+- `created_on` (String) The timestamp when the cluster was created.
+- `dc_identifier` (String) The identifier of the data center for the cluster.
+- `id` (Number) The numeric ID of the Kubernetes cluster.
+- `identifier` (String) The unique identifier of the Kubernetes cluster.
+- `manager_count` (Number) The number of manager nodes in the cluster.
+- `master_count` (Number) The number of master nodes in the cluster.
+- `nickname` (String) The nickname of the cluster owner.
+- `nodes` (Attributes List) The list of nodes in the Kubernetes cluster. (see [below for nested schema](#nestedatt--nodes))
+- `price` (Number) The price of the Kubernetes cluster.
+- `project_identifier` (String) The identifier of the project the cluster belongs to.
+- `ram` (Number) The total RAM in MB allocated to the cluster.
+- `resource_identifier` (String) The resource identifier used for node sizing.
+- `traffic` (Number) The traffic allowance for the cluster in GB.
+- `updated_on` (String) The timestamp when the cluster was last updated.
+- `vpc_id` (Number) The ID of the VPC the cluster belongs to.
 
 <a id="nestedatt--timeouts"></a>
 ### Nested Schema for `timeouts`
@@ -60,12 +60,12 @@ Optional:
 
 Read-Only:
 
-- `created_on` (String)
-- `datacenter_id` (Number)
-- `default_ip` (String)
-- `hostname` (String)
-- `id` (Number)
-- `node_id` (Number)
-- `node_type` (Number)
-- `private_ip` (String)
-- `user_id` (Number)
+- `created_on` (String) The timestamp when the node was created.
+- `datacenter_id` (Number) The ID of the data center where the node is located.
+- `default_ip` (String) The default public IP address of the node.
+- `hostname` (String) The hostname of the node.
+- `id` (Number) The numeric ID of the node.
+- `node_id` (Number) The internal node ID.
+- `node_type` (Number) The type of the node (e.g., master or worker).
+- `private_ip` (String) The private IP address of the node.
+- `user_id` (Number) The ID of the user who owns the node.

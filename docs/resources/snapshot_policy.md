@@ -3,12 +3,12 @@
 page_title: "vpsie_snapshot_policy Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a snapshot policy on the VPSie platform.
 ---
 
 # vpsie_snapshot_policy (Resource)
 
-
+Manages a snapshot policy on the VPSie platform.
 
 ## Example Usage
 
@@ -26,18 +26,18 @@ resource "vpsie_snapshot_policy" "example" {
 
 ### Required
 
-- `backup_plan` (String)
-- `keep` (String)
-- `name` (String)
-- `plan_every` (String)
+- `backup_plan` (String) The type of snapshot plan (e.g., daily, weekly, monthly).
+- `keep` (String) The number of snapshots to retain.
+- `name` (String) The name of the snapshot policy.
+- `plan_every` (String) The frequency interval for the snapshot plan.
 
 ### Optional
 
-- `vms` (List of String)
+- `vms` (List of String) A list of virtual machine identifiers to attach to this snapshot policy.
 
 ### Read-Only
 
-- `created_by` (String)
-- `created_on` (String)
-- `disabled` (Number)
-- `identifier` (String)
+- `created_by` (String) The user who created the snapshot policy.
+- `created_on` (String) The date and time when the snapshot policy was created.
+- `disabled` (Number) Whether the snapshot policy is disabled (1 for disabled, 0 for enabled).
+- `identifier` (String) The unique identifier of the snapshot policy.

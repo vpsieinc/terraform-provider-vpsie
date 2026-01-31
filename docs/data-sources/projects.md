@@ -21,19 +21,19 @@ data "vpsie_projects" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `projects` (Attributes List) (see [below for nested schema](#nestedatt--projects))
+- `id` (String) The ID of this data source.
+- `projects` (Attributes List) The list of projects. (see [below for nested schema](#nestedatt--projects))
 
 <a id="nestedatt--projects"></a>
 ### Nested Schema for `projects`
 
 Read-Only:
 
-- `created_by` (Number)
-- `created_on` (String)
-- `description` (String)
-- `id` (Number)
-- `identifier` (String)
-- `is_default` (Number)
-- `name` (String)
-- `updated_at` (String)
+- `created_by` (Number) The numeric ID of the user who created the project.
+- `created_on` (String) The timestamp when the project was created.
+- `description` (String) A description of the project.
+- `id` (Number) The numeric ID of the project.
+- `identifier` (String) The unique identifier of the project.
+- `is_default` (Number) Whether this is the default project (1 = default, 0 = not default).
+- `name` (String) The name of the project.
+- `updated_at` (String) The timestamp when the project was last updated.

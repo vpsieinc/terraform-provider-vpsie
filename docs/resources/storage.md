@@ -3,12 +3,12 @@
 page_title: "vpsie_storage Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a block storage volume on the VPSie platform.
 ---
 
 # vpsie_storage (Resource)
 
-
+Manages a block storage volume on the VPSie platform.
 
 ## Example Usage
 
@@ -28,30 +28,30 @@ resource "vpsie_storage" "example" {
 
 ### Required
 
-- `dc_identifier` (String)
-- `description` (String)
-- `disk_format` (String)
-- `name` (String)
-- `size` (Number)
-- `storage_type` (String)
+- `dc_identifier` (String) The identifier of the data center where the storage volume is created.
+- `description` (String) A description of the storage volume.
+- `disk_format` (String) The disk format of the storage volume (EXT4 or XFS).
+- `name` (String) The name of the storage volume.
+- `size` (Number) The size of the storage volume in GB.
+- `storage_type` (String) The type of storage (e.g., ssd, sata).
 
 ### Optional
 
-- `box_id` (Number)
-- `hostname` (String)
-- `is_automatic` (Number)
-- `vm_identifier` (String)
+- `box_id` (Number) The ID of the server (box) the storage is attached to.
+- `hostname` (String) The hostname of the server the storage is attached to.
+- `is_automatic` (Number) Whether the storage volume was created automatically.
+- `vm_identifier` (String) The identifier of the VM the storage is attached to.
 
 ### Read-Only
 
-- `bus_device` (String)
-- `bus_number` (Number)
-- `created_on` (String)
-- `disk_key` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `os_identifier` (String)
-- `state` (String)
-- `storage_id` (Number)
-- `user_id` (Number)
-- `user_template_id` (Number)
+- `bus_device` (String) The bus device name of the storage volume.
+- `bus_number` (Number) The bus number of the storage volume.
+- `created_on` (String) The timestamp when the storage volume was created.
+- `disk_key` (String) The disk key identifier for the storage volume.
+- `id` (Number) The numeric ID of the storage volume.
+- `identifier` (String) The unique identifier of the storage volume.
+- `os_identifier` (String) The OS identifier of the server the storage is attached to.
+- `state` (String) The current state of the storage volume.
+- `storage_id` (Number) The internal storage ID.
+- `user_id` (Number) The ID of the user who owns the storage volume.
+- `user_template_id` (Number) The ID of the user template associated with the storage volume.

@@ -42,43 +42,56 @@ func (d *datacenterDataSource) Metadata(_ context.Context, req datasource.Metada
 
 func (d *datacenterDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Retrieves a list of all data centers available on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The identifier for this data source.",
 			},
 			"datacenters": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of available data centers.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"dc_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the data center.",
 						},
 						"dc_image": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The image or logo URL for the data center.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the data center.",
 						},
 						"country": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The country where the data center is located.",
 						},
 						"is_active": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the data center is active (1 = active, 0 = inactive).",
 						},
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the data center.",
 						},
 						"default_selected": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this data center is selected by default (1 = default, 0 = not default).",
 						},
 						"is_fip_available": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether floating IPs are available in this data center (1 = available, 0 = unavailable).",
 						},
 						"is_bucket_available": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether object storage buckets are available in this data center (1 = available, 0 = unavailable).",
 						},
 						"is_private": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this is a private data center (1 = private, 0 = public).",
 						},
 					},
 				},

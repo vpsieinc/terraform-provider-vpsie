@@ -24,7 +24,7 @@ var (
 )
 
 type firewallResource struct {
-	client *govpsie.Client
+	client FirewallAPI
 }
 
 type firewallResourceModel struct {
@@ -340,7 +340,7 @@ func (g *firewallResource) Configure(_ context.Context, req resource.ConfigureRe
 		return
 	}
 
-	g.client = client
+	g.client = client.FirewallGroup
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -400,7 +400,7 @@ func (g *firewallResource) Create(ctx context.Context, req resource.CreateReques
 		}
 	}
 
-	err := g.client.FirewallGroup.Create(ctx, plan.GroupName.String(), rulesToCreate)
+	err := g.client.Create(ctx, plan.GroupName.String(), rulesToCreate)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating firewall",
@@ -533,7 +533,7 @@ func (g *firewallResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	firewall, err := g.client.FirewallGroup.Get(ctx, state.ID.String())
+	firewall, err := g.client.Get(ctx, state.ID.String())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error reading firewall",
@@ -662,7 +662,7 @@ func (f *firewallResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	err := f.client.FirewallGroup.Delete(ctx, state.ID.String())
+	err := f.client.Delete(ctx, state.ID.String())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting firewall",
@@ -677,7 +677,7 @@ func (f *firewallResource) ImportState(ctx context.Context, req resource.ImportS
 }
 
 func (f *firewallResource) GetFirewallGroupByName(ctx context.Context, name string) (*govpsie.FirewallGroupListData, error) {
-	firewalls, err := f.client.FirewallGroup.List(ctx, nil)
+	firewalls, err := f.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

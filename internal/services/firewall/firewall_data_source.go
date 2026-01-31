@@ -12,7 +12,7 @@ import (
 )
 
 type firewallDataSource struct {
-	client *govpsie.Client
+	client FirewallAPI
 }
 
 type firewallDataSourceModel struct {
@@ -351,7 +351,7 @@ func (g *firewallDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 func (f *firewallDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state firewallDataSourceModel
 
-	firewalls, err := f.client.FirewallGroup.List(ctx, nil)
+	firewalls, err := f.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting firewalls",
@@ -498,5 +498,5 @@ func (g *firewallDataSource) Configure(_ context.Context, req datasource.Configu
 		return
 	}
 
-	g.client = client
+	g.client = client.FirewallGroup
 }

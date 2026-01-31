@@ -54,9 +54,25 @@ jobs:
           git diff --compact-summary --exit-code || \
             (echo; echo "Unexpected difference in directories after code generation. Run 'go generate ./...' command and commit."; exit 1)
 
+  # Run unit tests (acceptance tests auto-skip when TF_ACC is unset)
+  unit-tests:
+    name: Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+      - run: go mod download
+      - run: go test -v -cover ./...
+        timeout-minutes: 5
+
   # Run acceptance tests in a matrix with Terraform CLI versions
-  test:
-    name: Terraform Provider Acceptance Tests
+  acceptance-tests:
+    name: Acceptance Tests (Terraform ${{ matrix.terraform }})
     needs: build
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -64,7 +80,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # list whatever Terraform versions here you would like to support
         terraform:
           - '1.0.*'
           - '1.1.*'

@@ -24,7 +24,7 @@ var (
 )
 
 type kubernetesGroupResource struct {
-	client *govpsie.Client
+	client KubernetesAPI
 }
 
 type kubernetesGroupResourceModel struct {
@@ -232,7 +232,7 @@ func (k *kubernetesGroupResource) Configure(_ context.Context, req resource.Conf
 		return
 	}
 
-	k.client = client
+	k.client = client.K8s
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -250,7 +250,7 @@ func (k *kubernetesGroupResource) Create(ctx context.Context, req resource.Creat
 		KubeSizeID:        2,
 	}
 
-	err := k.client.K8s.CreateK8sGroup(ctx, &createReq)
+	err := k.client.CreateK8sGroup(ctx, &createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating kubernetes", err.Error())
 		return
@@ -360,7 +360,7 @@ func (k *kubernetesGroupResource) Update(ctx context.Context, req resource.Updat
 
 	if plan.NodesCount.ValueInt64() > state.NodesCount.ValueInt64() {
 		for i := state.NodesCount.ValueInt64(); i < plan.NodesCount.ValueInt64(); i++ {
-			err := k.client.K8s.AddNode(ctx, state.ClusterIdentifier.ValueString(), "slave", int(state.ID.ValueInt64()))
+			err := k.client.AddNode(ctx, state.ClusterIdentifier.ValueString(), "slave", int(state.ID.ValueInt64()))
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating kubernetes",
@@ -373,7 +373,7 @@ func (k *kubernetesGroupResource) Update(ctx context.Context, req resource.Updat
 
 	} else if plan.NodesCount.ValueInt64() < state.NodesCount.ValueInt64() {
 		for i := plan.NodesCount.ValueInt64(); i < state.NodesCount.ValueInt64(); i++ {
-			err := k.client.K8s.RemoveNode(ctx, state.ClusterIdentifier.ValueString(), "slave", int(state.ID.ValueInt64()))
+			err := k.client.RemoveNode(ctx, state.ClusterIdentifier.ValueString(), "slave", int(state.ID.ValueInt64()))
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating kubernetes",
@@ -397,7 +397,7 @@ func (k *kubernetesGroupResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	err := k.client.K8s.DeleteK8sGroup(ctx, state.Identifier.ValueString(), "terraform", "terraform")
+	err := k.client.DeleteK8sGroup(ctx, state.Identifier.ValueString(), "terraform", "terraform")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting kubernetes group",
@@ -413,13 +413,13 @@ func (k *kubernetesGroupResource) ImportState(ctx context.Context, req resource.
 }
 
 func (k *kubernetesGroupResource) GetKubernetesGroupByName(ctx context.Context, name string) (*govpsie.K8sGroup, error) {
-	k8s, err := k.client.K8s.List(ctx, nil)
+	k8s, err := k.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, k8 := range k8s {
-		groups, err := k.client.K8s.ListK8sGroups(ctx, k8.Identifier)
+		groups, err := k.client.ListK8sGroups(ctx, k8.Identifier)
 		if err != nil {
 			return nil, err
 		}
@@ -437,13 +437,13 @@ func (k *kubernetesGroupResource) GetKubernetesGroupByName(ctx context.Context, 
 
 func (k *kubernetesGroupResource) GetKubernetesGroupByIdentifier(ctx context.Context, identifier string) (*govpsie.K8sGroup, error) {
 
-	k8s, err := k.client.K8s.List(ctx, nil)
+	k8s, err := k.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, k8 := range k8s {
-		groups, err := k.client.K8s.ListK8sGroups(ctx, k8.Identifier)
+		groups, err := k.client.ListK8sGroups(ctx, k8.Identifier)
 		if err != nil {
 			return nil, err
 		}

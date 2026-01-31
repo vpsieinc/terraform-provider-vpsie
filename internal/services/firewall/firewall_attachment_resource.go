@@ -20,7 +20,7 @@ var (
 )
 
 type firewallAttachmentResource struct {
-	client *govpsie.Client
+	client FirewallAPI
 }
 
 type firewallAttachmentResourceModel struct {
@@ -86,7 +86,7 @@ func (f *firewallAttachmentResource) Configure(_ context.Context, req resource.C
 		return
 	}
 
-	f.client = client
+	f.client = client.FirewallGroup
 }
 
 func (f *firewallAttachmentResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -97,7 +97,7 @@ func (f *firewallAttachmentResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	err := f.client.FirewallGroup.AttachToVpsie(ctx, plan.GroupID.ValueString(), plan.VmIdentifier.ValueString())
+	err := f.client.AttachToVpsie(ctx, plan.GroupID.ValueString(), plan.VmIdentifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error attaching firewall to VM", err.Error())
 		return
@@ -117,7 +117,7 @@ func (f *firewallAttachmentResource) Read(ctx context.Context, req resource.Read
 		return
 	}
 
-	fwGroup, err := f.client.FirewallGroup.Get(ctx, state.GroupID.ValueString())
+	fwGroup, err := f.client.Get(ctx, state.GroupID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading firewall group", err.Error())
 		return
@@ -152,7 +152,7 @@ func (f *firewallAttachmentResource) Delete(ctx context.Context, req resource.De
 		return
 	}
 
-	err := f.client.FirewallGroup.DetachFromVpsie(ctx, state.GroupID.ValueString(), state.VmIdentifier.ValueString())
+	err := f.client.DetachFromVpsie(ctx, state.GroupID.ValueString(), state.VmIdentifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error detaching firewall from VM",

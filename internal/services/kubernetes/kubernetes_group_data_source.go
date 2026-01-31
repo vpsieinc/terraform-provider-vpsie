@@ -11,7 +11,7 @@ import (
 )
 
 type kubernetesGroupDataSource struct {
-	client *govpsie.Client
+	client KubernetesAPI
 }
 
 type kubernetesGroupDataSourceModel struct {
@@ -157,7 +157,7 @@ func (k *kubernetesGroupDataSource) Schema(_ context.Context, _ datasource.Schem
 func (k *kubernetesGroupDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state kubernetesGroupDataSourceModel
 
-	k8s, err := k.client.K8s.List(ctx, nil)
+	k8s, err := k.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Kubernetes",
@@ -169,7 +169,7 @@ func (k *kubernetesGroupDataSource) Read(ctx context.Context, req datasource.Rea
 
 	for _, k8 := range k8s {
 
-		k8sGroups, err := k.client.K8s.ListK8sGroups(ctx, k8.Identifier)
+		k8sGroups, err := k.client.ListK8sGroups(ctx, k8.Identifier)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error Getting Kubernetes Groups",
@@ -230,5 +230,5 @@ func (k *kubernetesGroupDataSource) Configure(_ context.Context, req datasource.
 		return
 	}
 
-	k.client = client
+	k.client = client.K8s
 }

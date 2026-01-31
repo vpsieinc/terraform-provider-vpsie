@@ -24,7 +24,7 @@ var (
 )
 
 type kubernetesResource struct {
-	client *govpsie.Client
+	client KubernetesAPI
 }
 
 type kubernetesResourceModel struct {
@@ -290,7 +290,7 @@ func (k *kubernetesResource) Configure(_ context.Context, req resource.Configure
 		return
 	}
 
-	k.client = client
+	k.client = client.K8s
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -313,7 +313,7 @@ func (k *kubernetesResource) Create(ctx context.Context, req resource.CreateRequ
 		ProjectIdentifier:  plan.ProjectIdentifier.ValueString(),
 	}
 
-	err := k.client.K8s.Create(ctx, &createReq)
+	err := k.client.Create(ctx, &createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating kubernetes", err.Error())
 		return
@@ -399,7 +399,7 @@ func (k *kubernetesResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	k8s, err := k.client.K8s.Get(ctx, state.Identifier.ValueString())
+	k8s, err := k.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -468,7 +468,7 @@ func (k *kubernetesResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	if plan.SlaveCount.ValueInt64() > state.SlaveCount.ValueInt64() {
 		for i := state.SlaveCount.ValueInt64(); i < plan.SlaveCount.ValueInt64(); i++ {
-			err := k.client.K8s.AddSlave(ctx, state.Identifier.ValueString())
+			err := k.client.AddSlave(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating kubernetes",
@@ -481,7 +481,7 @@ func (k *kubernetesResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	} else if plan.SlaveCount.ValueInt64() < state.SlaveCount.ValueInt64() {
 		for i := plan.SlaveCount.ValueInt64(); i < state.SlaveCount.ValueInt64(); i++ {
-			err := k.client.K8s.RemoveSlave(ctx, state.Identifier.ValueString())
+			err := k.client.RemoveSlave(ctx, state.Identifier.ValueString())
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating kubernetes",
@@ -505,7 +505,7 @@ func (k *kubernetesResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	err := k.client.K8s.Delete(ctx, state.Identifier.ValueString(), "terraform", "terraform")
+	err := k.client.Delete(ctx, state.Identifier.ValueString(), "terraform", "terraform")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting kubernetes",
@@ -521,14 +521,14 @@ func (k *kubernetesResource) ImportState(ctx context.Context, req resource.Impor
 }
 
 func (k *kubernetesResource) checkResourceStatus(ctx context.Context, cluster_name string) (*govpsie.K8s, bool, error) {
-	kubernetes, err := k.client.K8s.List(ctx, nil)
+	kubernetes, err := k.client.List(ctx, nil)
 	if err != nil {
 		return nil, false, err
 	}
 
 	for _, k8s := range kubernetes {
 		if k8s.ClusterName == cluster_name {
-			newK8s, err := k.client.K8s.Get(ctx, k8s.Identifier)
+			newK8s, err := k.client.Get(ctx, k8s.Identifier)
 			if err != nil {
 				return nil, false, err
 			}

@@ -28,7 +28,7 @@ var (
 )
 
 type loadbalancerResource struct {
-	client *govpsie.Client
+	client LoadbalancerAPI
 }
 
 type loadbalancerResourceModel struct {
@@ -475,7 +475,7 @@ func (l *loadbalancerResource) Configure(_ context.Context, req resource.Configu
 		return
 	}
 
-	l.client = client
+	l.client = client.LB
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -539,7 +539,7 @@ func (l *loadbalancerResource) Create(ctx context.Context, req resource.CreateRe
 		Rule:               rules,
 	}
 
-	err := l.client.LB.CreateLB(ctx, createLb)
+	err := l.client.CreateLB(ctx, createLb)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating image", err.Error())
 		return
@@ -674,7 +674,7 @@ func (l *loadbalancerResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	lb, err := l.client.LB.GetLB(ctx, state.Identifier.ValueString())
+	lb, err := l.client.GetLB(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -824,7 +824,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 				domains = append(domains, domain)
 			}
 			newRule.Domains = domains
-			err := l.client.LB.AddLBRule(ctx, &newRule)
+			err := l.client.AddLBRule(ctx, &newRule)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error creating loadbalancer rule",
@@ -867,7 +867,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 			domainUpdateReq.RedirectHTTP = int(dns.RedirectHTTP.ValueInt64())
 			domainUpdateReq.Rise = int(dns.Rise.ValueInt64())
 
-			err := l.client.LB.UpdateLBDomain(ctx, &domainUpdateReq)
+			err := l.client.UpdateLBDomain(ctx, &domainUpdateReq)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating loadbalancer domain",
@@ -885,7 +885,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 				})
 			}
 
-			err = l.client.LB.UpdateDomainBackend(ctx, dns.DomainID.ValueString(), dnsBackends)
+			err = l.client.UpdateDomainBackend(ctx, dns.DomainID.ValueString(), dnsBackends)
 			if err != nil {
 				resp.Diagnostics.AddError(
 					"Error updating loadbalancer domain",
@@ -897,7 +897,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 
 		}
 
-		err := l.client.LB.UpdateLBRules(ctx, &newRule)
+		err := l.client.UpdateLBRules(ctx, &newRule)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error updating loadbalancer rule",
@@ -911,7 +911,7 @@ func (l *loadbalancerResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	for _, rule := range rules {
-		err := l.client.LB.DeleteLBRule(ctx, rule.RuleID.ValueString())
+		err := l.client.DeleteLBRule(ctx, rule.RuleID.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error deleting loadbalancer rule",
@@ -933,7 +933,7 @@ func (l *loadbalancerResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	err := l.client.LB.DeleteLB(ctx, state.Identifier.ValueString(), "terraform provider", "terraform provider")
+	err := l.client.DeleteLB(ctx, state.Identifier.ValueString(), "terraform provider", "terraform provider")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting loadbalancer",
@@ -949,7 +949,7 @@ func (l *loadbalancerResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 func (l *loadbalancerResource) checkResourceStatus(ctx context.Context, lbName string) (*govpsie.LBDetails, bool, error) {
-	lbs, err := l.client.LB.ListLBs(ctx, nil)
+	lbs, err := l.client.ListLBs(ctx, nil)
 	if err != nil {
 		return nil, false, err
 	}
@@ -957,7 +957,7 @@ func (l *loadbalancerResource) checkResourceStatus(ctx context.Context, lbName s
 	for _, lb := range lbs {
 		if lb.LBName == lbName {
 
-			newLb, err := l.client.LB.GetLB(ctx, lb.Identifier)
+			newLb, err := l.client.GetLB(ctx, lb.Identifier)
 			if err != nil {
 				return nil, false, err
 			}

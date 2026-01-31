@@ -12,7 +12,7 @@ import (
 )
 
 type kubernetesDataSource struct {
-	client *govpsie.Client
+	client KubernetesAPI
 }
 
 type kubernetesDataSourceModel struct {
@@ -128,7 +128,7 @@ func (i *kubernetesDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 func (k *kubernetesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state kubernetesDataSourceModel
 
-	kubernetes, err := k.client.K8s.List(ctx, nil)
+	kubernetes, err := k.client.List(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Kubernetes",
@@ -182,5 +182,5 @@ func (k *kubernetesDataSource) Configure(_ context.Context, req datasource.Confi
 		return
 	}
 
-	k.client = client
+	k.client = client.K8s
 }

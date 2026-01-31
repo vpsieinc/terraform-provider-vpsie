@@ -12,7 +12,7 @@ import (
 )
 
 type loadbalancerDataSource struct {
-	client *govpsie.Client
+	client LoadbalancerAPI
 }
 
 type loadbalancerDataSourceModel struct {
@@ -128,7 +128,7 @@ func (l *loadbalancerDataSource) Schema(_ context.Context, _ datasource.SchemaRe
 func (k *loadbalancerDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state loadbalancerDataSourceModel
 
-	loadbalancers, err := k.client.LB.ListLBs(ctx, nil)
+	loadbalancers, err := k.client.ListLBs(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Loadbalancers",
@@ -182,5 +182,5 @@ func (l *loadbalancerDataSource) Configure(_ context.Context, req datasource.Con
 		return
 	}
 
-	l.client = client
+	l.client = client.LB
 }

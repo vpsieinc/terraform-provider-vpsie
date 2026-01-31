@@ -50,55 +50,72 @@ func (b *backupDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 // Schema defines the schema for the data source.
 func (b *backupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Fetches the list of backups on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"backups": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of backups.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the backup.",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The date and time when the backup was created.",
 						},
 						"dc_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the backup is stored.",
 						},
 						"created_by": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The user who created the backup.",
 						},
 						"hostname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The hostname of the server associated with the backup.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the backup.",
 						},
 						"note": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "An optional note or description for the backup.",
 						},
 						"backup_key": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The key used to identify the backup.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the backup.",
 						},
 						"vm_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the virtual machine associated with the backup.",
 						},
 						"box_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric box ID of the backup.",
 						},
 						"backupsha1": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The SHA1 checksum of the backup.",
 						},
 						"os_full_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The full name of the operating system in the backup.",
 						},
 						"vm_category": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The category of the virtual machine associated with the backup.",
 						},
 					},
 				},

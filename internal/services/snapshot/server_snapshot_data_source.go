@@ -59,82 +59,108 @@ func (s *serverSnapshotDataSource) Metadata(_ context.Context, req datasource.Me
 // Schema defines the schema for the data source.
 func (s *serverSnapshotDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Fetches the list of server snapshots on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of this data source.",
 			},
 			"server_snapshots": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of server snapshots.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the snapshot.",
 						},
 						"hostname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The hostname of the server associated with the snapshot.",
 						},
 						"name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the snapshot.",
 						},
 						"backup_key": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The key used to identify the snapshot backup.",
 						},
 						"state": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The current state of the snapshot.",
 						},
 						"dc_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the data center where the snapshot is stored.",
 						},
 						"box_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The numeric box ID of the snapshot.",
 						},
 						"daily": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The daily snapshot schedule flag.",
 						},
 						"is_snapshot": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether this entry is a snapshot (1) or not (0).",
 						},
 						"vm_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the virtual machine associated with the snapshot.",
 						},
 						"backupsha1": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The SHA1 checksum of the snapshot.",
 						},
 						"is_deleted_vm": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the associated VM has been deleted (1) or not (0).",
 						},
 						"created_on": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The date and time when the snapshot was created.",
 						},
 						"note": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "A note or description for the snapshot.",
 						},
 						"backup_size": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The size of the snapshot backup in bytes.",
 						},
 						"dc_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The name of the data center where the snapshot is stored.",
 						},
 						"weekly": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The weekly snapshot schedule flag.",
 						},
 						"monthly": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The monthly snapshot schedule flag.",
 						},
 						"global_backup": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "Whether the snapshot is a global backup (1) or not (0).",
 						},
 						"os_identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The identifier of the operating system in the snapshot.",
 						},
 						"os_full_name": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The full name of the operating system in the snapshot.",
 						},
 						"vm_category": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The category of the virtual machine associated with the snapshot.",
 						},
 						"vm_ssd": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The SSD size of the virtual machine in the snapshot.",
 						},
 					},
 				},

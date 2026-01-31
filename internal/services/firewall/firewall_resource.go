@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/vpsie/govpsie"
 )
@@ -51,43 +53,50 @@ func (g *firewallResource) Metadata(_ context.Context, req resource.MetadataRequ
 
 var commonResource map[string]schema.Attribute = map[string]schema.Attribute{
 	"id": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The numeric ID of the firewall rule.",
 		PlanModifiers: []planmodifier.Int64{
 			int64planmodifier.UseStateForUnknown(),
 		},
 	},
 	"group_id": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The ID of the firewall group this rule belongs to.",
 		PlanModifiers: []planmodifier.Int64{
 			int64planmodifier.UseStateForUnknown(),
 		},
 	},
 	"user_id": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The ID of the user who owns the rule.",
 		PlanModifiers: []planmodifier.Int64{
 			int64planmodifier.UseStateForUnknown(),
 		},
 	},
 	"action": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The action to take when the rule matches (e.g., ACCEPT, DROP).",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"type": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The direction type of the rule (e.g., in, out).",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"comment": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "A comment describing the firewall rule.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"dest": schema.ListAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The destination addresses for the firewall rule.",
 		PlanModifiers: []planmodifier.List{
 			listplanmodifier.UseStateForUnknown(),
 		},
@@ -96,19 +105,22 @@ var commonResource map[string]schema.Attribute = map[string]schema.Attribute{
 		},
 	},
 	"dport": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The destination port or port range for the rule.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"proto": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The protocol for the rule (e.g., tcp, udp, icmp).",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"source": schema.ListAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The source addresses for the firewall rule.",
 		PlanModifiers: []planmodifier.List{
 			listplanmodifier.UseStateForUnknown(),
 		},
@@ -117,49 +129,57 @@ var commonResource map[string]schema.Attribute = map[string]schema.Attribute{
 		},
 	},
 	"sport": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The source port or port range for the rule.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"enable": schema.Int64Attribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "Whether the rule is enabled (1 = enabled, 0 = disabled).",
 		PlanModifiers: []planmodifier.Int64{
 			int64planmodifier.UseStateForUnknown(),
 		},
 	},
 	"iface": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The network interface the rule applies to.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"log": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The logging level for the rule.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"macro": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The macro name for predefined rule sets.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"identifier": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The unique identifier of the firewall rule.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"created_on": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The timestamp when the rule was created.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
 	},
 	"updated_on": schema.StringAttribute{
-		Computed: true,
+		Computed:            true,
+		MarkdownDescription: "The timestamp when the rule was last updated.",
 		PlanModifiers: []planmodifier.String{
 			stringplanmodifier.UseStateForUnknown(),
 		},
@@ -168,79 +188,96 @@ var commonResource map[string]schema.Attribute = map[string]schema.Attribute{
 
 func (g *firewallResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Manages a firewall group on the VPSie platform.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The numeric ID of the firewall group.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"group_name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				MarkdownDescription: "The name of the firewall group.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"group_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The internal group ID of the firewall.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"user_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The ID of the user who owns the firewall group.",
 				PlanModifiers: []planmodifier.Int64{
 					int64planmodifier.UseStateForUnknown(),
 				},
 			},
 			"action": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The default action for the firewall group.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"type": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The type of the firewall group.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"hostname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The hostname associated with the firewall group.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"identifier": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The unique identifier of the firewall group.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"fullname": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The full name of the firewall group owner.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"category": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The category of the firewall group.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"rules": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of firewall rules in the group.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"in_bound": schema.ListNestedAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The list of inbound firewall rules.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: commonResource,
 							},
 						},
 						"out_bound": schema.ListNestedAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The list of outbound firewall rules.",
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: commonResource,
 							},
@@ -249,29 +286,34 @@ func (g *firewallResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 				},
 			},
 			"vms_data": schema.ListNestedAttribute{
-				Computed: true,
+				Computed:            true,
+				MarkdownDescription: "The list of VMs attached to the firewall group.",
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"hostname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The hostname of the attached VM.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"identifier": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The unique identifier of the attached VM.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"fullname": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The full name of the attached VM.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},
 						},
 						"category": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							MarkdownDescription: "The category of the attached VM.",
 							PlanModifiers: []planmodifier.String{
 								stringplanmodifier.UseStateForUnknown(),
 							},

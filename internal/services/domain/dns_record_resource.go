@@ -21,7 +21,7 @@ var (
 )
 
 type dnsRecordResource struct {
-	client *govpsie.Client
+	client DomainAPI
 }
 
 type dnsRecordResourceModel struct {
@@ -112,7 +112,7 @@ func (d *dnsRecordResource) Configure(_ context.Context, req resource.ConfigureR
 		return
 	}
 
-	d.client = client
+	d.client = client.Domain
 }
 
 func (d *dnsRecordResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -138,7 +138,7 @@ func (d *dnsRecordResource) Create(ctx context.Context, req resource.CreateReque
 		},
 	}
 
-	err := d.client.Domain.CreateDnsRecord(ctx, createReq)
+	err := d.client.CreateDnsRecord(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating DNS record", err.Error())
 		return
@@ -205,7 +205,7 @@ func (d *dnsRecordResource) Update(ctx context.Context, req resource.UpdateReque
 		},
 	}
 
-	err := d.client.Domain.UpdateDnsRecord(ctx, updateReq)
+	err := d.client.UpdateDnsRecord(ctx, updateReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating DNS record", err.Error())
 		return
@@ -238,7 +238,7 @@ func (d *dnsRecordResource) Delete(ctx context.Context, req resource.DeleteReque
 		TTL:     ttl,
 	}
 
-	err := d.client.Domain.DeleteDnsRecord(ctx, state.DomainIdentifier.ValueString(), record)
+	err := d.client.DeleteDnsRecord(ctx, state.DomainIdentifier.ValueString(), record)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting DNS record",

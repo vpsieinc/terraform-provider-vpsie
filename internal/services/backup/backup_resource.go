@@ -24,7 +24,7 @@ var (
 )
 
 type backupResource struct {
-	client *govpsie.Client
+	client BackupAPI
 }
 
 type backupResourceModel struct {
@@ -168,7 +168,7 @@ func (b *backupResource) Configure(_ context.Context, req resource.ConfigureRequ
 		return
 	}
 
-	b.client = client
+	b.client = client.Backup
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -180,7 +180,7 @@ func (b *backupResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	err := b.client.Backup.CreateBackups(ctx, plan.VMIdentifier.ValueString(), plan.Name.ValueString(), plan.Note.ValueString())
+	err := b.client.CreateBackups(ctx, plan.VMIdentifier.ValueString(), plan.Name.ValueString(), plan.Note.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating backup", err.Error())
 		return
@@ -225,7 +225,7 @@ func (s *backupResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	backup, err := s.client.Backup.Get(ctx, state.Identifier.ValueString())
+	backup, err := s.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -278,7 +278,7 @@ func (s *backupResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	if !plan.Name.Equal(state.Name) {
-		err := s.client.Backup.Rename(ctx, state.Identifier.ValueString(), plan.Name.ValueString())
+		err := s.client.Rename(ctx, state.Identifier.ValueString(), plan.Name.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError("Error renaming backup", err.Error())
 			return
@@ -302,7 +302,7 @@ func (b *backupResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	err := b.client.Backup.DeleteBackup(ctx, state.Identifier.ValueString(), "terraform delete", "terraform delete")
+	err := b.client.DeleteBackup(ctx, state.Identifier.ValueString(), "terraform delete", "terraform delete")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting backup",
@@ -318,7 +318,7 @@ func (b *backupResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (b *backupResource) GetBackupByName(ctx context.Context, backupName string) (*govpsie.Backup, error) {
-	backups, err := b.client.Backup.List(ctx, nil)
+	backups, err := b.client.List(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

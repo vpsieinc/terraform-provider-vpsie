@@ -24,7 +24,7 @@ var (
 )
 
 type serverSnapshotResource struct {
-	client *govpsie.Client
+	client SnapshotAPI
 }
 
 type serverSnapshotResourceModel struct {
@@ -251,7 +251,7 @@ func (s *serverSnapshotResource) Configure(_ context.Context, req resource.Confi
 		return
 	}
 
-	s.client = client
+	s.client = client.Snapshot
 }
 
 // Create creates the resource and sets the initial Terraform state.
@@ -268,7 +268,7 @@ func (s *serverSnapshotResource) Create(ctx context.Context, req resource.Create
 		note = plan.Note.ValueString()
 	}
 
-	err := s.client.Snapshot.Create(ctx, plan.Name.ValueString(), plan.VmIdentifier.ValueString(), note)
+	err := s.client.Create(ctx, plan.Name.ValueString(), plan.VmIdentifier.ValueString(), note)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error creating vpsie server snapshots",
@@ -326,7 +326,7 @@ func (s *serverSnapshotResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	snapshot, err := s.client.Snapshot.Get(ctx, state.Identifier.ValueString())
+	snapshot, err := s.client.Get(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -380,7 +380,7 @@ func (s *serverSnapshotResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	err := s.client.Snapshot.Update(ctx, plan.Identifier.ValueString(), plan.Note.ValueString())
+	err := s.client.Update(ctx, plan.Identifier.ValueString(), plan.Note.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error updating vpsie server snapshots",
@@ -405,7 +405,7 @@ func (s *serverSnapshotResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	err := s.client.Snapshot.Delete(ctx, state.Identifier.ValueString(), "no reason", "")
+	err := s.client.Delete(ctx, state.Identifier.ValueString(), "no reason", "")
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting server snapshot",
@@ -421,7 +421,7 @@ func (s *serverSnapshotResource) ImportState(ctx context.Context, req resource.I
 }
 
 func (s *serverSnapshotResource) GetSnapshotByName(ctx context.Context, snapshotName string) (*govpsie.Snapshot, error) {
-	snapshots, err := s.client.Snapshot.List(ctx, &govpsie.ListOptions{Page: 0, PerPage: 10000})
+	snapshots, err := s.client.List(ctx, &govpsie.ListOptions{Page: 0, PerPage: 10000})
 	if err != nil {
 		return nil, err
 	}

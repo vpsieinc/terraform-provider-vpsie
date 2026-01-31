@@ -20,7 +20,7 @@ var (
 )
 
 type reverseDnsResource struct {
-	client *govpsie.Client
+	client DomainAPI
 }
 
 type reverseDnsResourceModel struct {
@@ -102,7 +102,7 @@ func (r *reverseDnsResource) Configure(_ context.Context, req resource.Configure
 		return
 	}
 
-	r.client = client
+	r.client = client.Domain
 }
 
 func (r *reverseDnsResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -120,7 +120,7 @@ func (r *reverseDnsResource) Create(ctx context.Context, req resource.CreateRequ
 		HostName:         plan.HostName.ValueString(),
 	}
 
-	err := r.client.Domain.AddReverse(ctx, reverseReq)
+	err := r.client.AddReverse(ctx, reverseReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating reverse DNS", err.Error())
 		return
@@ -140,7 +140,7 @@ func (r *reverseDnsResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	records, err := r.client.Domain.ListReversePTRRecords(ctx)
+	records, err := r.client.ListReversePTRRecords(ctx)
 	if err != nil {
 		resp.Diagnostics.AddError("Error reading reverse DNS records", err.Error())
 		return
@@ -179,7 +179,7 @@ func (r *reverseDnsResource) Update(ctx context.Context, req resource.UpdateRequ
 		HostName:         plan.HostName.ValueString(),
 	}
 
-	err := r.client.Domain.UpdateReverse(ctx, reverseReq)
+	err := r.client.UpdateReverse(ctx, reverseReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error updating reverse DNS", err.Error())
 		return
@@ -197,7 +197,7 @@ func (r *reverseDnsResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	err := r.client.Domain.DeleteReverse(ctx, state.IP.ValueString(), state.VmIdentifier.ValueString())
+	err := r.client.DeleteReverse(ctx, state.IP.ValueString(), state.VmIdentifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting reverse DNS",

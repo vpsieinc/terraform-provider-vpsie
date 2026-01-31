@@ -11,7 +11,7 @@ import (
 )
 
 type backupPolicyDataSource struct {
-	client *govpsie.Client
+	client BackupAPI
 }
 
 type backupPolicyDataSourceModel struct {
@@ -109,13 +109,13 @@ func (d *backupPolicyDataSource) Configure(_ context.Context, req datasource.Con
 		return
 	}
 
-	d.client = client
+	d.client = client.Backup
 }
 
 func (d *backupPolicyDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state backupPolicyDataSourceModel
 
-	policies, err := d.client.Backup.ListBackupPolicies(ctx, nil)
+	policies, err := d.client.ListBackupPolicies(ctx, nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error Getting Backup Policies",

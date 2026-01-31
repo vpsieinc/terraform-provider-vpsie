@@ -23,7 +23,7 @@ var (
 )
 
 type backupPolicyResource struct {
-	client *govpsie.Client
+	client BackupAPI
 }
 
 type backupPolicyResourceModel struct {
@@ -138,7 +138,7 @@ func (b *backupPolicyResource) Configure(_ context.Context, req resource.Configu
 		return
 	}
 
-	b.client = client
+	b.client = client.Backup
 }
 
 func (b *backupPolicyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -166,7 +166,7 @@ func (b *backupPolicyResource) Create(ctx context.Context, req resource.CreateRe
 		Vms:        vms,
 	}
 
-	err := b.client.Backup.CreateBackupPolicy(ctx, createReq)
+	err := b.client.CreateBackupPolicy(ctx, createReq)
 	if err != nil {
 		resp.Diagnostics.AddError("Error creating backup policy", err.Error())
 		return
@@ -195,7 +195,7 @@ func (b *backupPolicyResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 
-	policy, err := b.client.Backup.GetBackupPolicy(ctx, state.Identifier.ValueString())
+	policy, err := b.client.GetBackupPolicy(ctx, state.Identifier.ValueString())
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			resp.State.RemoveResource(ctx)
@@ -272,7 +272,7 @@ func (b *backupPolicyResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 	}
 	if len(toAttach) > 0 {
-		err := b.client.Backup.AttachBackupPolicy(ctx, state.Identifier.ValueString(), toAttach)
+		err := b.client.AttachBackupPolicy(ctx, state.Identifier.ValueString(), toAttach)
 		if err != nil {
 			resp.Diagnostics.AddError("Error attaching VMs to backup policy", err.Error())
 			return
@@ -287,7 +287,7 @@ func (b *backupPolicyResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 	}
 	if len(toDetach) > 0 {
-		err := b.client.Backup.DetachBackupPolicy(ctx, state.Identifier.ValueString(), toDetach)
+		err := b.client.DetachBackupPolicy(ctx, state.Identifier.ValueString(), toDetach)
 		if err != nil {
 			resp.Diagnostics.AddError("Error detaching VMs from backup policy", err.Error())
 			return
@@ -308,7 +308,7 @@ func (b *backupPolicyResource) Delete(ctx context.Context, req resource.DeleteRe
 		return
 	}
 
-	err := b.client.Backup.DeleteBackupPolicy(ctx, state.Identifier.ValueString(), state.Identifier.ValueString())
+	err := b.client.DeleteBackupPolicy(ctx, state.Identifier.ValueString(), state.Identifier.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting backup policy",
@@ -323,7 +323,7 @@ func (b *backupPolicyResource) ImportState(ctx context.Context, req resource.Imp
 }
 
 func (b *backupPolicyResource) GetPolicyByName(ctx context.Context, name string) (*govpsie.BackupPolicyListDetail, error) {
-	policies, err := b.client.Backup.ListBackupPolicies(ctx, nil)
+	policies, err := b.client.ListBackupPolicies(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

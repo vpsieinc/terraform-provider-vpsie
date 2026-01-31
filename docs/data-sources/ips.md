@@ -3,12 +3,12 @@
 page_title: "vpsie_ips Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Retrieves a list of IP addresses on the VPSie platform, optionally filtered by type.
 ---
 
 # vpsie_ips (Data Source)
 
-
+Retrieves a list of IP addresses on the VPSie platform, optionally filtered by type.
 
 ## Example Usage
 
@@ -27,24 +27,24 @@ data "vpsie_ips" "example" {
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `ips` (Attributes List) (see [below for nested schema](#nestedatt--ips))
+- `id` (String) The identifier for this data source.
+- `ips` (Attributes List) The list of IP addresses. (see [below for nested schema](#nestedatt--ips))
 
 <a id="nestedatt--ips"></a>
 ### Nested Schema for `ips`
 
 Read-Only:
 
-- `box_identifier` (String)
-- `category` (String)
-- `created_by` (String)
-- `dc_identifier` (String)
-- `dc_name` (String)
-- `full_name` (String)
-- `hostname` (String)
-- `id` (Number)
-- `ip` (String)
-- `ip_version` (String)
-- `is_primary` (Number)
-- `type` (String)
-- `updated_at` (String)
+- `box_identifier` (String) The identifier of the server (box) associated with the IP.
+- `category` (String) The category of the IP address.
+- `created_by` (String) The user who created the IP address.
+- `dc_identifier` (String) The identifier of the data center where the IP is allocated.
+- `dc_name` (String) The name of the data center where the IP is allocated.
+- `full_name` (String) The full name of the user who owns the IP.
+- `hostname` (String) The hostname of the server associated with the IP.
+- `id` (Number) The unique numeric identifier of the IP address.
+- `ip` (String) The IP address.
+- `ip_version` (String) The IP version (e.g., IPv4, IPv6).
+- `is_primary` (Number) Whether this is the primary IP for the associated server.
+- `type` (String) The type of the IP address (e.g., public, private).
+- `updated_at` (String) The timestamp when the IP address was last updated.

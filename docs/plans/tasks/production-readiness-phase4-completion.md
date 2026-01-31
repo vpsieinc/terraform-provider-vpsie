@@ -9,7 +9,7 @@ Phase 4 adds `MarkdownDescription` to every attribute in all 51 resource/data so
 - [ ] Task 06: kubernetes, loadbalancer, firewall services (9 files)
 - [ ] Task 07: domain services (4 files)
 - [ ] Task 08: backup, snapshot services (8 files)
-- [ ] Task 09: vpc, gateway, fip services (7 files)
+- [x] Task 09: vpc, gateway, fip services (7 files)
 - [ ] Task 10: project, script, monitoring, accesstoken, image services (10 files)
 - [ ] Task 11: bucket, datacenter, ip + storage_snapshot_data_resource + doc regen (5 files)
 

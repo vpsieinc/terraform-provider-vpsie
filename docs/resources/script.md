@@ -25,16 +25,16 @@ resource "vpsie_script" "example" {
 
 ### Required
 
-- `script` (String)
-- `script_name` (String)
-- `type` (String)
+- `script` (String) The content of the script to execute.
+- `script_name` (String) The display name of the script.
+- `type` (String) The type of the script (e.g., bash, cloud-init).
 
 ### Read-Only
 
-- `box_id` (Number)
-- `box_identifier` (String)
-- `created_on` (String)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `name` (String)
-- `user_id` (Number)
+- `box_id` (Number) The numeric ID of the box associated with the script.
+- `box_identifier` (String) The unique identifier of the box associated with the script.
+- `created_on` (String) The timestamp when the script was created.
+- `id` (Number) The numeric ID of the script.
+- `identifier` (String) The unique identifier of the script.
+- `name` (String) The resolved name of the script.
+- `user_id` (Number) The numeric ID of the user who owns the script.

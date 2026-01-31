@@ -3,12 +3,12 @@
 page_title: "vpsie_kubernetes Data Source - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Use this data source to retrieve information about all Kubernetes clusters.
 ---
 
 # vpsie_kubernetes (Data Source)
 
-
+Use this data source to retrieve information about all Kubernetes clusters.
 
 ## Example Usage
 
@@ -21,25 +21,25 @@ data "vpsie_kubernetes" "example" {}
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
-- `kubernetes` (Attributes List) (see [below for nested schema](#nestedatt--kubernetes))
+- `id` (String) The ID of this data source.
+- `kubernetes` (Attributes List) The list of Kubernetes clusters. (see [below for nested schema](#nestedatt--kubernetes))
 
 <a id="nestedatt--kubernetes"></a>
 ### Nested Schema for `kubernetes`
 
 Read-Only:
 
-- `cluster_name` (String)
-- `color` (String)
-- `cpu` (Number)
-- `created_by` (String)
-- `created_on` (String)
-- `identifier` (String)
-- `manager_count` (Number)
-- `master_count` (Number)
-- `nickname` (String)
-- `price` (Number)
-- `ram` (Number)
-- `slave_count` (Number)
-- `traffic` (Number)
-- `updated_on` (String)
+- `cluster_name` (String) The name of the Kubernetes cluster.
+- `color` (String) The display color associated with the cluster.
+- `cpu` (Number) The total CPU cores allocated to the cluster.
+- `created_by` (String) The user who created the cluster.
+- `created_on` (String) The timestamp when the cluster was created.
+- `identifier` (String) The unique identifier of the Kubernetes cluster.
+- `manager_count` (Number) The number of manager nodes in the cluster.
+- `master_count` (Number) The number of master nodes in the cluster.
+- `nickname` (String) The nickname of the cluster owner.
+- `price` (Number) The price of the Kubernetes cluster.
+- `ram` (Number) The total RAM in MB allocated to the cluster.
+- `slave_count` (Number) The number of worker (slave) nodes in the cluster.
+- `traffic` (Number) The traffic allowance for the cluster in GB.
+- `updated_on` (String) The timestamp when the cluster was last updated.

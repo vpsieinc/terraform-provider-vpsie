@@ -9,39 +9,39 @@ Metadata:
 Add `MarkdownDescription` to every attribute and `Validators` to Required string attributes in the backup and snapshot service files (both resources and data sources).
 
 ## Target Files
-- [ ] `internal/services/backup/backup_resource.go` (descriptions + validators)
-- [ ] `internal/services/backup/backup_policy_resource.go` (descriptions + validators)
-- [ ] `internal/services/backup/backup_data_source.go` (descriptions only)
-- [ ] `internal/services/backup/backup_policy_datasource.go` (descriptions only)
-- [ ] `internal/services/snapshot/server_snapshot_resource.go` (descriptions + validators)
-- [ ] `internal/services/snapshot/snapshot_policy_resource.go` (descriptions + validators)
-- [ ] `internal/services/snapshot/server_snapshot_data_source.go` (descriptions only)
-- [ ] `internal/services/snapshot/snapshot_policy_datasource.go` (descriptions only)
+- [x] `internal/services/backup/backup_resource.go` (descriptions + validators)
+- [x] `internal/services/backup/backup_policy_resource.go` (descriptions + validators)
+- [x] `internal/services/backup/backup_data_source.go` (descriptions only)
+- [x] `internal/services/backup/backup_policy_datasource.go` (descriptions only)
+- [x] `internal/services/snapshot/server_snapshot_resource.go` (descriptions + validators)
+- [x] `internal/services/snapshot/snapshot_policy_resource.go` (descriptions + validators)
+- [x] `internal/services/snapshot/server_snapshot_data_source.go` (descriptions only)
+- [x] `internal/services/snapshot/snapshot_policy_datasource.go` (descriptions only)
 
 ## Implementation Steps
 ### 1. Confirm Skill Constraints
-- [ ] Read each target file to catalog all schema attributes
-- [ ] Identify Required vs Optional vs Computed attributes
+- [x] Read each target file to catalog all schema attributes
+- [x] Identify Required vs Optional vs Computed attributes
 
 ### 2. Implementation
 For each resource file:
-- [ ] Add `MarkdownDescription` to every attribute (1-2 sentence descriptions)
-- [ ] Add `stringvalidator.LengthAtLeast(1)` to all Required string attributes
-- [ ] Add appropriate int64 validators for numeric Required fields
-- [ ] Import validator packages as needed
+- [x] Add `MarkdownDescription` to every attribute (1-2 sentence descriptions)
+- [x] Add `stringvalidator.LengthAtLeast(1)` to all Required string attributes
+- [x] Add appropriate int64 validators for numeric Required fields
+- [x] Import validator packages as needed
 
 For each data source file:
-- [ ] Add `MarkdownDescription` to every attribute (descriptions only)
+- [x] Add `MarkdownDescription` to every attribute (descriptions only)
 
 ### 3. Verify Skill Fidelity
-- [ ] Every attribute in all 8 files has a non-empty MarkdownDescription
-- [ ] All Required string attributes have LengthAtLeast(1)
+- [x] Every attribute in all 8 files has a non-empty MarkdownDescription
+- [x] All Required string attributes have LengthAtLeast(1)
 
 ## Completion Criteria
-- [ ] All 8 files have `MarkdownDescription` on every attribute
-- [ ] All Required string attributes have validators
-- [ ] `go build -v .` succeeds
-- [ ] Verification level: L3 (build success)
+- [x] All 8 files have `MarkdownDescription` on every attribute
+- [x] All Required string attributes have validators
+- [x] `go build -v .` succeeds
+- [x] Verification level: L3 (build success)
 
 ## Verification Steps
 ```bash

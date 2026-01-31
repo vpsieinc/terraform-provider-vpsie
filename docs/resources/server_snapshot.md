@@ -3,12 +3,12 @@
 page_title: "vpsie_server_snapshot Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a server snapshot on the VPSie platform.
 ---
 
 # vpsie_server_snapshot (Resource)
 
-
+Manages a server snapshot on the VPSie platform.
 
 ## Example Usage
 
@@ -25,29 +25,29 @@ resource "vpsie_server_snapshot" "example" {
 
 ### Required
 
-- `name` (String)
-- `note` (String)
-- `vm_identifier` (String)
+- `name` (String) The name of the snapshot.
+- `note` (String) A note or description for the snapshot.
+- `vm_identifier` (String) The identifier of the virtual machine to snapshot.
 
 ### Read-Only
 
-- `backup_key` (String)
-- `backup_size` (Number)
-- `backupsha1` (String)
-- `box_id` (Number)
-- `created_on` (String)
-- `daily` (Number)
-- `dc_identifier` (String)
-- `dc_name` (String)
-- `global_backup` (Number)
-- `hostname` (String)
-- `identifier` (String)
-- `is_deleted_vm` (Number)
-- `is_snapshot` (Number)
-- `monthly` (Number)
-- `os_full_name` (String)
-- `os_identifier` (String)
-- `state` (String)
-- `vm_category` (String)
-- `vm_ssd` (Number)
-- `weekly` (Number)
+- `backup_key` (String) The key used to identify the snapshot backup.
+- `backup_size` (Number) The size of the snapshot backup in bytes.
+- `backupsha1` (String) The SHA1 checksum of the snapshot.
+- `box_id` (Number) The numeric box ID of the snapshot.
+- `created_on` (String) The date and time when the snapshot was created.
+- `daily` (Number) The daily snapshot schedule flag.
+- `dc_identifier` (String) The identifier of the data center where the snapshot is stored.
+- `dc_name` (String) The name of the data center where the snapshot is stored.
+- `global_backup` (Number) Whether the snapshot is a global backup (1) or not (0).
+- `hostname` (String) The hostname of the server associated with the snapshot.
+- `identifier` (String) The unique identifier of the snapshot.
+- `is_deleted_vm` (Number) Whether the associated VM has been deleted (1) or not (0).
+- `is_snapshot` (Number) Whether this entry is a snapshot (1) or not (0).
+- `monthly` (Number) The monthly snapshot schedule flag.
+- `os_full_name` (String) The full name of the operating system in the snapshot.
+- `os_identifier` (String) The identifier of the operating system in the snapshot.
+- `state` (String) The current state of the snapshot.
+- `vm_category` (String) The category of the virtual machine associated with the snapshot.
+- `vm_ssd` (Number) The SSD size of the virtual machine in the snapshot.
+- `weekly` (Number) The weekly snapshot schedule flag.

@@ -25,9 +25,9 @@ resource "vpsie_image" "example" {
 
 ### Required
 
-- `dc_identifier` (String)
-- `fetched_from_url` (String)
-- `image_label` (String)
+- `dc_identifier` (String) The unique identifier of the datacenter where the image will be stored.
+- `fetched_from_url` (String) The URL from which the image is fetched.
+- `image_label` (String) The label for the custom image.
 
 ### Optional
 
@@ -35,17 +35,17 @@ resource "vpsie_image" "example" {
 
 ### Read-Only
 
-- `created_by` (String)
-- `created_on` (String)
-- `datacenter_id` (Number)
-- `dc_name` (String)
-- `deleted` (Number)
-- `id` (Number) The ID of this resource.
-- `identifier` (String)
-- `image_hash` (String)
-- `image_size` (Number)
-- `original_name` (String)
-- `user_id` (Number)
+- `created_by` (String) The user who created the image.
+- `created_on` (String) The timestamp when the image was created.
+- `datacenter_id` (Number) The numeric ID of the datacenter where the image is stored.
+- `dc_name` (String) The name of the datacenter where the image is stored.
+- `deleted` (Number) Whether the image has been deleted (0 = active, 1 = deleted).
+- `id` (Number) The numeric ID of the image.
+- `identifier` (String) The unique identifier of the image.
+- `image_hash` (String) The hash of the image content for integrity verification.
+- `image_size` (Number) The size of the image in bytes.
+- `original_name` (String) The original file name of the image.
+- `user_id` (Number) The numeric ID of the user who owns the image.
 
 <a id="nestedatt--timeouts"></a>
 ### Nested Schema for `timeouts`

@@ -9,42 +9,42 @@ Metadata:
 Add `MarkdownDescription` to every attribute and `Validators` to Required string attributes in the vpc, gateway, and fip service files (both resources and data sources). The fip resource gets a `OneOf` validator for `ip_type` (ipv4, ipv6).
 
 ## Target Files
-- [ ] `internal/services/vpc/vpc_resource.go` (descriptions + validators)
-- [ ] `internal/services/vpc/vpc_server_assignment_resource.go` (descriptions + validators)
-- [ ] `internal/services/vpc/vpc_data_source.go` (descriptions only)
-- [ ] `internal/services/gateway/gateway_resource.go` (descriptions + validators)
-- [ ] `internal/services/gateway/gateway_data_source.go` (descriptions only)
-- [ ] `internal/services/fip/fip_resource.go` (descriptions + validators, including OneOf for ip_type)
-- [ ] `internal/services/fip/fip_datasource.go` (descriptions only)
+- [x] `internal/services/vpc/vpc_resource.go` (descriptions + validators)
+- [x] `internal/services/vpc/vpc_server_assignment_resource.go` (descriptions + validators)
+- [x] `internal/services/vpc/vpc_data_source.go` (descriptions only)
+- [x] `internal/services/gateway/gateway_resource.go` (descriptions + validators)
+- [x] `internal/services/gateway/gateway_data_source.go` (descriptions only)
+- [x] `internal/services/fip/fip_resource.go` (descriptions + validators, including OneOf for ip_type)
+- [x] `internal/services/fip/fip_datasource.go` (descriptions only)
 
 ## Implementation Steps
 ### 1. Confirm Skill Constraints
-- [ ] Read each target file to catalog all schema attributes
-- [ ] Identify Required vs Optional vs Computed attributes
-- [ ] Confirm fip ip_type enum values
+- [x] Read each target file to catalog all schema attributes
+- [x] Identify Required vs Optional vs Computed attributes
+- [x] Confirm fip ip_type enum values
 
 ### 2. Implementation
 For each resource file:
-- [ ] Add `MarkdownDescription` to every attribute (1-2 sentence descriptions)
-- [ ] Add `stringvalidator.LengthAtLeast(1)` to all Required string attributes
-- [ ] Add `stringvalidator.OneOf("ipv4", "ipv6")` to fip `ip_type` attribute
-- [ ] Add appropriate int64 validators for numeric Required fields
-- [ ] Import validator packages as needed
+- [x] Add `MarkdownDescription` to every attribute (1-2 sentence descriptions)
+- [x] Add `stringvalidator.LengthAtLeast(1)` to all Required string attributes
+- [x] Add `stringvalidator.OneOf("ipv4", "ipv6")` to fip `ip_type` attribute
+- [x] Add appropriate int64 validators for numeric Required fields
+- [x] Import validator packages as needed
 
 For each data source file:
-- [ ] Add `MarkdownDescription` to every attribute (descriptions only)
+- [x] Add `MarkdownDescription` to every attribute (descriptions only)
 
 ### 3. Verify Skill Fidelity
-- [ ] Every attribute in all 7 files has a non-empty MarkdownDescription
-- [ ] All Required string attributes have LengthAtLeast(1)
-- [ ] fip ip_type has OneOf validator
+- [x] Every attribute in all 7 files has a non-empty MarkdownDescription
+- [x] All Required string attributes have LengthAtLeast(1)
+- [x] fip ip_type has OneOf validator
 
 ## Completion Criteria
-- [ ] All 7 files have `MarkdownDescription` on every attribute
-- [ ] All Required string attributes have validators
-- [ ] fip `ip_type` has `OneOf` validator
-- [ ] `go build -v .` succeeds
-- [ ] Verification level: L3 (build success)
+- [x] All 7 files have `MarkdownDescription` on every attribute
+- [x] All Required string attributes have validators
+- [x] fip `ip_type` has `OneOf` validator
+- [x] `go build -v .` succeeds
+- [x] Verification level: L3 (build success)
 
 ## Verification Steps
 ```bash

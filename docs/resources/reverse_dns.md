@@ -3,12 +3,12 @@
 page_title: "vpsie_reverse_dns Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a reverse DNS (PTR) record on the VPSie platform.
 ---
 
 # vpsie_reverse_dns (Resource)
 
-
+Manages a reverse DNS (PTR) record on the VPSie platform.
 
 ## Example Usage
 
@@ -26,11 +26,11 @@ resource "vpsie_reverse_dns" "example" {
 
 ### Required
 
-- `domain_identifier` (String)
-- `hostname` (String)
-- `ip` (String)
-- `vm_identifier` (String)
+- `domain_identifier` (String) The identifier of the domain for this reverse DNS record.
+- `hostname` (String) The hostname that the IP address resolves to.
+- `ip` (String) The IP address for the reverse DNS record. Changing this forces a new resource.
+- `vm_identifier` (String) The identifier of the virtual machine associated with this reverse DNS record. Changing this forces a new resource.
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) The composite identifier of the reverse DNS record (vm_identifier/ip).

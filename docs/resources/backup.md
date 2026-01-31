@@ -3,12 +3,12 @@
 page_title: "vpsie_backup Resource - terraform-provider-vpsie"
 subcategory: ""
 description: |-
-  
+  Manages a backup on the VPSie platform.
 ---
 
 # vpsie_backup (Resource)
 
-
+Manages a backup on the VPSie platform.
 
 ## Example Usage
 
@@ -25,23 +25,23 @@ resource "vpsie_backup" "example" {
 
 ### Required
 
-- `backup_key` (String)
-- `name` (String)
-- `vm_identifier` (String)
+- `backup_key` (String) The key used to identify the backup.
+- `name` (String) The name of the backup.
+- `vm_identifier` (String) The identifier of the virtual machine to back up.
 
 ### Optional
 
-- `note` (String)
+- `note` (String) An optional note or description for the backup.
 
 ### Read-Only
 
-- `backupsha1` (String)
-- `box_id` (Number)
-- `created_by` (String)
-- `created_on` (String)
-- `dc_identifier` (String)
-- `hostname` (String)
-- `identifier` (String)
-- `os_full_name` (String)
-- `state` (String)
-- `vm_category` (String)
+- `backupsha1` (String) The SHA1 checksum of the backup.
+- `box_id` (Number) The numeric box ID of the backup.
+- `created_by` (String) The user who created the backup.
+- `created_on` (String) The date and time when the backup was created.
+- `dc_identifier` (String) The identifier of the data center where the backup is stored.
+- `hostname` (String) The hostname of the server associated with the backup.
+- `identifier` (String) The unique identifier of the backup.
+- `os_full_name` (String) The full name of the operating system in the backup.
+- `state` (String) The current state of the backup.
+- `vm_category` (String) The category of the virtual machine associated with the backup.

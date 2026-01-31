@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -15,8 +16,9 @@ import (
 )
 
 var (
-	_ resource.Resource              = &fipResource{}
-	_ resource.ResourceWithConfigure = &fipResource{}
+	_ resource.Resource                = &fipResource{}
+	_ resource.ResourceWithConfigure   = &fipResource{}
+	_ resource.ResourceWithImportState = &fipResource{}
 )
 
 type fipResource struct {
@@ -197,6 +199,10 @@ func (f *fipResource) Read(ctx context.Context, req resource.ReadRequest, resp *
 
 func (f *fipResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	// All fields are ForceNew, so Update is never called
+}
+
+func (f *fipResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
 func (f *fipResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
